@@ -39,6 +39,10 @@ describe("registre et suggestions", () => {
     expect(findCommand(commands, "cm")?.name).toBe("commit");
   });
 
+  it("trouve /delete-branch par l'alias /delete", () => {
+    expect(findCommand(commands, "delete")?.name).toBe("delete-branch");
+  });
+
   it("complète au lieu d'exécuter quand un argument est obligatoire", () => {
     expect(suggestCommands(commands, "switch").items[0]?.needsArgs).toBe(true);
     expect(suggestCommands(commands, "status").items[0]?.needsArgs).toBe(false);
