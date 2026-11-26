@@ -2,7 +2,7 @@ import { GitError } from "../core/errors.js";
 import { assertNoOperationInProgress } from "../core/git/status.js";
 import { isCommitHash } from "../core/git/log.js";
 import { isSequenceRunning, resolveSequence } from "./shared/resolveSequence.js";
-import type { Command } from "./types.js";
+import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 export const cherryPickCommand: Command = {

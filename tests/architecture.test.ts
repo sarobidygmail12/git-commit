@@ -24,29 +24,20 @@ const KNOWN_VIOLATIONS: readonly string[] = [
   "commands/branch.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/cherryPick.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/config.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/config.ts — process.env n'est lu que dans server/container.ts",
+  "commands/config.ts — process.env n'est lu que par le point d'entrée, qui le passe au container",
   "commands/diff.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/fetch.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/firstPush.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/init.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/pullRequest.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/pull.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
+  "commands/pullRequest.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/rebase.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/session.ts — process.env n'est lu que dans server/container.ts",
   "commands/shared/commitFlow.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/shared/resolveSequence.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/shared/secureWorkingTree.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/stash.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/switch.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
   "commands/undo.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "ui/App.tsx — ui n'importe ni commands ni server",
-  "ui/CommandSuggestions.tsx — ui n'importe ni commands ni server",
-  "ui/createCommandUi.ts — ui n'importe ni commands ni server",
-  "ui/Header.tsx — ui n'importe ni commands ni server",
-  "ui/PromptInput.tsx — ui n'importe ni commands ni server",
-  "web/configController.ts — src/web ne contient pas de TypeScript",
-  "web/requestError.ts — src/web ne contient pas de TypeScript",
-  "web/server.ts — src/web ne contient pas de TypeScript",
 ];
 
 const isUnder = (path: string, ...folders: string[]): boolean => folders.some((folder) => path.startsWith(`${folder}/`) || path === folder);
@@ -79,8 +70,8 @@ const RULES: readonly Rule[] = [
     check: (file) => isUnder(file.path, "web"),
   },
   {
-    name: "process.env n'est lu que dans server/container.ts",
-    check: (file) => file.path !== "server/container.ts" && file.text.includes("process.env"),
+    name: "process.env n'est lu que par le point d'entrée, qui le passe au container",
+    check: (file) => file.path !== "index.ts" && file.text.includes("process.env"),
   },
 ];
 
@@ -90,6 +81,10 @@ function hasNonTypeInternalImport(file: SourceFile): boolean {
     .split("\n")
     .filter((line) => line.startsWith("import ") && !line.startsWith("import type "))
     .some((line) => line.includes('"../') || line.includes('"./'));
+}
+
+function listed(title: string, violations: readonly string[]): string {
+  return violations.map((violation) => `${title} : ${violation}`).join("\n");
 }
 
 function listSourceFiles(directory: string): string[] {
@@ -121,11 +116,13 @@ describe("architecture", () => {
   const violations = findViolations();
 
   it("n'introduit aucune nouvelle violation", () => {
-    expect(violations.filter((violation) => !KNOWN_VIOLATIONS.includes(violation))).toEqual([]);
+    const added = violations.filter((violation) => !KNOWN_VIOLATIONS.includes(violation));
+    expect(added, listed("Nouvelle violation (voir CLAUDE.md pour la bonne couche)", added)).toEqual([]);
   });
 
   it("retire de la liste les exceptions corrigées", () => {
-    expect(KNOWN_VIOLATIONS.filter((violation) => !violations.includes(violation))).toEqual([]);
+    const fixed = KNOWN_VIOLATIONS.filter((violation) => !violations.includes(violation));
+    expect(fixed, listed("Exception corrigée, à retirer de KNOWN_VIOLATIONS", fixed)).toEqual([]);
   });
 
   it("regroupe les fichiers dans des couches connues", () => {

@@ -1,5 +1,5 @@
 import { getStatus } from "../core/git/status.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 const SUBCOMMANDS = ["pop", "list"];

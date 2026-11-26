@@ -1,20 +1,32 @@
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import type { Command, ConfigPaths, WebServer } from "../commands/types.js";
+import type { Command, ConfigPaths, WebServer } from "../contracts/command.js";
 import { redactApiKeys } from "../core/config/apiKeys.js";
 import { describeConfigOptions, type Config } from "../core/config/schema.js";
 import { t, translatePage } from "../lang/index.js";
-import { ConfigError, GitPushError } from "../core/errors.js";
+import { ConfigError, GitPushError, hasErrorCode, messageOf } from "../core/errors.js";
+import { tryParseJson } from "../core/json.js";
 import type { GitClient } from "../core/git/gitClient.js";
 import { getCommitDetails, getLogPage, getRepoOverview, type LogQuery, type LogSearchField } from "../core/git/log.js";
-import { createConfigController } from "./configController.js";
+import { createConfigController } from "./controllers/config.js";
 import {
+  HTML_CONTENT_TYPE,
   HTTP_BAD_REQUEST,
   HTTP_FORBIDDEN,
+  HTTP_INTERNAL_ERROR,
+  HTTP_METHOD_NOT_ALLOWED,
+  HTTP_NOT_FOUND,
+  HTTP_OK,
   HTTP_PAYLOAD_TOO_LARGE,
+  HTTP_UNPROCESSABLE_CONTENT,
   HTTP_UNSUPPORTED_MEDIA_TYPE,
-  RequestError,
-} from "./requestError.js";
+  JSON_CONTENT_TYPE,
+  JSON_MEDIA_TYPE,
+  MAX_REQUEST_BODY_BYTES,
+  TEXT_CONTENT_TYPE,
+} from "../constants/http.js";
+import { API_ROUTES, PAGE_ROUTES } from "../constants/routes.js";
+import { RequestError } from "./http/requestError.js";
 
 const LOOPBACK_ADDRESS = "127.0.0.1";
 const ALLOWED_HOSTNAMES = ["localhost", LOOPBACK_ADDRESS];
@@ -23,14 +35,6 @@ const SEARCH_FIELDS: readonly LogSearchField[] = ["message", "author", "hash"];
 const CONTENT_SECURITY_POLICY = "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'";
 
 const ALLOWED_METHODS = ["GET", "POST"];
-const JSON_CONTENT_TYPE = "application/json";
-const MAX_REQUEST_BODY_BYTES = 1_048_576;
-
-const HTTP_OK = 200;
-const HTTP_NOT_FOUND = 404;
-const HTTP_METHOD_NOT_ALLOWED = 405;
-const HTTP_UNPROCESSABLE_CONTENT = 422;
-const HTTP_INTERNAL_ERROR = 500;
 
 export type WebServerDependencies = {
   git: GitClient;
@@ -70,7 +74,7 @@ async function listenOnFirstFreePort(server: Server, port: number, attemptsLeft:
     await listen(server, port);
     return port;
   } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "EADDRINUSE") {
+    if (hasErrorCode(error, "EADDRINUSE")) {
       return listenOnFirstFreePort(server, port + 1, attemptsLeft - 1);
     }
     throw error;
@@ -91,16 +95,16 @@ function listen(server: Server, port: number): Promise<void> {
 function createRoutes({ git, commands, readConfig, readPaths }: WebServerDependencies): Map<string, Route> {
   const configController = createConfigController(readPaths);
   return new Map<string, Route>([
-    ["GET /", () => servePage("log.html")],
-    ["GET /log", () => servePage("log.html")],
-    ["GET /help", () => servePage("help.html")],
-    ["GET /config", () => servePage("config.html")],
-    ["GET /api/log", async ({ url }) => jsonResult(await getLogPage(git, parseLogQuery(url)))],
-    ["GET /api/repo", async () => jsonResult(await getRepoOverview(git))],
-    ["GET /api/commit", async ({ url }) => jsonResult(await getCommitDetails(git, url.searchParams.get("hash") ?? ""))],
-    ["GET /api/help", async () => jsonResult(await buildHelpData(commands, readConfig))],
-    ["GET /api/config", async () => jsonResult(await configController.read())],
-    ["POST /api/config", async ({ body }) => jsonResult(await configController.save(body))],
+    [`GET ${PAGE_ROUTES.home}`, () => servePage("log.html")],
+    [`GET ${PAGE_ROUTES.log}`, () => servePage("log.html")],
+    [`GET ${PAGE_ROUTES.help}`, () => servePage("help.html")],
+    [`GET ${PAGE_ROUTES.config}`, () => servePage("config.html")],
+    [`GET ${API_ROUTES.log}`, async ({ url }) => jsonResult(await getLogPage(git, parseLogQuery(url)))],
+    [`GET ${API_ROUTES.repo}`, async () => jsonResult(await getRepoOverview(git))],
+    [`GET ${API_ROUTES.commit}`, async ({ url }) => jsonResult(await getCommitDetails(git, url.searchParams.get("hash") ?? ""))],
+    [`GET ${API_ROUTES.help}`, async () => jsonResult(await buildHelpData(commands, readConfig))],
+    [`GET ${API_ROUTES.config}`, async () => jsonResult(await configController.read())],
+    [`POST ${API_ROUTES.config}`, async ({ body }) => jsonResult(await configController.save(body))],
   ]);
 }
 
@@ -133,7 +137,7 @@ async function resolveRequest(routes: Map<string, Route>, request: IncomingMessa
 function errorResult(error: unknown): RouteResult {
   if (error instanceof RequestError) return jsonResult({ error: error.message }, error.status);
   if (error instanceof ConfigError) return jsonResult({ error: error.message, issues: error.issues }, HTTP_UNPROCESSABLE_CONTENT);
-  return jsonResult({ error: error instanceof Error ? error.message : String(error) }, HTTP_INTERNAL_ERROR);
+  return jsonResult({ error: messageOf(error) }, HTTP_INTERNAL_ERROR);
 }
 
 /**
@@ -143,7 +147,7 @@ function errorResult(error: unknown): RouteResult {
 async function readWriteRequestBody(request: IncomingMessage): Promise<unknown> {
   if (!isSameOrigin(request)) throw new RequestError(HTTP_FORBIDDEN, t("server.originRefused"));
   const contentType = request.headers["content-type"] ?? "";
-  if (contentType.split(";")[0]?.trim() !== JSON_CONTENT_TYPE) {
+  if (contentType.split(";")[0]?.trim() !== JSON_MEDIA_TYPE) {
     throw new RequestError(HTTP_UNSUPPORTED_MEDIA_TYPE, t("server.jsonRequired"));
   }
   return parseJsonBody(await readBody(request));
@@ -173,12 +177,9 @@ async function readBody(request: IncomingMessage): Promise<string> {
 }
 
 function parseJsonBody(text: string): unknown {
-  try {
-    const parsed: unknown = JSON.parse(text);
-    return parsed;
-  } catch {
-    throw new RequestError(HTTP_BAD_REQUEST, t("server.invalidJson"));
-  }
+  const parsed = tryParseJson(text);
+  if (!parsed.ok) throw new RequestError(HTTP_BAD_REQUEST, t("server.invalidJson"));
+  return parsed.value;
 }
 
 /** Bloque le DNS rebinding : un site tiers ne peut pas lire l'historique via un domaine pointant sur 127.0.0.1. */
@@ -187,16 +188,16 @@ function isLocalHostHeader(host: string | undefined): boolean {
 }
 
 async function servePage(fileName: string): Promise<RouteResult> {
-  const body = translatePage(await readFile(new URL(`./pages/${fileName}`, import.meta.url), "utf8"));
-  return { status: HTTP_OK, contentType: "text/html; charset=utf-8", body };
+  const body = translatePage(await readFile(new URL(`../web/pages/${fileName}`, import.meta.url), "utf8"));
+  return { status: HTTP_OK, contentType: HTML_CONTENT_TYPE, body };
 }
 
 function jsonResult(data: unknown, status: number = HTTP_OK): RouteResult {
-  return { status, contentType: "application/json; charset=utf-8", body: JSON.stringify(data) };
+  return { status, contentType: JSON_CONTENT_TYPE, body: JSON.stringify(data) };
 }
 
 function textResult(status: number, body: string): RouteResult {
-  return { status, contentType: "text/plain; charset=utf-8", body };
+  return { status, contentType: TEXT_CONTENT_TYPE, body };
 }
 
 export function parseLogQuery(url: URL): LogQuery {

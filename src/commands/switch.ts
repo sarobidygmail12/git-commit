@@ -2,7 +2,7 @@ import { GitError } from "../core/errors.js";
 import { listSwitchableBranches } from "../core/git/branches.js";
 import { assertNoOperationInProgress } from "../core/git/status.js";
 import { secureWorkingTree } from "./shared/secureWorkingTree.js";
-import type { Command } from "./types.js";
+import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 export const switchCommand: Command = {

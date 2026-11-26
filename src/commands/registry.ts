@@ -24,7 +24,7 @@ import { stashCommand } from "./stash.js";
 import { statusCommand } from "./status.js";
 import { switchCommand } from "./switch.js";
 import { undoCommand } from "./undo.js";
-import type { Command } from "./types.js";
+import type { Command } from "../contracts/command.js";
 
 export const commands: readonly Command[] = [
   initCommand,

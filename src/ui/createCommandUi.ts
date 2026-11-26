@@ -1,4 +1,4 @@
-import type { CommandUi, LogLevel } from "../commands/types.js";
+import type { CommandUi, LogLevel } from "../contracts/command.js";
 
 export type DisplayLevel = LogLevel | "git";
 

@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { langCommand } from "../src/commands/lang.js";
 import { commands } from "../src/commands/registry.js";
-import type { CommandContext } from "../src/commands/types.js";
+import type { CommandContext } from "../src/contracts/command.js";
 import { DEFAULT_CONFIG } from "../src/core/config/schema.js";
 import { getLanguage, LANGUAGES, messagesOf, setLanguage, t, translatePage } from "../src/lang/index.js";
 import { createFakeContext, type FakeAnswers } from "./helpers/fakeContext.js";

@@ -1,6 +1,6 @@
 import { pushCurrentBranch } from "../core/git/branches.js";
 import { getStatus } from "../core/git/status.js";
-import type { Command } from "./types.js";
+import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 export const pushCommand: Command = {

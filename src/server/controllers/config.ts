@@ -1,11 +1,12 @@
 import { z } from "zod";
-import type { ConfigPaths } from "../commands/types.js";
-import { redactApiKeys } from "../core/config/apiKeys.js";
-import { isGlobalOnlyPath, loadConfig } from "../core/config/loadConfig.js";
-import { getValueAt, resolveConfigTarget, setConfigValues, type ConfigChange } from "../core/config/saveConfig.js";
-import { describeConfigOptions, type ConfigOptionDoc, type ConfigOptionKind } from "../core/config/schema.js";
-import { setLanguage, t } from "../lang/index.js";
-import { HTTP_BAD_REQUEST, RequestError } from "./requestError.js";
+import type { ConfigPaths } from "../../contracts/command.js";
+import { redactApiKeys } from "../../core/config/apiKeys.js";
+import { isGlobalOnlyPath, loadConfig } from "../../core/config/loadConfig.js";
+import { getValueAt, resolveConfigTarget, setConfigValues, type ConfigChange } from "../../core/config/saveConfig.js";
+import { describeConfigOptions, type ConfigOptionDoc, type ConfigOptionKind } from "../../core/config/schema.js";
+import { setLanguage, t } from "../../lang/index.js";
+import { HTTP_BAD_REQUEST } from "../../constants/http.js";
+import { RequestError } from "../http/requestError.js";
 
 export type ConfigOptionView = {
   path: string;

@@ -1,11 +1,12 @@
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import { OWNER_ONLY_FILE_MODE, SHARED_FILE_MODE, UNSAFE_OBJECT_KEYS } from "../../constants/files.js";
 import { ConfigError, GitPushError } from "../errors.js";
+import { tryParseJson } from "../json.js";
 import {
   assertRepoOverrideAllowed,
   isJsonObject,
   mergeDeep,
-  OWNER_ONLY_FILE_MODE,
   readJsonObject,
   serializeConfig,
   toJsonObject,
@@ -15,8 +16,6 @@ import {
 import { DEFAULT_CONFIG } from "./schema.js";
 import { t } from "../../lang/index.js";
 
-const UNSAFE_SEGMENTS = new Set(["__proto__", "constructor", "prototype"]);
-const REPO_FILE_MODE = 0o644;
 
 export type ConfigTarget =
   | { scope: "global"; path: string }
@@ -44,7 +43,7 @@ export async function setConfigValues(target: ConfigTarget, changes: readonly Co
     file,
   );
   await assertValid(target, updated);
-  await writeAtomically(target.path, updated, target.scope === "global" ? OWNER_ONLY_FILE_MODE : REPO_FILE_MODE);
+  await writeAtomically(target.path, updated, target.scope === "global" ? OWNER_ONLY_FILE_MODE : SHARED_FILE_MODE);
 }
 
 export function getValueAt(root: unknown, dottedPath: string): unknown {
@@ -64,7 +63,7 @@ async function assertValid(target: ConfigTarget, updated: JsonObject): Promise<v
 
 function parseSegments(dottedPath: string, sourcePath: string): string[] {
   const segments = dottedPath.split(".");
-  if (segments.some((segment) => segment === "" || UNSAFE_SEGMENTS.has(segment))) {
+  if (segments.some((segment) => segment === "" || UNSAFE_OBJECT_KEYS.has(segment))) {
     throw new ConfigError(sourcePath, [t("config.issuePath", { path: dottedPath })]);
   }
   return segments;
@@ -72,12 +71,8 @@ function parseSegments(dottedPath: string, sourcePath: string): string[] {
 
 /** `true`, `12` ou `["a"]` sont lus comme du JSON ; le reste est une chaîne. */
 function parseValue(rawValue: string): unknown {
-  try {
-    const parsed: unknown = JSON.parse(rawValue);
-    return parsed;
-  } catch {
-    return rawValue;
-  }
+  const parsed = tryParseJson(rawValue);
+  return parsed.ok ? parsed.value : rawValue;
 }
 
 function withValueAt(object: JsonObject, [head, ...rest]: string[], value: unknown): JsonObject {

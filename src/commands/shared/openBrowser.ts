@@ -1,5 +1,5 @@
 import open from "open";
-import type { CommandContext } from "../types.js";
+import type { CommandContext } from "../../contracts/command.js";
 import { t } from "../../lang/index.js";
 
 export async function openPage(ctx: CommandContext, path: string): Promise<void> {

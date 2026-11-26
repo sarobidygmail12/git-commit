@@ -3,7 +3,7 @@ import { setConfigValue, type ConfigTarget } from "../../core/config/saveConfig.
 import { assertCanStartBranch, branchExists, startBranchFrom } from "../../core/git/branches.js";
 import { addLocalExclude } from "../../core/git/localExclude.js";
 import { getStatus } from "../../core/git/status.js";
-import type { CommandContext } from "../types.js";
+import type { CommandContext } from "../../contracts/command.js";
 import { commitFlow } from "./commitFlow.js";
 import { t } from "../../lang/index.js";
 

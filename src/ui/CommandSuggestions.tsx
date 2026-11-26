@@ -1,6 +1,6 @@
 import { Box, Text } from "ink";
 import type { ReactElement } from "react";
-import type { Suggestion } from "../commands/suggest.js";
+import type { Suggestion } from "../contracts/session.js";
 
 const VISIBLE_SUGGESTIONS = 8;
 const LABEL_COLUMN_WIDTH = 26;

@@ -1,6 +1,6 @@
 import { Box, Text } from "ink";
 import type { ReactElement } from "react";
-import type { HeaderState } from "../commands/session.js";
+import type { HeaderState } from "../contracts/session.js";
 import { t } from "../lang/index.js";
 
 const ORANGE = "#ffa500";

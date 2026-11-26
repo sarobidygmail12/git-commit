@@ -1,8 +1,8 @@
 import { request } from "node:http";
-import type { Command, ConfigPaths } from "../../src/commands/types.js";
+import type { Command, ConfigPaths } from "../../src/contracts/command.js";
 import { DEFAULT_CONFIG, type Config } from "../../src/core/config/schema.js";
 import { createGitClient } from "../../src/core/git/gitClient.js";
-import { createWebServer } from "../../src/web/server.js";
+import { createWebServer } from "../../src/server/server.js";
 
 const FIRST_TEST_PORT = 41000;
 const PORT_RANGE = 2000;

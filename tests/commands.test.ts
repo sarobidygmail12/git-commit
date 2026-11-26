@@ -7,7 +7,7 @@ import { pushCommand } from "../src/commands/push.js";
 import { stashCommand } from "../src/commands/stash.js";
 import { statusCommand } from "../src/commands/status.js";
 import { switchCommand } from "../src/commands/switch.js";
-import type { CommandContext } from "../src/commands/types.js";
+import type { CommandContext } from "../src/contracts/command.js";
 import { GitError } from "../src/core/errors.js";
 import { createFakeContext, type FakeAnswers } from "./helpers/fakeContext.js";
 import { createTempRepo, type TempRepo } from "./helpers/tempRepo.js";

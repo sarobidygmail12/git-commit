@@ -1,19 +1,18 @@
 import { chmod, constants, copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { ConfigError } from "../errors.js";
+import { OWNER_ONLY_DIRECTORY_MODE, OWNER_ONLY_FILE_MODE, UNSAFE_OBJECT_KEYS } from "../../constants/files.js";
+import { ConfigError, hasErrorCode } from "../errors.js";
+import { tryParseJson } from "../json.js";
 import { configSchema, DEFAULT_CONFIG, type Config } from "./schema.js";
 import { t } from "../../lang/index.js";
 
 export type JsonObject = { [key: string]: unknown };
 
 const JSON_INDENT = 2;
-const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 const GLOBAL_ONLY_PROVIDER_KEYS = new Set(["apiKeyEnv", "baseUrl"]);
 
 export const REPO_CONFIG_FILENAME = ".git-push.json";
-export const OWNER_ONLY_FILE_MODE = 0o600;
-const OWNER_ONLY_DIRECTORY_MODE = 0o700;
 
 export function globalConfigPath(home: string = homedir()): string {
   return join(home, ".git-push", "config.json");
@@ -104,7 +103,7 @@ export function isGlobalOnlyPath(dottedPath: string): boolean {
 
 export function mergeDeep(base: JsonObject, override: JsonObject): JsonObject {
   const mergedEntries = Object.entries(override)
-    .filter(([key]) => !UNSAFE_KEYS.has(key))
+    .filter(([key]) => !UNSAFE_OBJECT_KEYS.has(key))
     .map(([key, value]): [string, unknown] => {
       const current = base[key];
       return [key, isJsonObject(current) && isJsonObject(value) ? mergeDeep(current, value) : value];
@@ -125,16 +124,9 @@ export function toJsonObject(config: Config): JsonObject {
 }
 
 function parseJson(text: string, path: string): unknown {
-  try {
-    const parsed: unknown = JSON.parse(text);
-    return parsed;
-  } catch (error) {
-    throw new ConfigError(path, [t("config.issueJson", { detail: error instanceof Error ? error.message : String(error) })]);
-  }
-}
-
-function hasErrorCode(error: unknown, code: string): boolean {
-  return error instanceof Error && "code" in error && error.code === code;
+  const parsed = tryParseJson(text);
+  if (!parsed.ok) throw new ConfigError(path, [t("config.issueJson", { detail: parsed.reason })]);
+  return parsed.value;
 }
 
 function undefinedIfMissing(error: unknown): undefined {

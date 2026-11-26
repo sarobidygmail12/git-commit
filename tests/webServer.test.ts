@@ -1,14 +1,11 @@
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { commands } from "../src/commands/registry.js";
+import { HTTP_FORBIDDEN, HTTP_INTERNAL_ERROR, HTTP_NOT_FOUND, HTTP_OK } from "../src/constants/http.js";
 import { ensureGlobalConfig } from "../src/core/config/loadConfig.js";
 import { createTempRepo, type TempRepo } from "./helpers/tempRepo.js";
 import { startTestServer, type TestServer } from "./helpers/webServer.js";
 
-const HTTP_OK = 200;
-const HTTP_FORBIDDEN = 403;
-const HTTP_NOT_FOUND = 404;
-const HTTP_INTERNAL_ERROR = 500;
 const PAGES = ["/", "/log", "/help", "/config"];
 
 describe("serveur web : pages et API de lecture", () => {

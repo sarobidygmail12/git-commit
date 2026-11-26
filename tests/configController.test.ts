@@ -2,24 +2,16 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { ConfigPaths } from "../src/commands/types.js";
+import type { ConfigPaths } from "../src/contracts/command.js";
+import { HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_METHOD_NOT_ALLOWED, HTTP_NOT_FOUND, HTTP_OK, HTTP_PAYLOAD_TOO_LARGE, HTTP_UNPROCESSABLE_CONTENT, HTTP_UNSUPPORTED_MEDIA_TYPE, MAX_REQUEST_BODY_BYTES } from "../src/constants/http.js";
 import { ensureGlobalConfig, loadConfig } from "../src/core/config/loadConfig.js";
 import { DEFAULT_CONFIG, describeConfigOptions } from "../src/core/config/schema.js";
 import { ConfigError } from "../src/core/errors.js";
 import { getLanguage, setLanguage } from "../src/lang/index.js";
-import { createConfigController, type ConfigOptionView } from "../src/web/configController.js";
-import { RequestError } from "../src/web/requestError.js";
+import { createConfigController, type ConfigOptionView } from "../src/server/controllers/config.js";
+import { RequestError } from "../src/server/http/requestError.js";
 import { startTestServer, type Reply, type SendOptions, type TestServer } from "./helpers/webServer.js";
 
-const HTTP_OK = 200;
-const HTTP_BAD_REQUEST = 400;
-const HTTP_FORBIDDEN = 403;
-const HTTP_NOT_FOUND = 404;
-const HTTP_METHOD_NOT_ALLOWED = 405;
-const HTTP_PAYLOAD_TOO_LARGE = 413;
-const HTTP_UNSUPPORTED_MEDIA_TYPE = 415;
-const HTTP_UNPROCESSABLE_CONTENT = 422;
-const MAX_REQUEST_BODY_BYTES = 1_048_576;
 const OVERSIZED_BODY_BYTES = MAX_REQUEST_BODY_BYTES + 1;
 const CUSTOM_WEB_PORT = 5000;
 const API_KEY = "gsk_AbCdEfGhIjKl";

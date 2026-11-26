@@ -205,6 +205,7 @@
   "session.startWithSlash": "命令以 / 开头。输入 /help 查看列表。",
   "session.unknownCommand": "未知命令：/{name}。输入 /help 查看列表。",
   "session.repoState": "仓库状态：{state}",
+  "session.unexpectedError": "意外错误：{message}",
   "session.repoStateUnavailable": "无法获取仓库状态。",
 
   "stash.nothing": "没有可暂存的内容。",

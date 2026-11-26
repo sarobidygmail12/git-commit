@@ -1,8 +1,8 @@
+import { DEFAULT_REMOTE } from "../../constants/git.js";
 import { GitError } from "../errors.js";
 import type { GitClient } from "./gitClient.js";
 import { t } from "../../lang/index.js";
 
-const REMOTE = "origin";
 const SCP_LIKE_REMOTE = /^(?:[^@/]+@)?([^:/]+):(?!\/\/)(.+)$/;
 const GITLAB_HOST_MARKER = "gitlab";
 const DEFAULT_BRANCH_LINE = /^ref: refs\/heads\/(\S+)\s+HEAD$/m;
@@ -11,14 +11,14 @@ export type NewPullRequest = { title: string; body: string };
 
 /** Demande au remote plutôt qu'à `origin/HEAD`, absent d'un dépôt créé par `git init` puis `remote add`. */
 export async function getDefaultBranch(git: GitClient): Promise<string> {
-  const { stdout } = await git.run(["ls-remote", "--symref", REMOTE, "HEAD"]);
+  const { stdout } = await git.run(["ls-remote", "--symref", DEFAULT_REMOTE, "HEAD"]);
   const branch = DEFAULT_BRANCH_LINE.exec(stdout)?.[1];
   if (!branch) throw new GitError(t("pr.noDefaultBranch"));
   return branch;
 }
 
 export async function getRepositoryWebUrl(git: GitClient): Promise<string> {
-  const { stdout } = await git.run(["remote", "get-url", REMOTE]);
+  const { stdout } = await git.run(["remote", "get-url", DEFAULT_REMOTE]);
   const webUrl = toRepositoryWebUrl(stdout.trim());
   if (!webUrl) throw new GitError(t("pr.unknownRemote"));
   return webUrl;

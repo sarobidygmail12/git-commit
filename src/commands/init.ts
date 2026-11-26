@@ -1,12 +1,12 @@
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { DEFAULT_REMOTE } from "../constants/git.js";
 import { GitError } from "../core/errors.js";
 import type { GitClient } from "../core/git/gitClient.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
-const REMOTE_NAME = "origin";
 const HOME_PREFIX = "~/";
 
 export const initCommand: Command = {
@@ -36,8 +36,8 @@ export const initCommand: Command = {
     }
     const root = existingRoot ?? directory;
     if (remoteUrl !== "") {
-      await ctx.git.run(["-C", root, "remote", "add", REMOTE_NAME, remoteUrl]);
-      ctx.ui.log(t("init.remote", { name: REMOTE_NAME, url: remoteUrl }), "success");
+      await ctx.git.run(["-C", root, "remote", "add", DEFAULT_REMOTE, remoteUrl]);
+      ctx.ui.log(t("init.remote", { name: DEFAULT_REMOTE, url: remoteUrl }), "success");
     }
     if (directory !== resolve(ctx.git.cwd)) {
       ctx.ui.log(t("init.sessionStays", { cwd: ctx.git.cwd, root }));
@@ -78,6 +78,6 @@ function nearestExistingDirectory(path: string): string {
 }
 
 async function hasOrigin(git: GitClient, root: string): Promise<boolean> {
-  const { exitCode } = await git.run(["-C", root, "remote", "get-url", REMOTE_NAME], { allowFailure: true });
+  const { exitCode } = await git.run(["-C", root, "remote", "get-url", DEFAULT_REMOTE], { allowFailure: true });
   return exitCode === 0;
 }

@@ -205,6 +205,7 @@
   "session.startWithSlash": "Befehle beginnen mit /. Gib /help für die Liste ein.",
   "session.unknownCommand": "Unbekannter Befehl: /{name}. Gib /help für die Liste ein.",
   "session.repoState": "Status des Repositorys: {state}",
+  "session.unexpectedError": "Unerwarteter Fehler: {message}",
   "session.repoStateUnavailable": "Status des Repositorys nicht verfügbar.",
 
   "stash.nothing": "Nichts beiseitezulegen.",

@@ -3,7 +3,7 @@ import { hasRemote, pushCurrentBranch } from "../../core/git/branches.js";
 import { getStagedChanges, type StagedChanges } from "../../core/git/diff.js";
 import { isSensitivePath } from "../../core/git/sensitive.js";
 import { assertNoOperationInProgress, getStatus, isStaged, type FileChange, type RepoStatus } from "../../core/git/status.js";
-import type { CommandContext } from "../types.js";
+import type { CommandContext } from "../../contracts/command.js";
 import { t } from "../../lang/index.js";
 
 export type CommitFlowResult = "committed" | "nothing" | "cancelled";

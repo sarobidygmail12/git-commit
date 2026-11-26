@@ -1,3 +1,4 @@
+import { HTTP_TOO_MANY_REQUESTS } from "../src/constants/http.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildFallbackMessage } from "../src/core/ai/fallback.js";
 import { createCommitMessageGenerator, resolveProviderOrder } from "../src/core/ai/generator.js";
@@ -8,7 +9,6 @@ import { DEFAULT_CONFIG } from "../src/core/config/schema.js";
 import { ProviderError } from "../src/core/errors.js";
 
 const SHORT_TIMEOUT_MS = 5;
-const HTTP_TOO_MANY_REQUESTS = 429;
 const FILE_COUNT_OVER_DETAIL_LIMIT = 12;
 
 const INPUT: CommitMessageInput = {

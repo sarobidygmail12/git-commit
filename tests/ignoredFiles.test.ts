@@ -2,7 +2,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { commands } from "../src/commands/registry.js";
-import { createSession, type ReplSession } from "../src/commands/session.js";
+import type { ReplSession } from "../src/contracts/session.js";
+import { createContainer } from "../src/server/container.js";
 import { validateConfig } from "../src/core/config/loadConfig.js";
 import { DEFAULT_CONFIG } from "../src/core/config/schema.js";
 import { ConfigError } from "../src/core/errors.js";
@@ -78,22 +79,16 @@ describe("option ignore", () => {
   });
 
   describe("dans une session", () => {
-    const startSession = (): ReplSession => {
+    const startSession = async (): Promise<ReplSession> => {
       const globalConfigPath = join(repo.root, "config.json");
       writeFileSync(globalConfigPath, "{}\n");
-      return createSession({
-        cwd: repo.work,
-        globalConfigPath,
-        commands,
-        ui: createFakeUi({}),
-        onGitCommand: () => undefined,
-        exit: () => undefined,
-      });
+      const container = await createContainer({ launchDirectory: repo.work, globalConfigPath, env: {}, commands });
+      return container.startSession(createFakeUi({}), () => undefined, () => undefined);
     };
 
     it("applique /config set dès la fin de la commande, puis retire le motif", async () => {
       repo.write("build.log", "x\n");
-      const session = startSession();
+      const session = await startSession();
 
       await session.execute('/config set ignore ["*.log", "dist/"]');
       expect(untracked()).not.toContain("build.log");

@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { SHORT_HASH_LENGTH } from "../../constants/git.js";
 import { GitError } from "../errors.js";
 import type { GitClient } from "./gitClient.js";
 import { t } from "../../lang/index.js";
@@ -42,7 +43,6 @@ const UNTRACKED = "?";
 const ORDINARY_FIELDS_BEFORE_PATH = 8;
 const RENAMED_FIELDS_BEFORE_PATH = 9;
 const CONFLICT_FIELDS_BEFORE_PATH = 10;
-const SHORT_HASH_LENGTH = 7;
 
 /** Sans `listEachUntrackedFile`, Git résume un dossier non suivi en une seule entrée. */
 export async function getStatus(

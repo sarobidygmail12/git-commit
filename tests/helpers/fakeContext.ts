@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { CommandContext, CommandUi, SelectChoice } from "../../src/commands/types.js";
+import type { CommandContext, CommandUi, SelectChoice } from "../../src/contracts/command.js";
 import { DEFAULT_CONFIG, type Config } from "../../src/core/config/schema.js";
 import { createGitClient } from "../../src/core/git/gitClient.js";
 

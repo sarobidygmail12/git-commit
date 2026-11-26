@@ -205,6 +205,7 @@
   "session.startWithSlash": "Les commandes commencent par /. Tape /help pour la liste.",
   "session.unknownCommand": "Commande inconnue : /{name}. Tape /help pour la liste.",
   "session.repoState": "État du dépôt : {state}",
+  "session.unexpectedError": "Erreur inattendue : {message}",
   "session.repoStateUnavailable": "État du dépôt indisponible.",
 
   "stash.nothing": "Rien à mettre de côté.",

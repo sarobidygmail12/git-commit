@@ -1,18 +1,18 @@
+import { PAGE_ROUTES } from "../constants/routes.js";
 import { writeFile } from "node:fs/promises";
 import { execa, parseCommandString } from "execa";
 import { redactApiKeys } from "../core/config/apiKeys.js";
 import { loadConfig, readJsonObject, serializeConfig } from "../core/config/loadConfig.js";
 import { getValueAt, resolveConfigTarget, setConfigValue, type ConfigTarget } from "../core/config/saveConfig.js";
 import { DEFAULT_CONFIG, describeConfigOptions, type Config, type ConfigOptionDoc } from "../core/config/schema.js";
-import { ConfigError, GitPushError } from "../core/errors.js";
+import { ConfigError, GitPushError, hasErrorCode } from "../core/errors.js";
 import { openPage } from "./shared/openBrowser.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 const REPO_FLAG = "--repo";
 const DEFAULT_EDITOR = "vi";
 const SUBCOMMANDS = ["browse", "show", "set", "edit"];
-const CONFIG_PAGE = "/config";
 
 export const configCommand: Command = {
   name: "config",
@@ -67,7 +67,7 @@ function describeLocations(ctx: CommandContext): string {
 /** La page n'édite que `.git-push.json` du dépôt courant. */
 async function openConfigPage(ctx: CommandContext): Promise<void> {
   if (!ctx.paths.repo) throw new GitPushError(t("config.pageNeedsRepo"));
-  await openPage(ctx, CONFIG_PAGE);
+  await openPage(ctx, PAGE_ROUTES.config);
 }
 
 async function browseConfig(ctx: CommandContext, useRepo: boolean): Promise<void> {
@@ -139,6 +139,6 @@ async function createIfMissing(path: string): Promise<void> {
   try {
     await writeFile(path, "{}\n", { flag: "wx" });
   } catch (error) {
-    if (!(error instanceof Error && "code" in error && error.code === "EEXIST")) throw error;
+    if (!hasErrorCode(error, "EEXIST")) throw error;
   }
 }
