@@ -31,6 +31,11 @@ export function resolveConfigTarget(paths: { global: string; repo: string | unde
   return { scope: "repo", path: paths.repo, globalPath: paths.global };
 }
 
+/** Une valeur texte est encodée en JSON : une branche nommée « 123 » serait sinon lue comme un nombre. */
+export function encodeTextValue(text: string): string {
+  return JSON.stringify(text);
+}
+
 export async function setConfigValue(target: ConfigTarget, dottedPath: string, rawValue: string): Promise<void> {
   await setConfigValues(target, [{ path: dottedPath, value: parseValue(rawValue) }]);
 }

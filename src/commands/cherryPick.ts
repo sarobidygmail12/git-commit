@@ -1,9 +1,11 @@
 import { GitError } from "../core/errors.js";
-import { assertNoOperationInProgress } from "../core/git/status.js";
 import { isCommitHash } from "../core/git/log.js";
-import { isSequenceRunning, resolveSequence } from "./shared/resolveSequence.js";
+import { assertNoOperationInProgress } from "../core/git/status.js";
 import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
+import { startCherryPick } from "../server/services/sync.js";
+import { resolveSequence } from "./shared/resolveSequence.js";
+import { warnUsage } from "./shared/usage.js";
 
 export const cherryPickCommand: Command = {
   name: "cherry-pick",
@@ -17,18 +19,12 @@ export const cherryPickCommand: Command = {
     return ["git cherry-pick <hash...>", t("step.conflictCherryPick")];
   },
   run: async (ctx, hashes) => {
-    if (hashes.length === 0) {
-      ctx.ui.log(t("msg.usage", { usage: "/cherry-pick <hash...>" }), "warn");
-      return;
-    }
+    if (hashes.length === 0) return warnUsage(ctx, cherryPickCommand);
     const invalid = hashes.filter((hash) => !isCommitHash(hash));
     if (invalid.length > 0) throw new GitError(t("cherryPick.invalidHash", { hashes: invalid.join(", ") }));
     await assertNoOperationInProgress(ctx.git);
 
-    const result = await ctx.git.run(["cherry-pick", ...hashes], { allowFailure: true });
-    if (result.exitCode !== 0 && !(await isSequenceRunning(ctx, "cherry-pick"))) {
-      throw new GitError(result.stderr || result.stdout, { args: ["cherry-pick", ...hashes], exitCode: result.exitCode, stderr: result.stderr });
-    }
+    await startCherryPick(ctx.git, hashes);
     if ((await resolveSequence(ctx, "cherry-pick")) === "completed") ctx.ui.log(t("cherryPick.done"), "success");
   },
 };

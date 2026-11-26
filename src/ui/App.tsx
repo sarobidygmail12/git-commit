@@ -1,8 +1,7 @@
 import { basename } from "node:path";
 import { Box, Static, Text, useApp, useInput, useStdout } from "ink";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
-import type { CommandUi } from "../contracts/command.js";
-import type { HeaderState, ReplSession, SessionFactory } from "../contracts/session.js";
+import type { HeaderState, SessionFactory } from "../contracts/session.js";
 import { createCommandUi, type DisplayLevel, type PromptRequest, type UiBridge } from "./createCommandUi.js";
 import { Header } from "./Header.js";
 import { PromptInput } from "./PromptInput.js";

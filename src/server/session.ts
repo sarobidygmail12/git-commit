@@ -20,11 +20,12 @@ export type SessionDependencies = {
   resolvePaths: () => Promise<ConfigPaths>;
   readConfig: () => Promise<Config>;
   createAi: (config: Config) => CommitMessageGenerator;
+  env: Readonly<Record<string, string | undefined>>;
   exit: () => void;
 };
 
 export function createSession(dependencies: SessionDependencies): ReplSession {
-  const { git, silentGit, commands, ui, web, resolvePaths, readConfig, createAi, exit } = dependencies;
+  const { git, silentGit, commands, ui, web, resolvePaths, readConfig, createAi, env, exit } = dependencies;
 
   const buildContext = (client: GitClient, config: Config, paths: ConfigPaths): CommandContext => ({
     git: client,
@@ -34,6 +35,7 @@ export function createSession(dependencies: SessionDependencies): ReplSession {
     commands,
     web,
     paths,
+    env,
     exit,
   });
 

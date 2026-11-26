@@ -3,17 +3,15 @@ import {
   countCommitsLostByDeleting,
   deleteLocalBranch,
   deleteRemoteBranch,
-  isValidBranchName,
   listSwitchableBranches,
   locateBranch,
   type BranchLocations,
 } from "../core/git/branches.js";
-import type { Config } from "../core/config/schema.js";
 import { assertNoOperationInProgress, getStatus } from "../core/git/status.js";
 import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
-
-const USAGE = "/delete-branch <branch>";
+import { assertValidBranchName, listProtectedBranches } from "../server/services/branch.js";
+import { warnUsage } from "./shared/usage.js";
 
 export const deleteBranchCommand: Command = {
   name: "delete-branch",
@@ -21,18 +19,15 @@ export const deleteBranchCommand: Command = {
   get description() {
     return t("cmd.deleteBranch");
   },
-  usage: USAGE,
+  usage: "/delete-branch <branch>",
   examples: ["/delete-branch feature/cart", "/delete feature/cart"],
   gitSteps: ["git branch -D <branch>", "git push <remote> --delete <branch>"],
   completeArgs: async (ctx) => {
-    const undeletable = [...protectedBranches(ctx.config), (await getStatus(ctx.git)).branch];
+    const undeletable = [...listProtectedBranches(ctx.config), (await getStatus(ctx.git)).branch];
     return (await listSwitchableBranches(ctx.git)).filter((branch) => !undeletable.includes(branch));
   },
   run: async (ctx, [name]) => {
-    if (name === undefined) {
-      ctx.ui.log(t("msg.usage", { usage: USAGE }), "warn");
-      return;
-    }
+    if (name === undefined) return warnUsage(ctx, deleteBranchCommand);
     const found = await findDeletableBranch(ctx, name);
     const target = await chooseTarget(ctx, name, found);
     if (target === undefined || !(await confirmDeletion(ctx, name, target))) {
@@ -43,13 +38,9 @@ export const deleteBranchCommand: Command = {
   },
 };
 
-function protectedBranches({ branches }: Config): string[] {
-  return [branches.main, branches.develop, branches.preprod, ...branches.protected];
-}
-
 async function findDeletableBranch(ctx: CommandContext, name: string): Promise<BranchLocations> {
-  if (!(await isValidBranchName(ctx.git, name))) throw new GitError(t("branch.invalidName", { name }));
-  if (protectedBranches(ctx.config).includes(name)) throw new GitError(t("deleteBranch.protected", { name }));
+  await assertValidBranchName(ctx.git, name);
+  if (listProtectedBranches(ctx.config).includes(name)) throw new GitError(t("deleteBranch.protected", { name }));
   await assertNoOperationInProgress(ctx.git);
   if ((await getStatus(ctx.git)).branch === name) throw new GitError(t("deleteBranch.current", { name }));
   const found = await locateBranch(ctx.git, name);

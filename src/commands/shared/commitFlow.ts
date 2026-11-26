@@ -1,10 +1,11 @@
 import type { CommitMessageInput } from "../../core/ai/provider.js";
 import { hasRemote, pushCurrentBranch } from "../../core/git/branches.js";
 import { getStagedChanges, type StagedChanges } from "../../core/git/diff.js";
-import { isSensitivePath } from "../../core/git/sensitive.js";
-import { assertNoOperationInProgress, getStatus, isStaged, type FileChange, type RepoStatus } from "../../core/git/status.js";
+import { assertNoOperationInProgress, getStatus, type FileChange, type RepoStatus } from "../../core/git/status.js";
 import type { CommandContext } from "../../contracts/command.js";
 import { t } from "../../lang/index.js";
+import { isProtectedBranch } from "../../server/services/branch.js";
+import { commitStaged, findSensitivePaths, stageAll } from "../../server/services/commit.js";
 
 export type CommitFlowResult = "committed" | "nothing" | "cancelled";
 
@@ -33,7 +34,7 @@ export async function commitFlow(ctx: CommandContext, options: { message?: strin
     return "cancelled";
   }
 
-  if (ctx.config.commit.addAll) await ctx.git.run(["add", "."]);
+  if (ctx.config.commit.addAll) await stageAll(ctx.git);
   const changes = await getStagedChanges(ctx.git);
   if (changes.files.length === 0) {
     ctx.ui.log(t("commit.nothingStaged"));
@@ -46,8 +47,7 @@ export async function commitFlow(ctx: CommandContext, options: { message?: strin
     return "cancelled";
   }
 
-  const { stdout } = await ctx.git.run(["commit", "-m", message]);
-  ctx.ui.log(stdout.split("\n")[0] ?? t("commit.created"), "success");
+  ctx.ui.log((await commitStaged(ctx.git, message)) ?? t("commit.created"), "success");
   await pushIfEnabled(ctx, status);
   return "committed";
 }
@@ -58,13 +58,12 @@ async function confirmBeforeStaging(ctx: CommandContext, status: RepoStatus): Pr
 }
 
 async function confirmProtectedBranch(ctx: CommandContext, status: RepoStatus): Promise<boolean> {
-  if (!status.branch || !ctx.config.branches.protected.includes(status.branch)) return true;
+  if (!status.branch || !isProtectedBranch(ctx.config, status.branch)) return true;
   return ctx.ui.confirm(t("commit.protectedConfirm", { branch: status.branch }));
 }
 
 export async function confirmSensitiveFiles(ctx: CommandContext, files: readonly FileChange[]): Promise<boolean> {
-  const candidates = ctx.config.commit.addAll ? files : files.filter(isStaged);
-  const sensitive = candidates.map((file) => file.path).filter(isSensitivePath);
+  const sensitive = findSensitivePaths(ctx.config, files);
   if (sensitive.length === 0) return true;
   ctx.ui.log(t("commit.sensitiveFound", { files: sensitive.map((path) => `  ${path}`).join("\n") }), "warn");
   return ctx.ui.confirm(t("commit.sensitiveInclude"));

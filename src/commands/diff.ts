@@ -1,6 +1,6 @@
-import { getStatus } from "../core/git/status.js";
 import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
+import { readDiffSummary } from "../server/services/repo.js";
 
 export const diffCommand: Command = {
   name: "diff",
@@ -11,14 +11,11 @@ export const diffCommand: Command = {
   examples: ["/diff"],
   gitSteps: ["git diff --cached --stat", "git diff --stat"],
   run: async (ctx) => {
-    const staged = await ctx.git.run(["diff", "--cached", "--stat"]);
-    const unstaged = await ctx.git.run(["diff", "--stat"]);
-    const { files } = await getStatus(ctx.git);
-    const untracked = files.filter((file) => file.kind === "untracked").map((file) => `  ${file.path}`);
+    const summary = await readDiffSummary(ctx.git);
     const sections = [
-      staged.stdout && t("diff.staged", { diff: staged.stdout }),
-      unstaged.stdout && t("diff.unstaged", { diff: unstaged.stdout }),
-      untracked.length > 0 && `Non suivis :\n${untracked.join("\n")}`,
+      summary.staged && t("diff.staged", { diff: summary.staged }),
+      summary.unstaged && t("diff.unstaged", { diff: summary.unstaged }),
+      summary.untracked.length > 0 && t("diff.untracked", { files: summary.untracked.map((path) => `  ${path}`).join("\n") }),
     ].filter((section) => typeof section === "string" && section !== "");
     ctx.ui.log(sections.length > 0 ? sections.join("\n\n") : t("diff.none"));
   },

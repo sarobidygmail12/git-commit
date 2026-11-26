@@ -129,6 +129,7 @@
   "deleteBranch.deletedRemote": "分支 {remote}/{name} 已删除。",
   "diff.staged": "已暂存：\n{diff}",
   "diff.unstaged": "未暂存：\n{diff}",
+  "diff.untracked": "未跟踪：\n{files}",
   "diff.none": "没有改动。",
   "fetch.done": "引用已是最新。",
   "undo.firstCommit": "已拒绝：这是仓库的第一个提交。",
@@ -185,6 +186,9 @@
 
   "status.inProgress": "{operation} 进行中",
   "status.clean": "工作区干净。",
+  "status.conflicts": "冲突",
+  "status.noUpstream": "{branch}（无上游）",
+  "status.tracking": "{branch} → {upstream}  领先：{ahead}，落后：{behind}",
   "status.staged": "已暂存",
   "status.unstaged": "未暂存",
   "status.noChanges": "没有改动",
@@ -244,6 +248,7 @@
   "dirty.stash": "暂存（git stash）",
   "dirty.question": "{count} 个文件已改动。在 {next} 之前要怎么做？",
   "dirty.stashed": "改动已暂存。使用 /stash pop 恢复。",
+  "dirty.stashMessage": "git-push：{next} 之前",
 
   "git.cannotRun": "无法运行 git：{reason}",
   "git.interrupted": "进程被中断",

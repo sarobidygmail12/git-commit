@@ -1,3 +1,4 @@
+import { DEFAULT_REMOTE } from "../../constants/git.js";
 import { GitError } from "../errors.js";
 import type { GitClient } from "./gitClient.js";
 import { toRepositoryWebUrl } from "./pullRequest.js";
@@ -11,7 +12,7 @@ const WHITESPACE = /\s/;
 export type OriginRemote = { host: string; usesHttps: boolean };
 
 export async function readOrigin(git: GitClient): Promise<OriginRemote | undefined> {
-  const { stdout, exitCode } = await git.run(["remote", "get-url", "origin"], { allowFailure: true });
+  const { stdout, exitCode } = await git.run(["remote", "get-url", DEFAULT_REMOTE], { allowFailure: true });
   const remoteUrl = stdout.trim();
   const webUrl = exitCode === 0 ? toRepositoryWebUrl(remoteUrl) : undefined;
   return webUrl ? { host: new URL(webUrl).host, usesHttps: remoteUrl.startsWith("https://") } : undefined;
@@ -28,7 +29,7 @@ export function assertCredentialValue(value: string): void {
  */
 export async function verifyToken(git: GitClient, host: string, token: string): Promise<void> {
   const credentials = Buffer.from(`${TOKEN_USERNAME}:${token}`).toString("base64");
-  await git.run(["ls-remote", "origin", "HEAD"], {
+  await git.run(["ls-remote", DEFAULT_REMOTE, "HEAD"], {
     env: {
       GIT_CONFIG_COUNT: "1",
       GIT_CONFIG_KEY_0: `http.https://${host}/.extraHeader`,

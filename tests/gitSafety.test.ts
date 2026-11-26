@@ -111,7 +111,7 @@ describe("flux sur un vrai dépôt", () => {
   });
 
   it("n'effectue aucun commit si l'utilisateur annule", async () => {
-    repo.git("switch", "--quiet", "develop");
+    repo.git("switch", "--quiet", "-c", "feature/annule");
     const before = head();
     repo.write("file.txt", "modifié\n");
     expect(await commitFlow(createFakeContext(repo.work, { select: "cancel" }))).toBe("cancelled");

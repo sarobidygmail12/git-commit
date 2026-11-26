@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { loginCommand } from "../src/commands/login.js";
-import type { CommandContext } from "../src/commands/types.js";
+import type { CommandContext } from "../src/contracts/command.js";
 import { GitError } from "../src/core/errors.js";
 import type { GitRunOptions } from "../src/core/git/gitClient.js";
 import { createFakeContext, type FakeAnswers } from "./helpers/fakeContext.js";
