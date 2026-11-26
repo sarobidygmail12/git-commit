@@ -1,5 +1,4 @@
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { request } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -7,14 +6,11 @@ import type { ConfigPaths } from "../src/commands/types.js";
 import { ensureGlobalConfig, loadConfig } from "../src/core/config/loadConfig.js";
 import { DEFAULT_CONFIG, describeConfigOptions } from "../src/core/config/schema.js";
 import { ConfigError } from "../src/core/errors.js";
-import { createGitClient } from "../src/core/git/gitClient.js";
 import { getLanguage, setLanguage } from "../src/lang/index.js";
 import { createConfigController, type ConfigOptionView } from "../src/web/configController.js";
 import { RequestError } from "../src/web/requestError.js";
-import { createWebServer } from "../src/web/server.js";
+import { startTestServer, type Reply, type SendOptions, type TestServer } from "./helpers/webServer.js";
 
-const FIRST_TEST_PORT = 41000;
-const PORT_RANGE = 2000;
 const HTTP_OK = 200;
 const HTTP_BAD_REQUEST = 400;
 const HTTP_FORBIDDEN = 403;
@@ -171,39 +167,18 @@ describe("contrôleur de configuration", () => {
 describe("serveur web : /config et /api/config", () => {
   let directory: string;
   let paths: ConfigPaths;
-  let baseUrl: URL;
+  let server: TestServer;
 
   beforeEach(async () => {
     directory = mkdtempSync(join(tmpdir(), "git-push-server-"));
     paths = { global: join(directory, "config.json"), repo: join(directory, ".git-push.json") };
     await ensureGlobalConfig(paths.global);
-    const port = FIRST_TEST_PORT + Math.floor(Math.random() * PORT_RANGE);
-    const readConfig = () => Promise.resolve({ ...DEFAULT_CONFIG, web: { port } });
-    const server = createWebServer({
-      git: createGitClient({ cwd: directory }),
-      commands: [],
-      readConfig,
-      readPaths: () => Promise.resolve(paths),
-    });
-    baseUrl = new URL(await server.ensureStarted());
+    server = await startTestServer({ cwd: directory, paths });
   });
   afterEach(() => rmSync(directory, { recursive: true, force: true }));
 
-  type Reply = { status: number; body: string };
-  type SendOptions = { method?: string; headers?: Record<string, string>; body?: string };
-
-  const send = (path: string, { method = "GET", headers = {}, body }: SendOptions = {}): Promise<Reply> =>
-    new Promise((resolve, reject) => {
-      const outgoing = request(new URL(path, baseUrl), { method, headers }, (response) => {
-        const chunks: Buffer[] = [];
-        response.on("data", (chunk: Buffer) => chunks.push(chunk));
-        response.on("end", () => resolve({ status: response.statusCode ?? 0, body: Buffer.concat(chunks).toString("utf8") }));
-      });
-      outgoing.on("error", reject);
-      outgoing.end(body);
-    });
-
-  const sameOriginJson = (): Record<string, string> => ({ origin: baseUrl.origin, "content-type": "application/json" });
+  const send = (path: string, options?: SendOptions): Promise<Reply> => server.send(path, options);
+  const sameOriginJson = (): Record<string, string> => server.sameOriginJson();
   const saveBody = JSON.stringify({ changes: [{ path: "branches.main", value: "production" }] });
   const savedMain = async (): Promise<string> =>
     (await loadConfig({ globalPath: paths.global, repoPath: paths.repo })).branches.main;
@@ -239,7 +214,7 @@ describe("serveur web : /config et /api/config", () => {
   });
 
   it("refuse un formulaire HTML envoyé en text/plain", async () => {
-    const headers = { origin: baseUrl.origin, "content-type": "text/plain" };
+    const headers = { origin: server.baseUrl.origin, "content-type": "text/plain" };
     const reply = await send("/api/config", { method: "POST", headers, body: saveBody });
     expect(reply.status).toBe(HTTP_UNSUPPORTED_MEDIA_TYPE);
     expect(await savedMain()).toBe("main");
