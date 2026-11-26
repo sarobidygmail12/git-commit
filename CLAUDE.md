@@ -64,6 +64,29 @@ Sens des imports :
 - CSP stricte (`'self'` seulement) : aucun style ni script inline, aucun attribut `style=` ni `onclick=`.
 - Commentaires en français, seulement pour le *pourquoi*.
 
+## Design et animation
+
+Les skills d'Emil Kowalski (`emilkowalski/skills`, commit `64eb3de`) sont installés dans `.claude/skills/`. Toute modification de `src/web/` les applique :
+
+| Quand | Skill |
+|---|---|
+| Je construis ou modifie une page, un composant, un état (hover, press, focus) | `emil-design-eng`, `apple-design` |
+| J'ajoute une animation ou une transition | `animate` (et `choreograph` si plusieurs éléments bougent ensemble) |
+| Une animation saccade | `animation-performance` |
+| Avant de livrer une vue | `/review-animations` sur le diff, `break-ui` avec des données extrêmes (noms de branche très longs, 0 commit, 5 000 commits, emoji, chinois) |
+| Audit global du front | `/improve-animations` |
+
+Règles non négociables, issues de ces skills :
+
+- Courbes : uniquement les tokens `--ease-out`, `--ease-in-out`, `--ease-drawer` de `web/styles/app.css` (classes `ease-out`…). Jamais `ease-in` sur l'interface, jamais de courbe inventée.
+- Durées : moins de 300 ms pour l'interface (appui 100-160 ms, popover 125-200 ms, menu 150-250 ms) ; la sortie est plus rapide que l'entrée.
+- Propriétés : `transform` et `opacity` seulement, listées explicitement. Jamais `transition: all`, jamais `scale(0)` (partir de `scale(0.95)` + `opacity: 0`).
+- Boutons : retour à l'appui (`active:scale-97` en Tailwind, `:active { transform: scale(0.97) }` dans une feuille de page).
+- Rien d'animé sur une action clavier ou très fréquente (recherche, navigation dans l'historique).
+- Survol animé seulement sous `@media (hover: hover) and (pointer: fine)` : la variante `hover:` de Tailwind v4 le fait déjà, une feuille de page doit l'écrire.
+- `prefers-reduced-motion` respecté : animations réduites à un fondu ou supprimées.
+- Les popovers s'ouvrent depuis leur déclencheur (`transform-origin`), les modales restent centrées.
+
 ## Commandes
 
 - `yarn build` : tsc, puis Tailwind (`build:css`), puis copie de `src/web` vers `dist/web`. Relance git-push ensuite.
