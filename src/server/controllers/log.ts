@@ -4,18 +4,20 @@ import {
   isCommitHash,
   LOG_SEARCH_FIELDS,
   type CommitDetails,
+  type FileDiff,
   type LogPage,
   type LogQuery,
   type RepoOverview,
 } from "../../core/git/log.js";
 import { t } from "../../lang/index.js";
 import { RequestError } from "../http/requestError.js";
-import { readCommitDetails, readLogPage, readRepoOverview } from "../services/log.js";
+import { readCommitDetails, readFileDiff, readLogPage, readRepoOverview } from "../services/log.js";
 
 export type LogController = {
   readPage(url: URL): Promise<LogPage>;
   readOverview(): Promise<RepoOverview>;
   readCommit(url: URL): Promise<CommitDetails>;
+  readFileDiff(url: URL): Promise<FileDiff>;
 };
 
 export function createLogController(git: GitClient): LogController {
@@ -23,6 +25,7 @@ export function createLogController(git: GitClient): LogController {
     readPage: (url) => readLogPage(git, parseLogQuery(url)),
     readOverview: () => readRepoOverview(git),
     readCommit: (url) => readCommitDetails(git, parseHash(url)),
+    readFileDiff: (url) => readFileDiff(git, parseHash(url), parsePath(url)),
   };
 }
 
@@ -42,4 +45,10 @@ function parseHash(url: URL): string {
   const hash = url.searchParams.get("hash") ?? "";
   if (!isCommitHash(hash)) throw new RequestError(HTTP_BAD_REQUEST, t("log.invalidHash", { hash }));
   return hash;
+}
+
+function parsePath(url: URL): string {
+  const path = url.searchParams.get("path") ?? "";
+  if (path.trim() === "") throw new RequestError(HTTP_BAD_REQUEST, t("log.missingPath"));
+  return path;
 }

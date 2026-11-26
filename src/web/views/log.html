@@ -1,26 +1,36 @@
-<header class="topbar">
-  <button id="menu" class="toolbar-button" type="button" aria-label="{{web.showBranches}}">☰</button>
-  <span id="repo" class="repo">git-commit.dev</span>
-  <button id="current" class="current" type="button" title="{{web.goToHead}}" hidden></button>
-  <span id="filter-chip" class="chip" hidden><span id="filter-text"></span><button id="filter-clear" type="button" aria-label="{{web.removeFilter}}">×</button></span>
-  <form id="filters" role="search">
-    <input id="search" type="search" placeholder="{{web.searchPlaceholder}}" aria-label="{{web.searchLabel}}">
-    <select id="field" aria-label="{{web.searchField}}">
+<header class="flex min-h-12 flex-none flex-wrap items-center gap-2.5 border-b border-line bg-panel px-3 py-1.75">
+  <button id="menu" class="button-toolbar hidden max-compact:block" type="button" aria-label="{{web.showBranches}}">☰</button>
+  <span id="repo" class="text-body font-emphasis whitespace-nowrap">git-commit.dev</span>
+  <button id="current" class="pressable flex max-w-70 items-center gap-1.5 rounded-control bg-head px-2.5 py-1 font-semibold whitespace-nowrap" type="button" title="{{web.goToHead}}" hidden></button>
+  <span id="filter-chip" class="flex max-w-60 items-center gap-1.5 rounded-control bg-selected px-2 py-0.75 whitespace-nowrap" hidden><span id="filter-text" class="overflow-hidden text-ellipsis"></span><button id="filter-clear" class="pressable" type="button" aria-label="{{web.removeFilter}}">×</button></span>
+  <form id="filters" class="flex min-w-0 shrink grow basis-70 gap-1.5 max-compact:order-5 max-compact:basis-full" role="search">
+    <input id="search" class="min-w-15 flex-1 rounded-control border border-line bg-bg px-2 py-1" type="search" placeholder="{{web.searchPlaceholder}}" aria-label="{{web.searchLabel}}">
+    <select id="field" class="rounded-control border border-line bg-bg px-2 py-1" aria-label="{{web.searchField}}">
       <option value="message">{{web.message}}</option><option value="author">{{web.author}}</option><option value="hash">Hash</option>
     </select>
   </form>
-  <a class="toolbar-button" href="/config">{{web.configuration}}</a>
-  <a class="toolbar-button" href="/help">{{web.help}}</a>
-  <button id="theme" class="toolbar-button" type="button">{{web.theme}}</button>
+  <a class="button-toolbar" href="/config">{{web.configuration}}</a>
+  <a class="button-toolbar" href="/help">{{web.help}}</a>
+  <button id="theme" class="button-toolbar" type="button">{{web.theme}}</button>
 </header>
-<div class="layout">
-  <nav id="sidebar" aria-label="{{web.branchesAndAuthors}}"></nav>
-  <main class="center" id="center">
-    <div class="columns"><span>{{web.branchTag}}</span><span id="graph-title">{{web.graph}}</span><span>{{web.message}}</span><span>{{web.author}}</span><span>{{web.date}}</span><span>SHA</span></div>
+<div class="relative flex min-h-0 flex-1">
+  <nav id="sidebar" class="drawer w-61 flex-none overflow-y-auto border-r border-line bg-panel pt-1.5 pb-5" aria-label="{{web.branchesAndAuthors}}"></nav>
+  <main id="center" class="min-w-0 flex-1 overflow-auto bg-panel">
+    <div class="log-grid sticky top-0 z-2 h-7 bg-raised text-caption2 font-semibold text-muted *:overflow-hidden *:px-2.5 *:whitespace-nowrap *:empty:p-0"><span>{{web.branchTag}}</span><span id="graph-title">{{web.graph}}</span><span>{{web.message}}</span><span>{{web.author}}</span><span>{{web.date}}</span><span>SHA</span></div>
     <div id="rows"></div>
-    <div id="state" hidden></div>
-    <button id="more" class="toolbar-button" type="button" hidden>{{web.loadMore}}</button>
+    <div id="state" class="p-4.5 text-center text-muted" hidden></div>
+    <button id="more" class="button-toolbar mx-auto mt-3 mb-4.5 block" type="button" hidden>{{web.loadMore}}</button>
   </main>
+  <aside id="details" class="w-90 flex-none overflow-y-auto border-l border-line bg-panel px-4 pt-3.5 pb-7 max-wide:absolute max-wide:inset-y-0 max-wide:right-0 max-wide:z-4 max-wide:w-full max-wide:max-w-90 max-wide:shadow-panel" aria-label="{{web.commitDetails}}" hidden></aside>
 </div>
-<dialog id="details-dialog" aria-label="{{web.commitDetails}}"><div id="details"></div></dialog>
-<div id="refs-popover" class="refs-popover" role="tooltip" hidden></div>
+<dialog id="file-dialog" class="modal" aria-labelledby="file-dialog-title">
+  <div class="flex min-w-0 flex-1 flex-col">
+    <div class="flex flex-none items-start gap-2.5 border-b border-line px-4.5 py-3">
+      <h2 id="file-dialog-title" class="m-0 min-w-0 flex-1 font-mono text-subhead leading-heading wrap-anywhere"></h2>
+      <span id="file-dialog-stats" class="flex flex-none gap-2 pt-0.5"></span>
+      <button id="file-dialog-close" class="pressable rounded-chip px-1.5 py-0.5 text-lg leading-none text-muted hover:bg-hover" type="button" aria-label="{{web.closeFileDiff}}" autofocus>×</button>
+    </div>
+    <div id="file-diff" class="min-h-0 flex-1 overflow-auto overscroll-contain"></div>
+  </div>
+</dialog>
+<div id="refs-popover" class="menu-popover" role="tooltip" hidden></div>

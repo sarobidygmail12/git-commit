@@ -1,5 +1,7 @@
 /*
  * Feuille unique de l'interface web, compilée par Tailwind dans web/assets/app.css.
+ * Le style vit dans les vues et les scripts sous forme de classes Tailwind ; ce fichier ne porte que
+ * le thème Apple (tokens), une base minimale et les composants répétés (@utility).
  * Sans preflight : les pages gardent les marges, listes et titres natifs du navigateur.
  */
 @layer theme, base, components, utilities;
@@ -9,20 +11,14 @@
 @source "../templates";
 @source "../views";
 @source "../assets";
-
-@import "./document.css" layer(components);
-@import "./log.css" layer(components);
-@import "./help.css" layer(components);
-@import "./config.css" layer(components);
-/* En dernier : ses règles (dont le mouvement réduit) passent après celles des pages à spécificité égale. */
-@import "./motion.css" layer(components);
+/* Les classes du <body> sont posées par le serveur au rendu. */
+@source "../../server/http/render.ts";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 @custom-variant reduced-transparency (@media (prefers-reduced-transparency: reduce));
 
-/* Une seule palette : les classes Tailwind (bg-panel, text-muted…) suivent le thème clair ou sombre. */
+/* Thème Apple : couleurs système macOS / iOS, ajustées pour le contraste WCAG AA du texte. */
 @layer base {
-  /* Couleurs système Apple (macOS / iOS), ajustées pour le contraste WCAG AA du texte : clair, puis sombre. */
   :root {
     color-scheme: light;
     --bg: #f2f2f7;
@@ -47,9 +43,9 @@
     --field: #fff;
     --switch-off: #e9e9eb;
     --switch-knob: #fff;
-    --shadow-control: 0 0.5px 1.5px rgb(0 0 0 / 0.12);
-    --shadow-menu: 0 10px 30px rgb(0 0 0 / 0.18), 0 0 0 0.5px rgb(0 0 0 / 0.08);
     --backdrop: rgb(0 0 0 / 0.3);
+    --elevation-control: 0 0.5px 1.5px rgb(0 0 0 / 0.12);
+    --elevation-menu: 0 10px 30px rgb(0 0 0 / 0.18), 0 0 0 0.5px rgb(0 0 0 / 0.08);
   }
 
   :root[data-theme="dark"] {
@@ -76,9 +72,9 @@
     --field: #2c2c2e;
     --switch-off: #39393d;
     --switch-knob: #fff;
-    --shadow-control: 0 0.5px 1.5px rgb(0 0 0 / 0.5);
-    --shadow-menu: 0 10px 30px rgb(0 0 0 / 0.5), 0 0 0 0.5px rgb(255 255 255 / 0.1);
     --backdrop: rgb(0 0 0 / 0.55);
+    --elevation-control: 0 0.5px 1.5px rgb(0 0 0 / 0.5);
+    --elevation-menu: 0 10px 30px rgb(0 0 0 / 0.5), 0 0 0 0.5px rgb(255 255 255 / 0.1);
   }
 
   * {
@@ -87,6 +83,22 @@
 
   [hidden] {
     display: none !important;
+  }
+
+  /* Les contrôles prennent la police de la page ; un bouton nu n'a ni fond ni bordure (les classes les ajoutent). */
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
   }
 
   /* Halo de focus macOS : un anneau bleu à demi transparent qui épouse le contrôle. */
@@ -111,27 +123,260 @@
   --color-selected: var(--selected);
   --color-head: var(--head);
   --color-changed: var(--changed);
+  --color-add: var(--add);
+  --color-del: var(--del);
   --color-danger: var(--danger);
   --color-success: var(--success);
+  --color-on-avatar: var(--on-avatar);
+  --color-field: var(--field);
+  --color-backdrop: var(--backdrop);
+  --shadow-control: var(--elevation-control);
+  --shadow-menu: var(--elevation-menu);
 }
 
 @theme {
   /* Police système : San Francisco sur Apple, l'équivalent natif ailleurs. */
   --font-sans: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
-  --text-title: 22px;
-  --text-small: 13px;
-  --text-section: 17px;
-  --container-page: 860px;
+  --font-weight-emphasis: 650;
 
-  /* Coins : étiquettes, contrôles (boutons, champs), groupes et cartes, comme dans Réglages. */
+  /* Échelle de texte inspirée des styles Apple ; l'interligne reste celui de la page, sauf `leading-*`. */
+  --text-tiny: 9px;
+  --text-caption2: 11px;
+  --text-caption: 12px;
+  --text-footnote: 13px;
+  --text-subhead: 14px;
+  --text-body: 15px;
+  --text-headline: 17px;
+  --text-title: 22px;
+
+  --leading-auto: normal;
+  --leading-heading: 1.3;
+  --leading-dense: 1.4;
+  --leading-body: 1.55;
+  --tracking-caps: 0.02em;
+  --tracking-label: 0.05em;
+
+  --container-page: 860px;
+  --container-dialog: 1200px;
+  --breakpoint-narrow: 40rem;
+  --breakpoint-compact: 47.5rem;
+  /* En dessous, le détail d'un commit passe par-dessus l'historique au lieu de se placer à côté. */
+  --breakpoint-wide: 68.75rem;
+
+  /* Coins : étiquettes, contrôles (boutons, champs), menus, groupes et cartes, comme dans Réglages. */
   --radius-chip: 6px;
   --radius-control: 8px;
-  --radius-card: 12px;
   --radius-menu: 10px;
+  --radius-card: 12px;
+
+  --shadow-drawer: 6px 0 18px rgb(0 0 0 / 0.25);
+  --shadow-panel: -6px 0 18px rgb(0 0 0 / 0.25);
+  --blur-menu: 20px;
 
   /* Courbes des skills d'Emil Kowalski (.claude/skills) : remplacent celles de Tailwind, donc `ease-out` les utilise. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/*
+ * Retour à l'appui (skill emil-design-eng) : 160 ms, scale(0.97). Jamais au clavier, car Espace ou Entrée
+ * déclenchent aussi :active ; supprimé en mouvement réduit.
+ */
+@utility pressable {
+  transition: transform 160ms var(--ease-out);
+
+  &:active:not(:disabled):not(:focus-visible) {
+    transform: scale(0.97);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not(:disabled):not(:focus-visible) {
+      transform: none;
+    }
+  }
+}
+
+/* Bouton macOS des pages de lecture ; `button-primary` est le bouton bleu rempli. */
+@utility button-push {
+  @apply pressable min-h-9 cursor-pointer rounded-control border border-line bg-panel px-3 py-1.5 shadow-control disabled:cursor-default disabled:opacity-50;
+}
+
+@utility button-primary {
+  @apply button-push border-accent-fill bg-accent-fill font-semibold text-accent-text;
+}
+
+/* Bouton compact de la barre d'outils du log et du détail d'un commit. */
+@utility button-toolbar {
+  @apply pressable cursor-pointer rounded-control border border-line px-2.25 py-1 whitespace-nowrap text-inherit no-underline shadow-control hover:bg-hover;
+}
+
+/* Champ de saisie macOS : fond blanc bordé (gris foncé en sombre). */
+@utility field {
+  @apply min-h-9 w-full rounded-control border border-line bg-field px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-55;
+}
+
+@utility code-chip {
+  @apply rounded-chip bg-code px-1.25 py-px font-mono text-footnote leading-normal wrap-anywhere;
+}
+
+/* Cellules d'une ligne de tableau (/help) : bordure basse, texte aligné en haut. */
+@utility table-cells {
+  & > * {
+    @apply border-b border-line px-2.5 py-1.75 text-left align-top text-subhead;
+  }
+}
+
+/* Option de /config : libellé à gauche, contrôle à droite (une seule colonne sur écran étroit). */
+@utility option-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
+}
+
+/*
+ * Interrupteur macOS à la place d'une case à cocher. Le bouton glisse (mouvement à l'écran : --ease-in-out),
+ * sauf au clavier et en mouvement réduit : seule la couleur change alors.
+ */
+@utility switch {
+  appearance: none;
+  position: relative;
+  width: 38px;
+  height: 22px;
+  margin: 7px 0;
+  border-radius: 9999px;
+  background: var(--switch-off);
+  cursor: pointer;
+  transition: background-color 200ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--switch-knob);
+    box-shadow: var(--elevation-control), 0 1px 3px rgb(0 0 0 / 0.15);
+    transition: transform 200ms var(--ease-in-out);
+  }
+
+  &:checked {
+    background: var(--accent-fill);
+  }
+
+  &:checked::before {
+    transform: translateX(16px);
+  }
+
+  &:focus-visible,
+  &:focus-visible::before {
+    transition: none;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      transition: none;
+    }
+  }
+}
+
+/* Grille d'une ligne du log ; la colonne du graphe suit --graph-width, posée par log.js selon le nombre de voies. */
+@utility log-grid {
+  display: grid;
+  grid-template-columns: 190px var(--graph-width, 60px) minmax(240px, 1fr) 160px 132px 84px;
+  align-items: center;
+  min-width: calc(806px + var(--graph-width, 60px));
+}
+
+/* Titre repliable de la barre latérale, façon Finder : triangle ▸ / ▾ selon l'état du <details> parent. */
+@utility disclosure {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::before {
+    content: "▸";
+    margin-right: 6px;
+  }
+
+  details[open] > &::before {
+    content: "▾";
+  }
+}
+
+/*
+ * Barre latérale en tiroir sur écran étroit : entre et sort par la gauche, sortie plus rapide que l'entrée.
+ * `allow-discrete` laisse `display` suivre la fin ; en mouvement réduit, fondu sans glissement.
+ */
+@utility drawer {
+  @variant max-compact {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 3;
+    display: none;
+    box-shadow: var(--shadow-drawer);
+    transform: translateX(-100%);
+    transition:
+      transform 200ms var(--ease-drawer),
+      display 200ms allow-discrete;
+
+    &[data-open] {
+      display: block;
+      transform: none;
+      transition:
+        transform 250ms var(--ease-drawer),
+        display 250ms allow-discrete;
+
+      @starting-style {
+        transform: translateX(-100%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transform: none;
+      transition: none;
+
+      &[data-open] {
+        transition: opacity 150ms var(--ease-out);
+
+        @starting-style {
+          opacity: 0;
+        }
+      }
+    }
+  }
+}
+
+/* Diff en deux colonnes : numéro et texte de l'ancienne version, puis de la nouvelle. */
+@utility diff-split {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+/* Modale du diff d'un fichier : centrée, sans animation (elle s'ouvre aussi au clavier avec Entrée). */
+@utility modal {
+  width: min(var(--container-dialog), calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  @apply overflow-hidden rounded-card border-0 bg-panel p-0 text-text shadow-menu open:flex backdrop:bg-backdrop;
+}
+
+/* Menu translucide macOS (étiquettes d'une ligne du log), opaque si l'utilisateur réduit la transparence. */
+@utility menu-popover {
+  position: fixed;
+  z-index: 5;
+  max-width: min(420px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  @apply pointer-events-none flex flex-col items-start gap-1 overflow-hidden rounded-menu bg-panel/78 p-1.5 shadow-menu backdrop-blur-menu backdrop-saturate-180 reduced-transparency:bg-panel reduced-transparency:backdrop-blur-none;
 }

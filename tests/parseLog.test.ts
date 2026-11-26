@@ -3,13 +3,16 @@ import { createGitClient } from "../src/core/git/gitClient.js";
 import {
   annotateCommits,
   getCommitDetails,
+  getFileDiff,
   getLogPage,
   getRepoOverview,
   LOG_PAGE_SIZE,
+  MAX_DIFF_LINES,
   parseGitLog,
   parseNumstat,
   parseRefs,
   parseShortlog,
+  renamedPaths,
   type LogCommit,
   type LogQuery,
 } from "../src/core/git/log.js";
@@ -142,6 +145,13 @@ describe("analyse des sorties git", () => {
       { path: "img.png", added: null, deleted: null },
     ]);
   });
+
+  it("retrouve les deux chemins d'un renommage écrit par numstat", () => {
+    expect(renamedPaths("src/a.ts")).toEqual(["src/a.ts"]);
+    expect(renamedPaths("old.ts => new.ts")).toEqual(["old.ts", "new.ts"]);
+    expect(renamedPaths("src/{a => b}/x.ts")).toEqual(["src/a/x.ts", "src/b/x.ts"]);
+    expect(renamedPaths("src/{ => sub}/x.ts")).toEqual(["src/x.ts", "src/sub/x.ts"]);
+  });
 });
 
 describe("getLogPage", () => {
@@ -225,5 +235,52 @@ describe("getLogPage", () => {
 
   it("refuse un hash qui pourrait être lu comme une option", async () => {
     await expect(getCommitDetails(createGitClient({ cwd: repo.work }), "--all")).rejects.toThrow("invalide");
+  });
+});
+
+describe("getFileDiff", () => {
+  let repo: TempRepo;
+
+  beforeEach(() => {
+    repo = createTempRepo();
+  });
+
+  afterEach(() => repo.cleanup());
+
+  it("renvoie le diff du seul fichier demandé", async () => {
+    repo.write("a.txt", "un\n");
+    repo.write("b.txt", "deux\n");
+    repo.git("add", ".");
+    repo.git("commit", "--quiet", "-m", "deux fichiers");
+    const diff = await getFileDiff(createGitClient({ cwd: repo.work }), repo.git("rev-parse", "HEAD"), "a.txt");
+    expect(diff.truncated).toBe(false);
+    expect(diff.patch).toContain("+un");
+    expect(diff.patch).not.toContain("b.txt");
+  });
+
+  it("lit un chemin comme un nom littéral, jamais comme un motif", async () => {
+    repo.write("a.txt", "un\n");
+    repo.git("add", ".");
+    repo.git("commit", "--quiet", "-m", "a");
+    const diff = await getFileDiff(createGitClient({ cwd: repo.work }), repo.git("rev-parse", "HEAD"), "*");
+    expect(diff.patch).toBe("");
+  });
+
+  it("montre un fichier renommé à partir du chemin numstat", async () => {
+    repo.git("mv", "file.txt", "renamed.txt");
+    repo.git("commit", "--quiet", "-m", "renomme");
+    const diff = await getFileDiff(createGitClient({ cwd: repo.work }), repo.git("rev-parse", "HEAD"), "file.txt => renamed.txt");
+    expect(diff.patch).toContain("rename to renamed.txt");
+  });
+
+  it(`coupe le diff après ${MAX_DIFF_LINES} lignes`, async () => {
+    repo.commit("big.txt", Array.from({ length: MAX_DIFF_LINES + 10 }, (_, index) => `ligne ${index}`).join("\n") + "\n", "gros");
+    const diff = await getFileDiff(createGitClient({ cwd: repo.work }), repo.git("rev-parse", "HEAD"), "big.txt");
+    expect(diff.truncated).toBe(true);
+    expect(diff.patch.split("\n")).toHaveLength(MAX_DIFF_LINES);
+  });
+
+  it("refuse un hash qui pourrait être lu comme une option", async () => {
+    await expect(getFileDiff(createGitClient({ cwd: repo.work }), "--all", "a.txt")).rejects.toThrow("invalide");
   });
 });

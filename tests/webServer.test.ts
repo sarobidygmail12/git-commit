@@ -122,6 +122,22 @@ describe("serveur web : pages et API de lecture", () => {
     expect(JSON.parse(reply.body)).toHaveProperty("error");
   });
 
+  it("/api/commit/file renvoie le diff d'un fichier du commit", async () => {
+    repo.commit("a.txt", "a\n", "feat: ajoute a");
+    const diff = await json(`/api/commit/file?hash=${repo.git("rev-parse", "HEAD")}&path=a.txt`);
+    expect(diff).toMatchObject({ path: "a.txt", truncated: false });
+    expect(diff).toHaveProperty("patch", expect.stringContaining("+a"));
+  });
+
+  it.each(["hash=pas-un-hash&path=a.txt", "hash=abcdef&path=", "hash=abcdef"])(
+    "/api/commit/file refuse une requête invalide (%s)",
+    async (query) => {
+      const reply = await server.send(`/api/commit/file?${query}`);
+      expect(reply.status).toBe(HTTP_BAD_REQUEST);
+      expect(JSON.parse(reply.body)).toHaveProperty("error");
+    },
+  );
+
   it("/api/help liste les commandes, les options et la configuration effective", async () => {
     const help = await json("/api/help");
     expect(help).toHaveProperty("commands.length", commands.length);

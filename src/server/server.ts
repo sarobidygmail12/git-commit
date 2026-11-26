@@ -59,6 +59,7 @@ function createRoutes({ config, log, help }: WebControllers): Map<string, Route>
     [`GET ${API_ROUTES.log}`, async ({ url }) => jsonResult(await log.readPage(url))],
     [`GET ${API_ROUTES.repo}`, async () => jsonResult(await log.readOverview())],
     [`GET ${API_ROUTES.commit}`, async ({ url }) => jsonResult(await log.readCommit(url))],
+    [`GET ${API_ROUTES.commitFile}`, async ({ url }) => jsonResult(await log.readFileDiff(url))],
     [`GET ${API_ROUTES.help}`, async () => jsonResult(await help.read())],
     [`GET ${API_ROUTES.config}`, async () => jsonResult(await config.read())],
     [`POST ${API_ROUTES.config}`, async ({ body }) => jsonResult(await config.save(body))],

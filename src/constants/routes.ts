@@ -10,6 +10,7 @@ export const API_ROUTES = {
   log: "/api/log",
   repo: "/api/repo",
   commit: "/api/commit",
+  commitFile: "/api/commit/file",
   help: "/api/help",
   config: "/api/config",
 } as const;

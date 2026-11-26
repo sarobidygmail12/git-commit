@@ -7,10 +7,15 @@ export type PageView = "log" | "help" | "config";
 
 type ViewSettings = { titleKey: MessageKey; bodyClass: string };
 
+/** Classes Tailwind du <body> : pages de lecture (texte confortable) et log (dense, plein écran, focus à l'intérieur des lignes). */
+const DOCUMENT_BODY_CLASS = "m-0 bg-bg font-sans text-body leading-body text-text";
+const LOG_BODY_CLASS =
+  "m-0 flex h-screen flex-col overflow-hidden bg-bg font-sans text-footnote leading-dense text-text **:focus-visible:-outline-offset-2";
+
 const VIEW_SETTINGS: Record<PageView, ViewSettings> = {
-  log: { titleKey: "web.graphTitle", bodyClass: "page-log" },
-  help: { titleKey: "web.helpTitle", bodyClass: "document-page page-help" },
-  config: { titleKey: "web.configTitle", bodyClass: "document-page page-config" },
+  log: { titleKey: "web.graphTitle", bodyClass: LOG_BODY_CLASS },
+  help: { titleKey: "web.helpTitle", bodyClass: DOCUMENT_BODY_CLASS },
+  config: { titleKey: "web.configTitle", bodyClass: DOCUMENT_BODY_CLASS },
 };
 
 /** Le front vit dans src/web (copié dans dist/web au build) : le serveur ne le lit que comme fichiers. */

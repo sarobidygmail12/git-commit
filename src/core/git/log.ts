@@ -17,6 +17,8 @@ const TAG_PREFIX = "tag: ";
 const STASH_REF = "refs/stash";
 const REMOTE_HEAD_SUFFIX = "/HEAD";
 const MAX_DETAIL_FILES = 300;
+export const MAX_DIFF_LINES = 3000;
+const RENAME_ARROW = " => ";
 
 /** Par ordre de priorité : un ancêtre partagé appartient à la branche la plus stable, pas à celle qui en est partie. */
 const MAINLINE_BRANCHES = ["main", "master", "preprod", "develop"];
@@ -69,6 +71,8 @@ export type CommitDetails = {
   fileCount: number;
   containedIn: readonly LogRef[];
 };
+
+export type FileDiff = { path: string; patch: string; truncated: boolean };
 
 export function isCommitHash(text: string): boolean {
   return text.length >= MIN_HASH_LENGTH && [...text].every((character) => HEX_DIGITS.includes(character));
@@ -273,4 +277,44 @@ export function parseNumstat(output: string): ChangedFile[] {
     const [added = "-", deleted = "-", ...path] = line.split("\t");
     return { path: path.join("\t"), added: added === "-" ? null : Number(added), deleted: deleted === "-" ? null : Number(deleted) };
   });
+}
+
+/**
+ * Diff d'un fichier d'un commit, plafonné à MAX_DIFF_LINES lignes. `--literal-pathspecs` empêche un chemin
+ * comme `*` ou `:(top)` de sortir du fichier demandé ; un renommage est montré avec ses deux chemins.
+ */
+export async function getFileDiff(git: GitClient, hash: string, path: string): Promise<FileDiff> {
+  if (!isCommitHash(hash)) throw new GitError(t("log.invalidHash", { hash }));
+  const result = await git.run([
+    "--literal-pathspecs",
+    "-c",
+    "core.quotePath=false",
+    "show",
+    "--format=",
+    "--patch",
+    "-M",
+    "-m",
+    "--first-parent",
+    hash,
+    "--",
+    ...renamedPaths(path),
+  ]);
+  const lines = result.stdout.replace(/\n$/, "").split("\n");
+  const truncated = lines.length > MAX_DIFF_LINES;
+  return { path, patch: (truncated ? lines.slice(0, MAX_DIFF_LINES) : lines).join("\n"), truncated };
+}
+
+/**
+ * `--numstat` écrit un renommage `ancien => nouveau` ou `dossier/{ancien => nouveau}/fichier` :
+ * on retrouve les deux chemins pour que le diff montre le fichier renommé.
+ */
+export function renamedPaths(path: string): string[] {
+  const arrow = path.indexOf(RENAME_ARROW);
+  if (arrow === -1) return [path];
+  const open = path.lastIndexOf("{", arrow);
+  const close = path.indexOf("}", arrow);
+  if (open === -1 || close === -1) return [path.slice(0, arrow), path.slice(arrow + RENAME_ARROW.length)];
+  const prefix = path.slice(0, open), suffix = path.slice(close + 1);
+  const join = (middle: string): string => (prefix + middle + suffix).replace("//", "/");
+  return [join(path.slice(open + 1, arrow)), join(path.slice(arrow + RENAME_ARROW.length, close))];
 }
