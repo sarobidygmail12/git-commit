@@ -110,7 +110,7 @@ Les lignes grises montrent les vraies commandes Git lancées pour toi. Pratique 
 | `/switch main` | Va sur une autre branche |
 | `/log` | Ouvre l'historique du projet dans ton navigateur |
 | `/undo` | Annule ton dernier commit pas encore envoyé, sans perdre ton travail |
-| `/config` | Liste tes réglages et permet de les changer |
+| `/config` | Ouvre les réglages de ce dépôt dans le navigateur, avec un bouton Enregistrer |
 | `/lang` | Change la langue |
 | `/help` | Ouvre l'aide |
 | `/exit` | Quitte git-push |
@@ -196,7 +196,7 @@ Sans IA, git-push peut seulement décrire les fichiers modifiés. Pour activer G
    export GROQ_API_KEY="ta-clé"
    ```
 
-   Ou tape `/config`, ouvre la ligne `ai.groq.apiKeyEnv` et colle ta clé. Elle est alors enregistrée dans `~/.git-push/config.json`, lisible par ton seul compte.
+   Ou tape `/config set ai.groq.apiKeyEnv <ta clé>`. Elle est alors enregistrée dans `~/.git-push/config.json`, lisible par ton seul compte.
 
 Les messages de commit sont toujours en anglais, quelle que soit la langue de git-push. L'écran de proposition affiche `(groq)` quand l'IA a écrit le message et `(fallback)` sinon.
 
@@ -248,7 +248,7 @@ Tu n'as pas besoin de cette partie pour commencer. Clique sur un titre pour l'ou
 | `/pr` | `/pull-request` | Demande le titre et la description, pousse la branche si besoin, puis ouvre la page GitHub avec les deux déjà remplis : valide la pull request là-bas. N'utilise que `git` |
 | `/fetch` | | `git fetch --all` |
 | `/stash [pop\|list]` | | Met de côté, récupère ou liste |
-| `/config [show\|set\|edit] [--repo]` | | Liste les options et permet de les modifier |
+| `/config [browse\|show\|set\|edit] [--repo]` | | Modifie les options dans le navigateur, ou dans le terminal |
 | `/lang [en\|fr\|zh\|de]` | `/language` | Change la langue des écrans et des réponses (anglais par défaut) |
 | `/help` | `/h` | Liste les commandes, ouvre l'aide détaillée |
 | `/clear` | | Efface l'écran |
@@ -264,7 +264,8 @@ Le fichier global `~/.git-push/config.json` est créé au premier lancement. Un 
 Pour qu'un dépôt cloné ne puisse pas détourner tes diffs, `apiKeyEnv` et `baseUrl` ne sont acceptés que dans le fichier global.
 
 ```text
-/config                                 liste les options : Entrée modifie celle sélectionnée
+/config                                 ouvre les réglages de ce dépôt : modifie, puis Enregistrer dans .git-push.json
+/config browse                          liste les options dans le terminal : Entrée modifie celle sélectionnée
 /config show                            affiche la configuration effective en JSON
 /config set commit.autoPush false       modifie le fichier global
 /config set --repo branches.develop dev modifie .git-push.json

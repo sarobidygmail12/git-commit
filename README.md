@@ -110,7 +110,7 @@ The grey lines show the real Git commands run for you. Handy for learning! 👀
 | `/switch main` | Moves to another branch |
 | `/log` | Opens the project history in your browser |
 | `/undo` | Cancels your last commit not sent yet, without losing your work |
-| `/config` | Lists your settings and lets you change them |
+| `/config` | Opens this repository's settings in the browser, with a Save button |
 | `/lang` | Changes the language |
 | `/help` | Opens the help |
 | `/exit` | Quits git-push |
@@ -196,7 +196,7 @@ Without AI, git-push can only describe the files that changed. To turn on Groq, 
    export GROQ_API_KEY="your-key"
    ```
 
-   Or type `/config`, open the `ai.groq.apiKeyEnv` line and paste your key there. It is then stored in `~/.git-push/config.json`, which only your account can read.
+   Or type `/config set ai.groq.apiKeyEnv <your key>`. It is then stored in `~/.git-push/config.json`, which only your account can read.
 
 Commit messages are always in English, whatever language git-push is in. The suggestion screen shows `(groq)` when the AI wrote the message and `(fallback)` when it didn't.
 
@@ -248,7 +248,7 @@ You don't need this part to get started. Click a title to open it.
 | `/pr` | `/pull-request` | Asks for the title and description, pushes the branch if needed, then opens the GitHub page with both filled in: confirm the pull request there. Uses `git` only |
 | `/fetch` | | `git fetch --all` |
 | `/stash [pop\|list]` | | Sets aside, restores or lists |
-| `/config [show\|set\|edit] [--repo]` | | Lists the options and lets you edit them |
+| `/config [browse\|show\|set\|edit] [--repo]` | | Edits the options in the browser, or in the terminal |
 | `/lang [en\|fr\|zh\|de]` | `/language` | Changes the language of the screens and answers (English by default) |
 | `/help` | `/h` | Lists commands, opens the detailed help |
 | `/clear` | | Clears the screen |
@@ -264,7 +264,8 @@ The global file `~/.git-push/config.json` is created on first launch. A `.git-pu
 So that a cloned repository can't hijack your diffs, `apiKeyEnv` and `baseUrl` are only accepted in the global file.
 
 ```text
-/config                                 lists the options: Enter edits the selected one
+/config                                 opens this repository's settings page: edit, then Save to .git-push.json
+/config browse                          lists the options in the terminal: Enter edits the selected one
 /config show                            shows the effective configuration as JSON
 /config set commit.autoPush false       changes the global file
 /config set --repo branches.develop dev changes .git-push.json

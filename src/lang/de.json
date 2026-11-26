@@ -141,6 +141,7 @@
   "config.locationGlobal": "Global: {path}",
   "config.locationRepo": "Repository: {path}",
   "config.repoNeeded": "--repo muss in einem Git-Repository verwendet werden.",
+  "config.pageNeedsRepo": "/config bearbeitet die Konfiguration des aktuellen Repositorys: git-push in einem Git-Repository öffnen.",
   "config.valid": "Konfiguration gültig.",
   "config.invalid": "Ungültige Konfiguration ({path}):\n{issues}",
   "config.issuePath": "ungültiger Pfad: {path}",
@@ -242,6 +243,11 @@
   "server.noPort": "Kein freier Port ab {port}.",
   "server.hostRefused": "Host abgelehnt",
   "server.methodRefused": "Methode abgelehnt",
+  "server.originRefused": "Herkunft abgelehnt",
+  "server.jsonRequired": "Der Anfragetext muss JSON sein",
+  "server.bodyTooLarge": "Anfragetext zu groß",
+  "server.invalidJson": "Ungültiges JSON",
+  "server.invalidChanges": "Ungültige Änderungen: jede braucht einen bekannten Optionspfad und einen Wert",
 
   "ui.notRepo": "kein Git-Repository",
   "ui.inputPlaceholder": "Gib / ein, um die Befehle zu sehen",
@@ -302,5 +308,17 @@
   "web.committedBy": "Committet von",
   "web.containedIn": "Enthalten in Branches:",
   "web.files": "Dateien:",
-  "web.noCommitFound": "Kein Commit gefunden."
+  "web.noCommitFound": "Kein Commit gefunden.",
+  "web.configTitle": "Konfiguration",
+  "web.editConfig": "Konfiguration bearbeiten",
+  "web.configPageIntro": "Einstellungen dieses Repositorys, gespeichert in seiner .git-push.json. Eine nicht geänderte Option behält ihren globalen Wert.",
+  "web.globalOnly": "Nur global: mit /config set ändern",
+  "web.listHint": "Ein Wert pro Zeile",
+  "web.save": "Speichern",
+  "web.saving": "Wird gespeichert…",
+  "web.reset": "Verwerfen",
+  "web.noChanges": "Keine Änderungen",
+  "web.unsavedChanges": "{count} ungespeicherte Änderung(en)",
+  "web.saved": "Gespeichert in {file}",
+  "web.saveFailed": "Nichts wurde gespeichert."
 }

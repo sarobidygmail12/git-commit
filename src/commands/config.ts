@@ -2,30 +2,40 @@ import { writeFile } from "node:fs/promises";
 import { execa, parseCommandString } from "execa";
 import { redactApiKeys } from "../core/config/apiKeys.js";
 import { loadConfig, readJsonObject, serializeConfig } from "../core/config/loadConfig.js";
-import { getValueAt, setConfigValue, type ConfigTarget } from "../core/config/saveConfig.js";
+import { getValueAt, resolveConfigTarget, setConfigValue, type ConfigTarget } from "../core/config/saveConfig.js";
 import { DEFAULT_CONFIG, describeConfigOptions, type Config, type ConfigOptionDoc } from "../core/config/schema.js";
 import { ConfigError, GitPushError } from "../core/errors.js";
+import { openPage } from "./shared/openBrowser.js";
 import type { Command, CommandContext } from "./types.js";
 import { t } from "../lang/index.js";
 
 const REPO_FLAG = "--repo";
 const DEFAULT_EDITOR = "vi";
-const SUBCOMMANDS = ["show", "set", "edit"];
+const SUBCOMMANDS = ["browse", "show", "set", "edit"];
+const CONFIG_PAGE = "/config";
 
 export const configCommand: Command = {
   name: "config",
   get description() {
     return t("cmd.config");
   },
-  usage: "/config [show | set path value | edit] [--repo]",
-  examples: ["/config", "/config --repo", "/config show", "/config set commit.autoPush false", "/config set --repo branches.develop dev", "/config edit"],
+  usage: "/config [browse | show | set path value | edit] [--repo]",
+  examples: [
+    "/config",
+    "/config browse",
+    "/config show",
+    "/config set commit.autoPush false",
+    "/config set --repo branches.develop dev",
+    "/config edit",
+  ],
   gitSteps: [],
   allowsInvalidConfig: true,
   completeArgs: () => Promise.resolve(SUBCOMMANDS),
   run: async (ctx, args) => {
     const useRepo = args.includes(REPO_FLAG);
     const [subcommand, path, ...valueParts] = args.filter((arg) => arg !== REPO_FLAG);
-    if (subcommand === undefined) return browseConfig(ctx, useRepo);
+    if (subcommand === undefined) return openConfigPage(ctx);
+    if (subcommand === "browse") return browseConfig(ctx, useRepo);
     if (subcommand === "show") return showConfig(ctx);
     if (subcommand === "edit") return editConfig(ctx, useRepo);
     if (subcommand === "set" && path !== undefined && valueParts.length > 0) {
@@ -52,6 +62,12 @@ function showConfig(ctx: CommandContext): void {
 function describeLocations(ctx: CommandContext): string {
   const repoLine = ctx.paths.repo ? `\n${t("config.locationRepo", { path: ctx.paths.repo })}` : "";
   return `${t("config.locationGlobal", { path: ctx.paths.global })}${repoLine}`;
+}
+
+/** La page n'édite que `.git-push.json` du dépôt courant. */
+async function openConfigPage(ctx: CommandContext): Promise<void> {
+  if (!ctx.paths.repo) throw new GitPushError(t("config.pageNeedsRepo"));
+  await openPage(ctx, CONFIG_PAGE);
 }
 
 async function browseConfig(ctx: CommandContext, useRepo: boolean): Promise<void> {
@@ -105,9 +121,7 @@ async function resolveEditTarget(ctx: CommandContext, path: string, useRepo: boo
 }
 
 function resolveTarget(ctx: CommandContext, useRepo: boolean): ConfigTarget {
-  if (!useRepo) return { scope: "global", path: ctx.paths.global };
-  if (!ctx.paths.repo) throw new GitPushError(t("config.repoNeeded"));
-  return { scope: "repo", path: ctx.paths.repo, globalPath: ctx.paths.global };
+  return resolveConfigTarget(ctx.paths, useRepo ? "repo" : "global");
 }
 
 async function editConfig(ctx: CommandContext, useRepo: boolean): Promise<void> {

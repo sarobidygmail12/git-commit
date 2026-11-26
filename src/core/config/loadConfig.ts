@@ -9,6 +9,7 @@ export type JsonObject = { [key: string]: unknown };
 
 const JSON_INDENT = 2;
 const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+const GLOBAL_ONLY_PROVIDER_KEYS = new Set(["apiKeyEnv", "baseUrl"]);
 
 export const REPO_CONFIG_FILENAME = ".git-push.json";
 export const OWNER_ONLY_FILE_MODE = 0o600;
@@ -90,10 +91,15 @@ function forbiddenRepoKeys(repoFile: JsonObject): string[] {
   return Object.entries(ai).flatMap(([provider, settings]) =>
     isJsonObject(settings)
       ? Object.keys(settings)
-          .filter((key) => key === "apiKeyEnv" || key === "baseUrl")
+          .filter((key) => GLOBAL_ONLY_PROVIDER_KEYS.has(key))
           .map((key) => `ai.${provider}.${key}`)
       : [],
   );
+}
+
+export function isGlobalOnlyPath(dottedPath: string): boolean {
+  const [section, provider, key, ...rest] = dottedPath.split(".");
+  return section === "ai" && provider !== undefined && key !== undefined && rest.length === 0 && GLOBAL_ONLY_PROVIDER_KEYS.has(key);
 }
 
 export function mergeDeep(base: JsonObject, override: JsonObject): JsonObject {

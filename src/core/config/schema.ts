@@ -67,7 +67,15 @@ export const DEFAULT_CONFIG: Config = {
   web: { port: DEFAULT_WEB_PORT },
 };
 
-export type ConfigOptionDoc = { path: string; type: string; description: string };
+export type ConfigOptionKind = "text" | "number" | "boolean" | "choice" | "list";
+
+export type ConfigOptionDoc = {
+  path: string;
+  type: string;
+  description: string;
+  kind: ConfigOptionKind;
+  choices: readonly string[];
+};
 
 /** Génère la documentation des options depuis le schéma, pour ne rien dupliquer à la main. */
 export function describeConfigOptions(): ConfigOptionDoc[] {
@@ -82,7 +90,9 @@ function collectOptions(node: SchemaNode, path: string): ConfigOptionDoc[] {
       typeof child === "boolean" ? [] : collectOptions(child, path ? `${path}.${key}` : key),
     );
   }
-  return [{ path, type: describeType(node), description: describeOption(path) }];
+  return [
+    { path, type: describeType(node), description: describeOption(path), kind: describeKind(node), choices: describeChoices(node) },
+  ];
 }
 
 function describeOption(path: string): string {
@@ -94,4 +104,19 @@ function describeType(node: SchemaNode): string {
   if (node.enum) return node.enum.join(" | ");
   if (node.type === "array") return t("option.typeList");
   return typeof node.type === "string" ? node.type : t("option.typeValue");
+}
+
+function describeKind(node: SchemaNode): ConfigOptionKind {
+  if (node.enum) return "choice";
+  if (node.type === "array") return "list";
+  if (node.type === "boolean") return "boolean";
+  if (node.type === "integer" || node.type === "number") return "number";
+  return "text";
+}
+
+/** Une liste aux valeurs imposées, comme `ai.fallbackOrder`, annonce elle aussi ses choix. */
+function describeChoices(node: SchemaNode): string[] {
+  const items = node.type === "array" ? node.items : undefined;
+  const source = typeof items === "object" && !Array.isArray(items) ? items : node;
+  return (source.enum ?? []).filter((choice): choice is string => typeof choice === "string");
 }

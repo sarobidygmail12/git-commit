@@ -45,7 +45,7 @@ export function createSession(options: SessionOptions): ReplSession {
     const paths = await resolvePaths();
     return loadConfig({ globalPath: paths.global, repoPath: paths.repo });
   };
-  const web = createWebServer({ git: silentGit, commands, readConfig });
+  const web = createWebServer({ git: silentGit, commands, readConfig, readPaths: resolvePaths });
 
   const buildContext = (client: GitClient, config: Config, paths: ConfigPaths): CommandContext => ({
     git: client,
