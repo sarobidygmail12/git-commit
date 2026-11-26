@@ -1,12 +1,12 @@
+import { DEFAULT_REMOTE, REMOTE_PREFIX } from "../constants/git.js";
 import { GitError } from "../core/errors.js";
 import { pushCurrentBranch } from "../core/git/branches.js";
 import { assertNoOperationInProgress, getStatus } from "../core/git/status.js";
 import { isSequenceRunning, resolveSequence, startRebase } from "./shared/resolveSequence.js";
 import { secureWorkingTree } from "./shared/secureWorkingTree.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
-const REMOTE = "origin";
 
 export const firstPushCommand: Command = {
   name: "first-push",
@@ -38,23 +38,23 @@ export const firstPushCommand: Command = {
       return;
     }
 
-    await ctx.ui.spinner(t("spinner.fetchRemote", { remote: REMOTE }), () => ctx.git.run(["fetch", REMOTE]));
+    await ctx.ui.spinner(t("spinner.fetchRemote", { remote: DEFAULT_REMOTE }), () => ctx.git.run(["fetch", DEFAULT_REMOTE]));
     const missingCommits = await countMissingRemoteCommits(ctx, status.branch);
     if (missingCommits === 0) return publish(ctx);
 
-    ctx.ui.log(t("firstPush.missingCommits", { remote: `${REMOTE}/${status.branch}`, count: missingCommits }));
+    ctx.ui.log(t("firstPush.missingCommits", { remote: `${DEFAULT_REMOTE}/${status.branch}`, count: missingCommits }));
     if (!(await secureWorkingTree(withoutAutoPush(ctx), "/first-push"))) {
       ctx.ui.log(t("firstPush.cancelled"), "warn");
       return;
     }
-    await startRebase(ctx, `${REMOTE}/${status.branch}`);
+    await startRebase(ctx, `${DEFAULT_REMOTE}/${status.branch}`);
     await finishRebaseThenPublish(ctx);
   },
 };
 
 async function assertHasOrigin(ctx: CommandContext): Promise<void> {
-  const { exitCode } = await ctx.git.run(["remote", "get-url", REMOTE], { allowFailure: true });
-  if (exitCode !== 0) throw new GitError(t("firstPush.noRemote", { remote: REMOTE }));
+  const { exitCode } = await ctx.git.run(["remote", "get-url", DEFAULT_REMOTE], { allowFailure: true });
+  if (exitCode !== 0) throw new GitError(t("firstPush.noRemote", { remote: DEFAULT_REMOTE }));
 }
 
 /** Tant que le remote n'est pas intégré, le push automatique de /commit serait rejeté. */
@@ -63,7 +63,7 @@ function withoutAutoPush(ctx: CommandContext): CommandContext {
 }
 
 async function countMissingRemoteCommits(ctx: CommandContext, branch: string): Promise<number> {
-  const remoteRef = `refs/remotes/${REMOTE}/${branch}`;
+  const remoteRef = `${REMOTE_PREFIX}${DEFAULT_REMOTE}/${branch}`;
   const { exitCode } = await ctx.git.run(["show-ref", "--verify", "--quiet", remoteRef], { allowFailure: true });
   if (exitCode !== 0) return 0;
   const { stdout } = await ctx.git.run(["rev-list", "--count", `HEAD..${remoteRef}`]);

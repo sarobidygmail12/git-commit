@@ -1,7 +1,7 @@
 import { GitError } from "../core/errors.js";
 import { assertHeadNotPushed, countHeadParents } from "../core/git/commits.js";
 import { assertNoOperationInProgress, getStatus } from "../core/git/status.js";
-import type { Command } from "./types.js";
+import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 export const undoCommand: Command = {

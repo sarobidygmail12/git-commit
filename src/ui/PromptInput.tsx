@@ -1,7 +1,7 @@
 import { Box, Text, useInput } from "ink";
 import TextInput from "ink-text-input";
 import { useEffect, useState, type ReactElement } from "react";
-import { NO_SUGGESTIONS, type Suggestion, type SuggestionList } from "../commands/suggest.js";
+import { NO_SUGGESTIONS, type Suggestion, type SuggestionList } from "../contracts/session.js";
 import { CommandSuggestions } from "./CommandSuggestions.js";
 import { t } from "../lang/index.js";
 

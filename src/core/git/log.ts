@@ -1,7 +1,8 @@
 import { basename } from "node:path";
 import { GitError } from "../errors.js";
 import type { GitClient } from "./gitClient.js";
-import { listRefs, LOCAL_PREFIX, REMOTE_PREFIX, shortRefName } from "./branches.js";
+import { LOCAL_PREFIX, REMOTE_PREFIX, TAGS_PREFIX } from "../../constants/git.js";
+import { listRefs, shortRefName } from "./branches.js";
 import { t } from "../../lang/index.js";
 
 export const LOG_PAGE_SIZE = 100;
@@ -13,7 +14,6 @@ const HEX_DIGITS = "0123456789abcdefABCDEF";
 const MIN_HASH_LENGTH = 4;
 const HEAD_ARROW = "HEAD -> ";
 const TAG_PREFIX = "tag: ";
-const TAGS_NAMESPACE = "refs/tags/";
 const STASH_REF = "refs/stash";
 const REMOTE_HEAD_SUFFIX = "/HEAD";
 const MAX_DETAIL_FILES = 300;
@@ -39,7 +39,9 @@ export type LogCommit = {
 
 export type AnnotatedCommit = LogCommit & { branch: string; onCurrentBranch: boolean };
 
-export type LogSearchField = "message" | "author" | "hash";
+export const LOG_SEARCH_FIELDS = ["message", "author", "hash"] as const;
+
+export type LogSearchField = (typeof LOG_SEARCH_FIELDS)[number];
 
 export type LogQuery = { page: number; search: string; field: LogSearchField; branch: string };
 
@@ -99,7 +101,7 @@ export function parseRefs(decoration: string): LogRef[] {
 function parseRef(text: string): LogRef[] {
   if (text.startsWith(HEAD_ARROW)) return [{ name: "HEAD", kind: "head" }, ...parseRef(text.slice(HEAD_ARROW.length))];
   if (text === "HEAD") return [{ name: "HEAD", kind: "head" }];
-  if (text.startsWith(TAG_PREFIX)) return [{ name: stripPrefix(text.slice(TAG_PREFIX.length), TAGS_NAMESPACE), kind: "tag" }];
+  if (text.startsWith(TAG_PREFIX)) return [{ name: stripPrefix(text.slice(TAG_PREFIX.length), TAGS_PREFIX), kind: "tag" }];
   if (text === STASH_REF) return [{ name: "stash", kind: "stash" }];
   if (text.startsWith(REMOTE_PREFIX)) {
     return text.endsWith(REMOTE_HEAD_SUFFIX) ? [] : [{ name: text.slice(REMOTE_PREFIX.length), kind: "remote" }];
@@ -218,7 +220,7 @@ export async function getRepoOverview(git: GitClient): Promise<RepoOverview> {
   const [topLevel, head, refs, authors] = await Promise.all([
     git.run(["rev-parse", "--show-toplevel"]),
     readHead(git),
-    git.run(["for-each-ref", "--format=%(refname)%1f%(upstream:track,nobracket)", LOCAL_PREFIX, REMOTE_PREFIX, TAGS_NAMESPACE]),
+    git.run(["for-each-ref", "--format=%(refname)%1f%(upstream:track,nobracket)", LOCAL_PREFIX, REMOTE_PREFIX, TAGS_PREFIX]),
     git.run(["shortlog", "--summary", "--numbered", "--all"], { allowFailure: true }),
   ]);
   const rows = refs.stdout.split("\n").filter((row) => row !== "").map((row) => row.split(FIELD_SEPARATOR));
@@ -232,7 +234,7 @@ export async function getRepoOverview(git: GitClient): Promise<RepoOverview> {
     head,
     local,
     remote: namesUnder(REMOTE_PREFIX),
-    tags: namesUnder(TAGS_NAMESPACE),
+    tags: namesUnder(TAGS_PREFIX),
     authors: parseShortlog(authors.stdout),
   };
 }

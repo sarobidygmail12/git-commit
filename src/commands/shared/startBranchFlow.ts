@@ -1,9 +1,9 @@
 import { REPO_CONFIG_FILENAME } from "../../core/config/loadConfig.js";
-import { setConfigValue, type ConfigTarget } from "../../core/config/saveConfig.js";
+import { resolveConfigTarget, setConfigValue } from "../../core/config/saveConfig.js";
 import { assertCanStartBranch, branchExists, startBranchFrom } from "../../core/git/branches.js";
 import { addLocalExclude } from "../../core/git/localExclude.js";
 import { getStatus } from "../../core/git/status.js";
-import type { CommandContext } from "../types.js";
+import type { CommandContext } from "../../contracts/command.js";
 import { commitFlow } from "./commitFlow.js";
 import { t } from "../../lang/index.js";
 
@@ -61,9 +61,7 @@ async function chooseBase(ctx: CommandContext, configuredBase: string): Promise<
 /** Appelé après la création de la branche : seule une base qui a fonctionné est enregistrée. */
 async function rememberBase(ctx: CommandContext, key: BaseBranchKey, base: string): Promise<void> {
   const configPath = `branches.${key}`;
-  const target: ConfigTarget = ctx.paths.repo
-    ? { scope: "repo", path: ctx.paths.repo, globalPath: ctx.paths.global }
-    : { scope: "global", path: ctx.paths.global };
+  const target = resolveConfigTarget(ctx.paths, ctx.paths.repo ? "repo" : "global");
 
   // Sinon le fichier, non suivi, salirait le working tree et serait committé au prochain /fix.
   if (target.scope === "repo") await addLocalExclude(ctx.git, `/${REPO_CONFIG_FILENAME}`);

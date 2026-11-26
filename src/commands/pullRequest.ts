@@ -3,7 +3,7 @@ import { pushCurrentBranch } from "../core/git/branches.js";
 import { buildPullRequestUrl, getDefaultBranch, getRepositoryWebUrl, type NewPullRequest } from "../core/git/pullRequest.js";
 import { assertNoOperationInProgress, getStatus, type RepoStatus } from "../core/git/status.js";
 import { openUrl } from "./shared/openBrowser.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 export const pullRequestCommand: Command = {

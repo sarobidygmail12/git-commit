@@ -1,5 +1,5 @@
 import { getOperationInProgress, getStatus, isConflict, isStaged, isUnstaged, type FileChange, type RepoStatus } from "../core/git/status.js";
-import type { Command } from "./types.js";
+import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 const headLabel = (): string => t("head.detached");

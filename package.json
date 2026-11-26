@@ -13,7 +13,9 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/copy-pages.mjs",
+    "build": "tsc -p tsconfig.json && npm run build:css && node scripts/copy-web.mjs",
+    "build:css": "tailwindcss -i src/web/styles/app.css -o src/web/assets/app.css --minify",
+    "dev:css": "tailwindcss -i src/web/styles/app.css -o src/web/assets/app.css --watch",
     "typecheck": "tsc -p tsconfig.test.json",
     "test": "vitest run",
     "start": "node bin/git-push.js",
@@ -28,8 +30,10 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.3.5",
     "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
+    "tailwindcss": "^4.3.5",
     "typescript": "^6.0.3",
     "vite": "^8.3.6",
     "vitest": "^5.1.0"

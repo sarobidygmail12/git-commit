@@ -1,5 +1,5 @@
 import { commitFlow } from "./shared/commitFlow.js";
-import type { Command } from "./types.js";
+import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 export const commitCommand: Command = {

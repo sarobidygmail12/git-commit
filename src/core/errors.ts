@@ -42,3 +42,12 @@ export class ProviderError extends GitPushError {
     this.reason = reason;
   }
 }
+
+/** Erreur Node portant un code système (`ENOENT`, `EEXIST`, `EADDRINUSE`…). */
+export function hasErrorCode(error: unknown, code: string): boolean {
+  return error instanceof Error && "code" in error && error.code === code;
+}
+
+export function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}

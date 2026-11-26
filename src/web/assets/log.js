@@ -1,143 +1,6 @@
-<!doctype html>
-<html lang="{{web.htmlLang}}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🚀 git-push · {{web.graphTitle}}</title>
-<style>
-:root { color-scheme:light; --bg:#f3f4f6; --panel:#fff; --raised:#e9ebef; --text:#1d2129; --muted:#667085; --line:#dfe2e8; --accent:#1570ef; --hover:#eceef2; --selected:#d9e7fd; --head:#fff4d6; --add:#12845a; --del:#d0342c; --on-avatar:#fff; }
-:root[data-theme="dark"] { color-scheme:dark; --bg:#16181d; --panel:#1e2128; --raised:#2a2e37; --text:#e6e8ec; --muted:#8f97a6; --line:#2e323c; --accent:#5ba4f7; --hover:#262a33; --selected:#23364f; --head:#332c17; --add:#45c98f; --del:#f2726a; --on-avatar:#fff; }
-* { box-sizing:border-box; }
-[hidden] { display:none !important; }
-html, body { height:100%; }
-body { margin:0; background:var(--bg); color:var(--text); font:13px/1.4 system-ui, sans-serif; display:flex; flex-direction:column; overflow:hidden; }
-button, input, select { font:inherit; color:inherit; }
-button { cursor:pointer; background:none; border:0; padding:0; }
-:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
-.mono { font-family:ui-monospace, Menlo, Consolas, monospace; }
+"use strict";
+/* Vue /log : historique en graphe, filtres et détail d'un commit. */
 
-.topbar { flex:none; display:flex; align-items:center; gap:10px; min-height:48px; padding:7px 12px; background:var(--panel); border-bottom:1px solid var(--line); flex-wrap:wrap; }
-.repo { font-size:15px; font-weight:650; white-space:nowrap; }
-.current { display:flex; align-items:center; gap:6px; padding:4px 10px; border-radius:6px; background:var(--head); font-weight:600; white-space:nowrap; max-width:280px; }
-.current small { color:var(--muted); font-weight:500; }
-.current .name { overflow:hidden; text-overflow:ellipsis; }
-.chip { display:flex; align-items:center; gap:6px; padding:3px 8px; border-radius:6px; background:var(--selected); white-space:nowrap; max-width:240px; }
-.chip span { overflow:hidden; text-overflow:ellipsis; }
-#filters { display:flex; gap:6px; flex:1 1 280px; min-width:0; }
-#filters input, #filters select { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:4px 8px; }
-#filters input { flex:1; min-width:60px; }
-.toolbar-button { padding:4px 9px; border:1px solid var(--line); border-radius:6px; white-space:nowrap; color:inherit; text-decoration:none; }
-.toolbar-button:hover { background:var(--hover); }
-#menu { display:none; }
-
-.layout { flex:1; min-height:0; display:flex; position:relative; }
-#sidebar { flex:none; width:244px; overflow-y:auto; background:var(--panel); border-right:1px solid var(--line); padding:6px 0 20px; }
-details > summary { display:flex; justify-content:space-between; cursor:pointer; padding:6px 12px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); list-style:none; user-select:none; }
-details > summary::-webkit-details-marker { display:none; }
-details > summary::before { content:"▸"; margin-right:6px; }
-details[open] > summary::before { content:"▾"; }
-details > summary span:first-of-type { flex:1; }
-.group-label { padding:4px 12px 2px 22px; font-size:11px; color:var(--muted); }
-.item { display:flex; align-items:center; gap:7px; width:100%; min-height:26px; padding:2px 12px 2px 22px; text-align:left; }
-.item:hover { background:var(--hover); }
-.item.active { background:var(--selected); }
-.item.current-branch { background:var(--head); font-weight:650; }
-.item .label { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.item .count { color:var(--muted); font-size:11px; font-variant-numeric:tabular-nums; white-space:nowrap; }
-.item.static { cursor:default; } .item.static:hover { background:none; }
-.tick { flex:none; width:12px; color:var(--add); font-weight:700; }
-
-.center { flex:1; min-width:0; overflow:auto; background:var(--panel); }
-.columns, .row { display:grid; grid-template-columns:190px var(--graph-width, 60px) minmax(240px, 1fr) 160px 132px 84px; align-items:center; min-width:calc(806px + var(--graph-width, 60px)); }
-.columns { position:sticky; top:0; z-index:2; height:28px; background:var(--raised); font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
-.columns > span { padding:0 10px; white-space:nowrap; overflow:hidden; }
-.columns > span:empty { padding:0; }
-.row { height:36px; cursor:pointer; }
-.row:hover { background:var(--hover); }
-.row.is-head { background:var(--head); }
-.row.selected { background:var(--selected); }
-.row.off-branch > * { opacity:.48; }
-.row.off-branch:hover > *, .row.off-branch.selected > * { opacity:1; }
-.cell { padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
-.refs { display:flex; align-items:center; gap:4px; padding-right:0; }
-.ghost-branch { font-size:12px; overflow:hidden; text-overflow:ellipsis; opacity:.72; }
-.pill { display:inline-flex; align-items:center; gap:4px; min-width:0; height:22px; padding:0 7px; border-radius:4px; color:#fff; font-size:12px; font-weight:600; }
-.pill .text { overflow:hidden; text-overflow:ellipsis; }
-.pill svg { flex:none; }
-.pill.is-current { box-shadow:0 0 0 2px var(--text); }
-.pill.tag { background:transparent !important; color:var(--text); box-shadow:inset 0 0 0 1px var(--muted); }
-.more-refs { flex:none; color:var(--muted); font-size:11px; }
-.refs-popover { position:fixed; z-index:5; display:flex; flex-direction:column; align-items:flex-start; gap:4px; max-width:min(420px, calc(100vw - 16px)); max-height:calc(100vh - 16px); overflow:hidden; padding:6px; border:1px solid var(--line); border-radius:6px; background:var(--panel); box-shadow:0 6px 18px rgb(0 0 0 / .25); pointer-events:none; }
-.refs-popover .pill { flex:none; max-width:100%; }
-.graph { display:block; }
-.graph text { font:700 9px system-ui, sans-serif; fill:var(--on-avatar); text-anchor:middle; dominant-baseline:central; }
-.subject .merge { color:var(--muted); }
-.author { display:flex; align-items:center; gap:7px; }
-.author .label { overflow:hidden; text-overflow:ellipsis; }
-.avatar { flex:none; display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; color:var(--on-avatar); font-size:9px; font-weight:700; }
-.date, .sha { color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; }
-#state { color:var(--muted); padding:18px; text-align:center; }
-#more { display:block; margin:12px auto 18px; }
-
-#details { flex:none; width:360px; overflow-y:auto; background:var(--panel); border-left:1px solid var(--line); padding:14px 16px 28px; }
-.details-head { display:flex; gap:10px; align-items:flex-start; }
-.details-head h2 { flex:1; font-size:15px; line-height:1.3; margin:0; overflow-wrap:anywhere; }
-#close { font-size:18px; line-height:1; padding:2px 6px; color:var(--muted); border-radius:4px; }
-#close:hover { background:var(--hover); }
-.body { white-space:pre-wrap; overflow-wrap:anywhere; color:var(--muted); margin:8px 0 0; }
-.person { display:flex; align-items:center; gap:9px; margin:14px 0; }
-.person .avatar { width:32px; height:32px; font-size:12px; }
-.person small { display:block; color:var(--muted); }
-h3 { font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:16px 0 6px; }
-.wrap { display:flex; flex-wrap:wrap; gap:4px; }
-.badge { padding:1px 7px; border-radius:4px; background:var(--raised); font-size:12px; overflow-wrap:anywhere; }
-.badge.is-current { background:var(--head); font-weight:650; }
-.link { color:var(--accent); } .link:hover { text-decoration:underline; }
-.actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
-.file { display:flex; gap:8px; padding:3px 0; font-size:12px; }
-.file .path { flex:1; min-width:0; overflow-wrap:anywhere; }
-.add { color:var(--add); } .del { color:var(--del); }
-.file .add, .file .del { flex:none; font-variant-numeric:tabular-nums; }
-
-@media (max-width:1100px) {
-  #details { position:absolute; inset:0 0 0 auto; z-index:4; width:min(360px, 100%); box-shadow:-6px 0 18px rgb(0 0 0 / .25); }
-}
-@media (max-width:760px) {
-  #menu { display:block; }
-  #sidebar { position:absolute; inset:0 auto 0 0; z-index:3; display:none; box-shadow:6px 0 18px rgb(0 0 0 / .25); }
-  #sidebar.open { display:block; }
-  #filters { order:5; flex-basis:100%; }
-}
-</style>
-</head>
-<body>
-<header class="topbar">
-  <button id="menu" class="toolbar-button" type="button" aria-label="{{web.showBranches}}">☰</button>
-  <span id="repo" class="repo">git-push</span>
-  <button id="current" class="current" type="button" title="{{web.goToHead}}" hidden></button>
-  <span id="filter-chip" class="chip" hidden><span id="filter-text"></span><button id="filter-clear" type="button" aria-label="{{web.removeFilter}}">×</button></span>
-  <form id="filters" role="search">
-    <input id="search" type="search" placeholder="{{web.searchPlaceholder}}" aria-label="{{web.searchLabel}}">
-    <select id="field" aria-label="{{web.searchField}}">
-      <option value="message">{{web.message}}</option><option value="author">{{web.author}}</option><option value="hash">Hash</option>
-    </select>
-  </form>
-  <a class="toolbar-button" href="/config">{{web.configuration}}</a>
-  <a class="toolbar-button" href="/help">{{web.help}}</a>
-  <button id="theme" class="toolbar-button" type="button">{{web.theme}}</button>
-</header>
-<div class="layout">
-  <nav id="sidebar" aria-label="{{web.branchesAndAuthors}}"></nav>
-  <main class="center" id="center">
-    <div class="columns"><span>{{web.branchTag}}</span><span id="graph-title">{{web.graph}}</span><span>{{web.message}}</span><span>{{web.author}}</span><span>{{web.date}}</span><span>SHA</span></div>
-    <div id="rows"></div>
-    <div id="state" hidden></div>
-    <button id="more" class="toolbar-button" type="button" hidden>{{web.loadMore}}</button>
-  </main>
-  <aside id="details" aria-label="{{web.commitDetails}}" hidden></aside>
-</div>
-<div id="refs-popover" class="refs-popover" role="tooltip" hidden></div>
-<script>
 const ROW_HEIGHT = 36, LANE_WIDTH = 24, LANE_OFFSET = 16, AVATAR_RADIUS = 11, MERGE_RADIUS = 5, MIN_GRAPH_WIDTH = 0;
 const SVG_NS = "http://www.w3.org/2000/svg";
 const LANE_COLORS = ["#1f9ce0", "#16a371", "#e0702b", "#a855d8", "#d19a0b", "#e0497f", "#4f6fe8", "#0fa5a5"];
@@ -149,12 +12,6 @@ const sidebarNode = byId("sidebar"), searchInput = byId("search"), fieldSelect =
 let repo = null, loaded = [], nextPage = 0, hasMore = false, loadToken = 0, detailToken = 0;
 let selectedBranch = "", selectedHash = null;
 
-function element(tag, text, className) {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
 function svgNode(tag, attributes) {
   const node = document.createElementNS(SVG_NS, tag);
   Object.entries(attributes).forEach(([name, value]) => node.setAttribute(name, value));
@@ -177,17 +34,6 @@ function avatar(name) {
   node.style.background = authorColor(name);
   return node;
 }
-
-/* ---- Thème ---- */
-function applyTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  try { localStorage.setItem("git-push-theme", theme); } catch {}
-}
-function savedTheme() {
-  try { return localStorage.getItem("git-push-theme"); } catch { return null; }
-}
-applyTheme(savedTheme() ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
-byId("theme").onclick = () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
 
 /* ---- Graphe ---- */
 const laneX = (lane) => LANE_OFFSET + lane * LANE_WIDTH;
@@ -329,7 +175,7 @@ function refsCell(commit, color) {
 }
 
 function formatDate(iso) {
-  return new Date(iso).toLocaleString("{{web.dateLocale}}", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleString(message("dateLocale"), { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
 function commitRow(commit, cell, lanes, dimOtherBranches) {
@@ -366,7 +212,7 @@ function render() {
   const cells = isSearching ? [] : computeGraph(loaded);
   const lanes = Math.max(1, ...cells.map((cell) => cell.width));
   document.documentElement.style.setProperty("--graph-width", (isSearching ? MIN_GRAPH_WIDTH : graphPixelWidth(lanes)) + "px");
-  byId("graph-title").textContent = isSearching ? "" : "{{web.graph}}";
+  byId("graph-title").textContent = isSearching ? "" : message("graph");
   const dim = !isSearching && selectedBranch === "" && loaded.some((commit) => commit.onCurrentBranch);
   rowsNode.replaceChildren(...loaded.map((commit, index) => commitRow(commit, cells[index], lanes, dim)));
 }
@@ -417,20 +263,20 @@ function authorItem(author) {
 }
 
 function renderSidebar() {
-  const local = section("{{web.local}}", repo.local.length, true);
+  const local = section(message("local"), repo.local.length, true);
   repo.local.forEach((branch) => local.append(branchItem(branch.name, branch.name, aheadBehind(branch))));
 
-  const remote = section("{{web.remote}}", repo.remote.length, true);
+  const remote = section(message("remote"), repo.remote.length, true);
   const remotes = Map.groupBy(repo.remote, (name) => name.split("/")[0]);
   remotes.forEach((names, remoteName) => {
     remote.append(element("div", remoteName, "group-label"));
     names.forEach((name) => remote.append(branchItem(name, name.slice(remoteName.length + 1))));
   });
 
-  const authors = section("{{web.authors}}", repo.authors.length, true);
+  const authors = section(message("authors"), repo.authors.length, true);
   repo.authors.forEach((author) => authors.append(authorItem(author)));
 
-  const tags = section("{{web.tags}}", repo.tags.length, false);
+  const tags = section(message("tags"), repo.tags.length, false);
   repo.tags.forEach((tag) => {
     const item = element("div", undefined, "item static");
     item.append(element("span", tag, "label"));
@@ -470,8 +316,8 @@ function renderCurrentBranch() {
   const node = byId("current");
   const local = repo.local.find((branch) => branch.name === repo.head.branch);
   const counts = local ? aheadBehind(local) : "";
-  const label = repo.head.branch ?? (repo.head.hash ? "{{web.detachedHead}} · " + repo.head.hash.slice(0, 7) : "{{web.noCommit}}");
-  node.replaceChildren(element("small", "{{web.youAreOn}}"), element("span", label, "name"));
+  const label = repo.head.branch ?? (repo.head.hash ? message("detachedHead") + " · " + repo.head.hash.slice(0, 7) : message("noCommit"));
+  node.replaceChildren(element("small", message("youAreOn")), element("span", label, "name"));
   if (counts) node.append(element("small", counts));
   node.hidden = false;
 }
@@ -495,9 +341,9 @@ function copyButton(label, text) {
   button.onclick = async () => {
     try {
       await navigator.clipboard.writeText(text);
-      button.textContent = "{{web.copied}}";
+      button.textContent = message("copied");
     } catch {
-      button.textContent = "{{web.failed}}";
+      button.textContent = message("failed");
     }
     setTimeout(() => { button.textContent = label; }, 1200);
   };
@@ -532,7 +378,7 @@ function parentLink(hash) {
 function fileRow(file) {
   const row = element("div", undefined, "file");
   row.append(element("span", file.path, "path mono"));
-  if (file.added === null) row.append(element("span", "binaire", "date"));
+  if (file.added === null) row.append(element("span", message("binary"), "date"));
   else row.append(element("span", "+" + file.added, "add mono"), element("span", "−" + file.deleted, "del mono"));
   return row;
 }
@@ -545,7 +391,7 @@ async function renderDetails(commit) {
   const close = element("button", "×");
   close.id = "close";
   close.type = "button";
-  close.setAttribute("aria-label", "{{web.closeDetails}}");
+  close.setAttribute("aria-label", message("closeDetails"));
   close.onclick = closeDetails;
   head.append(element("h2", commit.subject), close);
 
@@ -555,16 +401,16 @@ async function renderDetails(commit) {
   person.append(avatar(commit.author), who);
 
   const actions = element("div", undefined, "actions");
-  actions.append(copyButton("{{web.copyHash}}", commit.hash), copyButton("{{web.copyCherryPick}}", "/cherry-pick " + commit.hash));
+  actions.append(copyButton(message("copyHash"), commit.hash), copyButton(message("copyCherryPick"), "/cherry-pick " + commit.hash));
 
   const parents = element("div", undefined, "wrap");
   commit.parents.forEach((hash) => parents.append(parentLink(hash)));
 
   const body = element("div");
-  detailsNode.replaceChildren(head, body, person, element("h3", "{{web.branch}}"), element("div", commit.branch || "{{web.unknown}}"), element("h3", "SHA"), element("div", commit.hash, "mono date"));
-  if (commit.parents.length > 0) detailsNode.append(element("h3", commit.parents.length > 1 ? "{{web.parentsMerge}}" : "{{web.parent}}"), parents);
+  detailsNode.replaceChildren(head, body, person, element("h3", message("branch")), element("div", commit.branch || message("unknown")), element("h3", "SHA"), element("div", commit.hash, "mono date"));
+  if (commit.parents.length > 0) detailsNode.append(element("h3", commit.parents.length > 1 ? message("parentsMerge") : message("parent")), parents);
   detailsNode.append(actions);
-  const loadingNote = element("p", "{{web.loading}}", "date");
+  const loadingNote = element("p", message("loading"), "date");
   detailsNode.append(loadingNote);
 
   try {
@@ -574,10 +420,10 @@ async function renderDetails(commit) {
     if (!response.ok) throw new Error(data.error);
     loadingNote.remove();
     if (data.body !== "") body.append(element("p", data.body, "body"));
-    if (data.committer !== commit.author) who.append(element("small", "{{web.committedBy}} " + data.committer));
+    if (data.committer !== commit.author) who.append(element("small", message("committedBy") + " " + data.committer));
     detailsNode.append(containedInSection(data.containedIn), ...filesSection(data));
   } catch (error) {
-    if (token === detailToken) loadingNote.textContent = "Erreur : " + error.message;
+    if (token === detailToken) loadingNote.textContent = message("error") + " " + error.message;
   }
 }
 
@@ -588,7 +434,7 @@ function containedInSection(refs) {
     const isCurrent = ref.kind === "branch" && ref.name === repo?.head.branch;
     list.append(element("span", ref.name, "badge" + (isCurrent ? " is-current" : "")));
   });
-  container.append(element("h3", "{{web.containedIn}} " + refs.length), list);
+  container.append(element("h3", message("containedIn") + " " + refs.length), list);
   return container;
 }
 
@@ -596,9 +442,9 @@ function filesSection(data) {
   const added = data.files.reduce((sum, file) => sum + (file.added ?? 0), 0);
   const deleted = data.files.reduce((sum, file) => sum + (file.deleted ?? 0), 0);
   const title = element("h3");
-  title.append("{{web.files}} " + data.fileCount + " · ", element("span", "+" + added, "add"), " ", element("span", "−" + deleted, "del"));
+  title.append(message("files") + " " + data.fileCount + " · ", element("span", "+" + added, "add"), " ", element("span", "−" + deleted, "del"));
   const nodes = [title, ...data.files.map(fileRow)];
-  if (data.fileCount > data.files.length) nodes.push(element("p", "… et " + (data.fileCount - data.files.length) + " autres fichiers.", "date"));
+  if (data.fileCount > data.files.length) nodes.push(element("p", message("moreFiles", { count: data.fileCount - data.files.length }), "date"));
   return nodes;
 }
 
@@ -617,11 +463,11 @@ async function loadPage(page) {
     nextPage = page + 1;
     hasMore = data.hasMore;
     render();
-    showState(loaded.length === 0 ? "{{web.noCommitFound}}" : "");
+    showState(loaded.length === 0 ? message("noCommitFound") : "");
     moreButton.hidden = !hasMore;
     return true;
   } catch (error) {
-    if (token === loadToken) showState("Erreur : " + error.message);
+    if (token === loadToken) showState(message("error") + " " + error.message);
     return false;
   } finally {
     moreButton.disabled = false;
@@ -649,7 +495,4 @@ moreButton.onclick = () => loadPage(nextPage);
 byId("center").onscroll = hideRefsPopover;
 document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeDetails(); });
 
-loadRepo().then(() => loadPage(0)).catch((error) => showState("Erreur : " + error.message));
-</script>
-</body>
-</html>
+loadRepo().then(() => loadPage(0)).catch((error) => showState(message("error") + " " + error.message));

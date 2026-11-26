@@ -1,6 +1,6 @@
 import { setConfigValue } from "../core/config/saveConfig.js";
 import { getLanguage, isLanguage, LANGUAGE_NAMES, LANGUAGES, setLanguage, t, type Language } from "../lang/index.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 
 export const langCommand: Command = {
   name: "lang",

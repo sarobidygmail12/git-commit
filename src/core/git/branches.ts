@@ -1,12 +1,10 @@
+import { DEFAULT_REMOTE, LOCAL_PREFIX, REMOTE_PREFIX, SHORT_HASH_LENGTH } from "../../constants/git.js";
 import { GitError } from "../errors.js";
 import type { GitClient } from "./gitClient.js";
 import { assertNoOperationInProgress, getStatus, type RepoStatus } from "./status.js";
 import { t } from "../../lang/index.js";
 
-export const REMOTE_PREFIX = "refs/remotes/";
-export const LOCAL_PREFIX = "refs/heads/";
 const BACKUP_PREFIX = "backup/";
-const BACKUP_HASH_LENGTH = 7;
 const LS_REMOTE_NOT_FOUND = 2;
 
 export async function isValidBranchName(git: GitClient, name: string): Promise<boolean> {
@@ -89,7 +87,7 @@ export async function deleteRemoteBranch(git: GitClient, remote: string, name: s
 
 export async function pushCurrentBranch(git: GitClient, status: RepoStatus): Promise<void> {
   if (!status.branch) throw new GitError(t("head.nothingToPush"));
-  await git.run(status.upstream ? ["push"] : ["push", "-u", "origin", status.branch]);
+  await git.run(status.upstream ? ["push"] : ["push", "-u", DEFAULT_REMOTE, status.branch]);
 }
 
 /** À appeler avant tout effet de bord, pour qu'un nom refusé ne laisse pas un commit derrière lui. */
@@ -150,7 +148,7 @@ function isDiverged(status: RepoStatus): boolean {
 
 /** Le working tree est propre ici (vérifié avant le switch) : seuls les commits locaux changent, et ils sont sauvegardés. */
 async function forceBaseToUpstream(git: GitClient, base: string, headHash: string, upstream: string): Promise<BaseSync> {
-  const backupBranch = `${BACKUP_PREFIX}${base}-${headHash.slice(0, BACKUP_HASH_LENGTH)}`;
+  const backupBranch = `${BACKUP_PREFIX}${base}-${headHash.slice(0, SHORT_HASH_LENGTH)}`;
   if (!(await branchExists(git, backupBranch))) await git.run(["branch", backupBranch, headHash]);
   await git.run(["reset", "--hard", upstream], { destructiveConfirmed: true });
   return { steps: [`git branch ${backupBranch}`, `git reset --hard ${upstream}`], backupBranch };

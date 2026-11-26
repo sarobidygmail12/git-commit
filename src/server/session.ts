@@ -1,57 +1,36 @@
-import { createGeneratorFromConfig } from "../core/ai/generator.js";
+import type { CommitMessageGenerator } from "../core/ai/provider.js";
 import { DEFAULT_CONFIG, type Config } from "../core/config/schema.js";
-import { loadConfig, repoConfigPath } from "../core/config/loadConfig.js";
-import { ConfigError, GitError, GitPushError } from "../core/errors.js";
-import { createGitClient, type GitClient } from "../core/git/gitClient.js";
+import { ConfigError, GitError, GitPushError, messageOf } from "../core/errors.js";
+import type { GitClient } from "../core/git/gitClient.js";
 import { syncIgnoredPatterns } from "../core/git/localExclude.js";
-import { countChanges, describeBranch, describeRepoState, getRepoRoot, getStatus, type ChangeCounts } from "../core/git/status.js";
+import { countChanges, describeBranch, describeRepoState, getStatus } from "../core/git/status.js";
 import { setLanguage, t } from "../lang/index.js";
-import { createWebServer } from "../web/server.js";
-import { parseInput } from "./parseInput.js";
-import { findCommand, suggestInput, type SuggestionList } from "./suggest.js";
-import type { Command, CommandContext, CommandUi, ConfigPaths } from "./types.js";
+import { parseInput } from "../commands/parseInput.js";
+import { findCommand, suggestInput } from "../commands/suggest.js";
+import type { Command, CommandContext, CommandUi, ConfigPaths, WebServer } from "../contracts/command.js";
+import type { HeaderState, ReplSession } from "../contracts/session.js";
 
-export type HeaderState = {
-  branch: string;
-  changes: ChangeCounts;
-};
-
-export interface ReplSession {
-  execute(line: string): Promise<void>;
-  suggest(input: string): Promise<SuggestionList>;
-  readHeader(): Promise<HeaderState | undefined>;
-}
-
-export type SessionOptions = {
-  cwd: string;
-  globalConfigPath: string;
+/** Tout vient du container : la session ne crée aucune dépendance elle-même. */
+export type SessionDependencies = {
+  git: GitClient;
+  silentGit: GitClient;
   commands: readonly Command[];
   ui: CommandUi;
-  onGitCommand: (commandLine: string) => void;
+  web: WebServer;
+  resolvePaths: () => Promise<ConfigPaths>;
+  readConfig: () => Promise<Config>;
+  createAi: (config: Config) => CommitMessageGenerator;
   exit: () => void;
 };
 
-export function createSession(options: SessionOptions): ReplSession {
-  const { cwd, commands, ui, exit } = options;
-  const git = createGitClient({ cwd, onCommand: options.onGitCommand });
-  const silentGit = createGitClient({ cwd });
-
-  // Relu à chaque commande : /init peut créer le dépôt en cours de session.
-  const resolvePaths = async (): Promise<ConfigPaths> => {
-    const repoRoot = await getRepoRoot(silentGit);
-    return { global: options.globalConfigPath, repo: repoRoot ? repoConfigPath(repoRoot) : undefined };
-  };
-  const readConfig = async (): Promise<Config> => {
-    const paths = await resolvePaths();
-    return loadConfig({ globalPath: paths.global, repoPath: paths.repo });
-  };
-  const web = createWebServer({ git: silentGit, commands, readConfig, readPaths: resolvePaths });
+export function createSession(dependencies: SessionDependencies): ReplSession {
+  const { git, silentGit, commands, ui, web, resolvePaths, readConfig, createAi, exit } = dependencies;
 
   const buildContext = (client: GitClient, config: Config, paths: ConfigPaths): CommandContext => ({
     git: client,
     config,
     ui,
-    ai: createGeneratorFromConfig(config.ai, process.env),
+    ai: createAi(config),
     commands,
     web,
     paths,
@@ -112,7 +91,7 @@ async function resolveConfig(command: Command, readConfig: () => Promise<Config>
 
 async function reportError(error: unknown, ui: CommandUi, silentGit: GitClient): Promise<void> {
   if (!(error instanceof GitPushError)) {
-    ui.log(`Erreur inattendue : ${error instanceof Error ? error.message : String(error)}`, "error");
+    ui.log(t("session.unexpectedError", { message: messageOf(error) }), "error");
     return;
   }
   ui.log(error.message, "error");

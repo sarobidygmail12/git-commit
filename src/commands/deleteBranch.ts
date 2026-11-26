@@ -10,7 +10,7 @@ import {
 } from "../core/git/branches.js";
 import type { Config } from "../core/config/schema.js";
 import { assertNoOperationInProgress, getStatus } from "../core/git/status.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 const USAGE = "/delete-branch <branch>";

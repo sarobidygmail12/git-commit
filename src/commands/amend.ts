@@ -1,7 +1,7 @@
 import { assertHeadNotPushed, readHeadMessage } from "../core/git/commits.js";
 import { assertNoOperationInProgress, getStatus, isStaged, isUnstaged } from "../core/git/status.js";
 import { confirmSensitiveFiles } from "./shared/commitFlow.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 export const amendCommand: Command = {

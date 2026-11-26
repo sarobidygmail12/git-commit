@@ -1,3 +1,5 @@
 node_modules/
 dist/
 .yarn/
+# Généré par Tailwind (yarn build:css)
+src/web/assets/app.css

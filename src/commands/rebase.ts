@@ -1,12 +1,12 @@
+import { DEFAULT_REMOTE } from "../constants/git.js";
 import { GitError } from "../core/errors.js";
 import { isValidBranchName } from "../core/git/branches.js";
 import { assertNoOperationInProgress, getStatus } from "../core/git/status.js";
 import { isSequenceRunning, resolveSequence, startRebase } from "./shared/resolveSequence.js";
 import { secureWorkingTree } from "./shared/secureWorkingTree.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
-const REMOTE = "origin";
 
 export const rebaseCommand: Command = {
   name: "rebase",
@@ -58,14 +58,14 @@ async function rebaseOnLatest(ctx: CommandContext, base: string): Promise<void> 
   const { branch } = await getStatus(ctx.git);
   if (!branch) throw new GitError(t("head.switchFirst"));
 
-  await ctx.ui.spinner(t("spinner.fetchRemote", { remote: `${REMOTE}/${base}` }), () => ctx.git.run(["fetch", REMOTE, base]));
+  await ctx.ui.spinner(t("spinner.fetchRemote", { remote: `${DEFAULT_REMOTE}/${base}` }), () => ctx.git.run(["fetch", DEFAULT_REMOTE, base]));
 
   if (!(await confirmProtectedRebase(ctx, branch)) || !(await secureWorkingTree(ctx, `/rebase ${base}`))) {
     ctx.ui.log(t("rebase.cancelled"), "warn");
     return;
   }
 
-  await startRebase(ctx, `${REMOTE}/${base}`);
+  await startRebase(ctx, `${DEFAULT_REMOTE}/${base}`);
   await finishRebase(ctx);
 }
 

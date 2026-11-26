@@ -1,8 +1,8 @@
 import { basename } from "node:path";
 import { Box, Static, Text, useApp, useInput, useStdout } from "ink";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
-import type { HeaderState, ReplSession } from "../commands/session.js";
-import type { CommandUi } from "../commands/types.js";
+import type { CommandUi } from "../contracts/command.js";
+import type { HeaderState, ReplSession, SessionFactory } from "../contracts/session.js";
 import { createCommandUi, type DisplayLevel, type PromptRequest, type UiBridge } from "./createCommandUi.js";
 import { Header } from "./Header.js";
 import { PromptInput } from "./PromptInput.js";
@@ -15,8 +15,6 @@ const CLEAR_SCREEN_AND_SCROLLBACK = "\u001B[2J\u001B[3J\u001B[H";
 type LogEntry = { id: number; text: string; level: DisplayLevel };
 
 type ExternalTask = { run: () => Promise<void>; resolve: () => void; reject: (reason: unknown) => void };
-
-export type SessionFactory = (ui: CommandUi, onGitCommand: (line: string) => void, exit: () => void) => ReplSession;
 
 type Props = { createSession: SessionFactory; cwd: string };
 

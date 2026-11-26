@@ -1,5 +1,5 @@
 import { getStatus } from "../../core/git/status.js";
-import type { CommandContext } from "../types.js";
+import type { CommandContext } from "../../contracts/command.js";
 import { commitFlow } from "./commitFlow.js";
 import { t } from "../../lang/index.js";
 

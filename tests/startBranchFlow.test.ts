@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { fixCommand } from "../src/commands/fix.js";
 import { hotfixCommand } from "../src/commands/hotfix.js";
-import type { CommandContext } from "../src/commands/types.js";
+import type { CommandContext } from "../src/contracts/command.js";
 import { loadConfig, REPO_CONFIG_FILENAME } from "../src/core/config/loadConfig.js";
 import { DEFAULT_CONFIG, type Config } from "../src/core/config/schema.js";
 import { createFakeContext, type FakeAnswers } from "./helpers/fakeContext.js";

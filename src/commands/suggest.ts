@@ -1,15 +1,5 @@
-import type { Command, CommandContext } from "./types.js";
-
-export type Suggestion = {
-  label: string;
-  description: string;
-  completion: string;
-  needsArgs: boolean;
-};
-
-export type SuggestionList = { kind: "none" | "command" | "argument"; items: readonly Suggestion[] };
-
-export const NO_SUGGESTIONS: SuggestionList = { kind: "none", items: [] };
+import type { Command, CommandContext } from "../contracts/command.js";
+import { NO_SUGGESTIONS, type Suggestion, type SuggestionList } from "../contracts/session.js";
 
 const REQUIRED_ARG_MARKER = "<";
 

@@ -1,6 +1,6 @@
 import type { Config } from "../config/schema.js";
 import { t } from "../../lang/index.js";
-import { ProviderError } from "../errors.js";
+import { messageOf, ProviderError } from "../errors.js";
 import { fallbackProvider } from "./fallback.js";
 import { createGeminiProvider } from "./gemini.js";
 import { createGroqProvider } from "./groq.js";
@@ -70,5 +70,5 @@ async function generateCleanMessage(
 
 function toProviderError(provider: CommitMessageProvider, error: unknown): ProviderError {
   if (error instanceof ProviderError) return error;
-  return new ProviderError(provider.name, "unavailable", error instanceof Error ? error.message : String(error));
+  return new ProviderError(provider.name, "unavailable", messageOf(error));
 }

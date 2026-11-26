@@ -1,6 +1,6 @@
 import { GitError } from "../../core/errors.js";
 import { getOperationInProgress, getStatus, isConflict, isConflictResolved } from "../../core/git/status.js";
-import type { CommandContext } from "../types.js";
+import type { CommandContext } from "../../contracts/command.js";
 import { t } from "../../lang/index.js";
 
 export type SequenceOperation = "cherry-pick" | "rebase";
