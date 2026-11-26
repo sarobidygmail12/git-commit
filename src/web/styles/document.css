@@ -16,7 +16,8 @@
   & button {
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-control);
     cursor: pointer;
   }
 
@@ -28,7 +29,7 @@
   & code {
     background: var(--code);
     padding: 1px 5px;
-    border-radius: 4px;
+    border-radius: var(--radius-chip);
     overflow-wrap: anywhere;
   }
 }

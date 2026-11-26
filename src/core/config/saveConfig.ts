@@ -1,7 +1,7 @@
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { OWNER_ONLY_FILE_MODE, SHARED_FILE_MODE, UNSAFE_OBJECT_KEYS } from "../../constants/files.js";
-import { ConfigError, GitPushError } from "../errors.js";
+import { ConfigError, GitCommitError } from "../errors.js";
 import { tryParseJson } from "../json.js";
 import {
   assertRepoOverrideAllowed,
@@ -27,7 +27,7 @@ export type ConfigChange = { path: string; value: unknown };
 
 export function resolveConfigTarget(paths: { global: string; repo: string | undefined }, scope: ConfigScope): ConfigTarget {
   if (scope === "global") return { scope: "global", path: paths.global };
-  if (!paths.repo) throw new GitPushError(t("config.repoNeeded"));
+  if (!paths.repo) throw new GitCommitError(t("config.repoNeeded"));
   return { scope: "repo", path: paths.repo, globalPath: paths.global };
 }
 

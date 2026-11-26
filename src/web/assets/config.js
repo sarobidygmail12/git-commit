@@ -1,5 +1,5 @@
 "use strict";
-/* Vue /config : édite .git-push.json du dépôt courant. */
+/* Vue /config : édite .git-commit.json du dépôt courant. */
 
 const form = document.getElementById("form");
 const saveButton = document.getElementById("save");
@@ -16,6 +16,7 @@ function buildControl(option) {
   if (option.kind === "boolean") {
     const input = element("input");
     input.type = "checkbox";
+    input.setAttribute("role", "switch");
     input.checked = option.value === true;
     return { input, read: () => input.checked };
   }

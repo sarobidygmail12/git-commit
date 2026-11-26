@@ -21,8 +21,8 @@ describe("contrôleur de configuration", () => {
   let paths: ConfigPaths;
 
   beforeEach(async () => {
-    directory = mkdtempSync(join(tmpdir(), "git-push-controller-"));
-    paths = { global: join(directory, "config.json"), repo: join(directory, ".git-push.json") };
+    directory = mkdtempSync(join(tmpdir(), "git-commit-controller-"));
+    paths = { global: join(directory, "config.json"), repo: join(directory, ".git-commit.json") };
     await ensureGlobalConfig(paths.global);
   });
   afterEach(() => {
@@ -84,7 +84,7 @@ describe("contrôleur de configuration", () => {
   });
 
   describe("enregistrement", () => {
-    it("écrit seulement les modifications dans .git-push.json, sans toucher au global", async () => {
+    it("écrit seulement les modifications dans .git-commit.json, sans toucher au global", async () => {
       const before = readFileSync(paths.global, "utf8");
       const result = await controller().save({
         changes: [
@@ -162,8 +162,8 @@ describe("serveur web : /config et /api/config", () => {
   let server: TestServer;
 
   beforeEach(async () => {
-    directory = mkdtempSync(join(tmpdir(), "git-push-server-"));
-    paths = { global: join(directory, "config.json"), repo: join(directory, ".git-push.json") };
+    directory = mkdtempSync(join(tmpdir(), "git-commit-server-"));
+    paths = { global: join(directory, "config.json"), repo: join(directory, ".git-commit.json") };
     await ensureGlobalConfig(paths.global);
     server = await startTestServer({ cwd: directory, paths });
   });

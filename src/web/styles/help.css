@@ -11,14 +11,14 @@
   & pre {
     background: var(--code);
     padding: 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-control);
     overflow: auto;
   }
 
   & .card {
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     padding: 14px 16px;
     margin-bottom: 10px;
   }

@@ -14,53 +14,71 @@
 @import "./log.css" layer(components);
 @import "./help.css" layer(components);
 @import "./config.css" layer(components);
+/* En dernier : ses règles (dont le mouvement réduit) passent après celles des pages à spécificité égale. */
+@import "./motion.css" layer(components);
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant reduced-transparency (@media (prefers-reduced-transparency: reduce));
 
 /* Une seule palette : les classes Tailwind (bg-panel, text-muted…) suivent le thème clair ou sombre. */
 @layer base {
+  /* Couleurs système Apple (macOS / iOS), ajustées pour le contraste WCAG AA du texte : clair, puis sombre. */
   :root {
     color-scheme: light;
-    --bg: #f7f7f5;
+    --bg: #f2f2f7;
     --panel: #fff;
-    --raised: #e9ebef;
-    --text: #1d1f23;
-    --muted: #667;
-    --line: #e2e2de;
-    --accent: #0b6bcb;
+    --raised: #e8e8ed;
+    --text: #1d1d1f;
+    --muted: #636366;
+    --line: #d2d2d7;
+    --accent: #0066cc;
+    --accent-fill: #0071e3;
     --accent-text: #fff;
-    --code: #f0efeb;
-    --hover: #eceef2;
-    --selected: #d9e7fd;
-    --head: #fff4d6;
-    --changed: #fff7e0;
-    --add: #12845a;
-    --del: #d0342c;
-    --danger: #b42318;
-    --success: #1a7f37;
+    --code: #f2f2f7;
+    --hover: #f5f5f7;
+    --selected: #e1edff;
+    --head: #fff4d2;
+    --changed: #fff8e5;
+    --add: #1f7a35;
+    --del: #d70015;
+    --danger: #d70015;
+    --success: #1f7a35;
     --on-avatar: #fff;
+    --field: #fff;
+    --switch-off: #e9e9eb;
+    --switch-knob: #fff;
+    --shadow-control: 0 0.5px 1.5px rgb(0 0 0 / 0.12);
+    --shadow-menu: 0 10px 30px rgb(0 0 0 / 0.18), 0 0 0 0.5px rgb(0 0 0 / 0.08);
+    --backdrop: rgb(0 0 0 / 0.3);
   }
 
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --bg: #14161a;
-    --panel: #1c1f25;
-    --raised: #2a2e37;
-    --text: #e7e8ea;
-    --muted: #969ca8;
-    --line: #2c3038;
-    --accent: #6db3f8;
-    --accent-text: #0d1117;
-    --code: #272b33;
-    --hover: #262a33;
-    --selected: #23364f;
-    --head: #332c17;
-    --changed: #2b2616;
-    --add: #45c98f;
-    --del: #f2726a;
-    --danger: #ff8a80;
-    --success: #56d364;
+    --bg: #000;
+    --panel: #1c1c1e;
+    --raised: #2c2c2e;
+    --text: #f5f5f7;
+    --muted: #98989d;
+    --line: #38383a;
+    --accent: #2997ff;
+    --accent-fill: #0071e3;
+    --accent-text: #fff;
+    --code: #2c2c2e;
+    --hover: #2c2c2e;
+    --selected: #1c3350;
+    --head: #2e2812;
+    --changed: #2e2715;
+    --add: #30d158;
+    --del: #ff6961;
+    --danger: #ff6961;
+    --success: #30d158;
     --on-avatar: #fff;
+    --field: #2c2c2e;
+    --switch-off: #39393d;
+    --switch-knob: #fff;
+    --shadow-control: 0 0.5px 1.5px rgb(0 0 0 / 0.5);
+    --shadow-menu: 0 10px 30px rgb(0 0 0 / 0.5), 0 0 0 0.5px rgb(255 255 255 / 0.1);
+    --backdrop: rgb(0 0 0 / 0.55);
   }
 
   * {
@@ -71,8 +89,10 @@
     display: none !important;
   }
 
+  /* Halo de focus macOS : un anneau bleu à demi transparent qui épouse le contrôle. */
   :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent);
+    outline-offset: 1px;
   }
 }
 
@@ -84,6 +104,7 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
   --color-accent-text: var(--accent-text);
   --color-code: var(--code);
   --color-hover: var(--hover);
@@ -95,12 +116,19 @@
 }
 
 @theme {
-  --font-sans: system-ui, sans-serif;
-  --font-mono: ui-monospace, Menlo, Consolas, monospace;
+  /* Police système : San Francisco sur Apple, l'équivalent natif ailleurs. */
+  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
   --text-title: 22px;
   --text-small: 13px;
   --text-section: 17px;
   --container-page: 860px;
+
+  /* Coins : étiquettes, contrôles (boutons, champs), groupes et cartes, comme dans Réglages. */
+  --radius-chip: 6px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-menu: 10px;
 
   /* Courbes des skills d'Emil Kowalski (.claude/skills) : remplacent celles de Tailwind, donc `ease-out` les utilise. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);

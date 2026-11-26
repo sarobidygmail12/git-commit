@@ -1,17 +1,17 @@
-# 🧭 git-push
+# 🧭 git-commit.dev
 
 <img width="788" height="532" alt="demo-commit-switch-branch" src="https://github.com/user-attachments/assets/89b715bd-0392-4691-9678-a2fcc50fdbd2" />
 
 🇬🇧 English | [🇫🇷 Français](README.fr.md)
 
-**Git with simple commands, right in your terminal.** You type `/commit`, git-push reads your changes, writes the commit message and sends your work to GitHub. New to Git? This page is for you. 👋
+**Git with simple commands, right in your terminal.** You type `/commit`, git-commit.dev reads your changes, writes the commit message and sends your work to GitHub. New to Git? This page is for you. 👋
 
 > [!NOTE]
 > Screens are in English by default. Type `/lang` to switch to French, Chinese or German. Commands stay the same in every language.
 
 ## 🎯 What it solves
 
-| Problem | With git-push |
+| Problem | With git-commit.dev |
 | --- | --- |
 | Git commands are hard to remember | One short command per task: `/commit`, `/pull`, `/switch`… with autocomplete |
 | Writing a good commit message takes time | AI reads your changes and writes the message for you |
@@ -24,15 +24,15 @@
 
 You need [Git](https://git-scm.com/downloads), [Node.js](https://nodejs.org) 22.12 or newer and [Yarn](https://yarnpkg.com/getting-started/install).
 
-**1. Install git-push** (Linux or macOS):
+**1. Install git-commit.dev** (Linux or macOS):
 
 ```bash
-git clone https://github.com/sarobidygmail12/gitkraken-cli.git git-push
-cd git-push
+git clone https://github.com/sarobidygmail12/gitkraken-cli.git git-commit
+cd git-commit
 yarn install
 yarn build
 mkdir -p ~/.local/bin
-ln -s "$PWD/bin/git-push.js" ~/.local/bin/git-push
+ln -s "$PWD/bin/git-commit.js" ~/.local/bin/git-commit
 ```
 
 **2. Tell Git who you are** (once):
@@ -42,14 +42,14 @@ git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 ```
 
-**3. Connect with a token.** Create one with the right to read and write repositories, on [GitHub](https://github.com/settings/tokens) (scope `repo`) or [GitLab](https://gitlab.com/-/user_settings/personal_access_tokens) (scope `write_repository`). Start `git-push`, type `/login` and paste it. Use the **HTTPS** address of your repositories (`https://…`).
+**3. Connect with a token.** Create one with the right to read and write repositories, on [GitHub](https://github.com/settings/tokens) (scope `repo`) or [GitLab](https://gitlab.com/-/user_settings/personal_access_tokens) (scope `write_repository`). Start `git-commit`, type `/login` and paste it. Use the **HTTPS** address of your repositories (`https://…`).
 
 ## 🎬 Your first project in 4 steps
 
 1. **Create an empty repository** at <https://github.com/new> and copy its address.
-2. **Open your project** and start git-push: `cd my-project` then `git-push`.
+2. **Open your project** and start git-commit.dev: `cd my-project` then `git-commit`.
 3. **Link it to GitHub**: type `/init`, press Enter, paste the address.
-4. **Save and send**: type `/commit`. git-push asks for confirmation because `main` is protected: answer yes. It then suggests a message: choose **Accept**.
+4. **Save and send**: type `/commit`. git-commit.dev asks for confirmation because `main` is protected: answer yes. It then suggests a message: choose **Accept**.
 
 Your project is on GitHub! 🎉 From then on: you work, you type `/commit`.
 
@@ -59,7 +59,7 @@ Your project is on GitHub! 🎉 From then on: you work, you type `/commit`.
 ## 🖥️ Reading the screen
 
 ```text
-git-push my-project main (+3, -2, +3)
+git-commit.dev my-project main (+3, -2, +3)
 ```
 
 Project name, branch, then files not saved yet: 🟢 added, 🔴 deleted, 🟠 modified. The grey lines show the real Git commands run for you, handy for learning. Type `/` to see the commands, arrows to choose, Tab to complete, Enter to confirm.
@@ -107,7 +107,7 @@ Project name, branch, then files not saved yet: 🟢 added, 🔴 deleted, 🟠 m
 | `/init` | Creates a repository and links it to GitHub | Starting a project without remembering `git init` and `git remote add` |
 | `/login` | Saves an access token | Push refused because of a password |
 | `/config` | This repository's settings in your browser | Editing JSON by hand |
-| `/lang` | Changes the language | Using git-push in English, French, Chinese or German |
+| `/lang` | Changes the language | Using git-commit.dev in English, French, Chinese or German |
 | `/help` | Lists commands and opens the full help | Finding a command or an option |
 | `/clear`, `/exit` | Clears the screen, quits | |
 
@@ -124,7 +124,7 @@ Short aliases exist: `/cm` (commit), `/s` (status), `/sw` (switch), `/db` (delet
 | A mistake in a commit already sent | Turn off automatic sending to check first: `/config set commit.autoPush false`, then send with `/push` |
 | `detached HEAD` | `/switch main` |
 | `not a Git repository` | Go to your project folder, or `/init` |
-| `git-push: command not found` | `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc` |
+| `git-commit: command not found` | `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc` |
 
 ## 🛟 Built-in safety
 
@@ -136,7 +136,7 @@ Short aliases exist: `/cm` (commit), `/s` (status), `/sw` (switch), `/db` (delet
 
 ## 🤖 AI messages (optional)
 
-With AI, git-push writes a title that explains the commit and a few sentences about what changed:
+With AI, git-commit.dev writes a title that explains the commit and a few sentences about what changed:
 
 ```text
 fix(session): discard expired sessions when reading
@@ -150,15 +150,16 @@ Without AI, it describes the changed files. Pick one service:
 - **Gemini** (free tier): create a key at <https://aistudio.google.com/apikey>, then add `export GEMINI_API_KEY="your-key"`.
 - **Ollama** (local, nothing leaves your machine): run `ollama pull qwen2.5-coder` and keep Ollama running.
 
-If one service fails, git-push tries the next. Commit messages are always in English.
+If one service fails, git-commit.dev tries the next. Commit messages are always in English.
 
 > [!NOTE]
 > Your changes are sent to the AI service to write the message. Secret files (`.env*`, `*.pem`, `*.key`, `id_rsa*`) only send their name.
 
 ## ⚙️ Settings
 
-- `/config` opens this repository's settings page. Change, then **Save**: it writes `.git-push.json`.
-- `/config set <option> <value>` changes your global file `~/.git-push/config.json`.
+- `/config` opens this repository's settings page. Change, then **Save**: it writes `.git-commit.json`.
+- `/config set <option> <value>` changes your global file `~/.git-commit/config.json`.
+- Coming from git-push? Your `~/.git-push/config.json` is copied on first start, and a repository that still has a `.git-push.json` keeps using it.
 - `/config browse`, `/config show`, `/config edit` work in the terminal.
 
 The `/help` page documents every option.
@@ -176,4 +177,4 @@ The code has a backend (`src/server`: container, web server, controllers, servic
 
 ## 🌐 Website
 
-👉 [Visit the git-push website](https://claude.ai/artifact/X84wVTqr1GgwitrGVLjxmp)
+👉 [Visit the git-commit.dev website](https://claude.ai/artifact/X84wVTqr1GgwitrGVLjxmp)

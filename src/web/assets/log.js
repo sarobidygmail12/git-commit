@@ -6,7 +6,7 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 const LANE_COLORS = ["#1f9ce0", "#16a371", "#e0702b", "#a855d8", "#d19a0b", "#e0497f", "#4f6fe8", "#0fa5a5"];
 const AUTHOR_COLORS = ["#b5472d", "#2c7a51", "#3b5fc4", "#8b3fb0", "#a86a00", "#b03060", "#00788a", "#5b6472"];
 const byId = (id) => document.getElementById(id);
-const rowsNode = byId("rows"), stateNode = byId("state"), moreButton = byId("more"), detailsNode = byId("details");
+const rowsNode = byId("rows"), stateNode = byId("state"), moreButton = byId("more"), detailsNode = byId("details"), detailsDialog = byId("details-dialog");
 const sidebarNode = byId("sidebar"), searchInput = byId("search"), fieldSelect = byId("field"), refsPopover = byId("refs-popover");
 
 let repo = null, loaded = [], nextPage = 0, hasMore = false, loadToken = 0, detailToken = 0;
@@ -351,9 +351,13 @@ function copyButton(label, text) {
 }
 
 function closeDetails() {
+  if (detailsDialog.open) detailsDialog.close();
+}
+
+/* Échap ferme aussi la modale nativement : la sélection se nettoie donc sur l'événement `close`, pas dans le bouton. */
+function clearSelection() {
   selectedHash = null;
   detailToken++;
-  detailsNode.hidden = true;
   rowsNode.querySelectorAll(".selected").forEach((node) => node.classList.remove("selected"));
 }
 
@@ -385,13 +389,13 @@ function fileRow(file) {
 
 async function renderDetails(commit) {
   const token = ++detailToken;
-  detailsNode.hidden = false;
 
   const head = element("div", undefined, "details-head");
   const close = element("button", "×");
   close.id = "close";
   close.type = "button";
   close.setAttribute("aria-label", message("closeDetails"));
+  close.autofocus = true;
   close.onclick = closeDetails;
   head.append(element("h2", commit.subject), close);
 
@@ -412,6 +416,8 @@ async function renderDetails(commit) {
   detailsNode.append(actions);
   const loadingNote = element("p", message("loading"), "date");
   detailsNode.append(loadingNote);
+  if (!detailsDialog.open) detailsDialog.showModal();
+  detailsNode.scrollTop = 0;
 
   try {
     const response = await fetch("/api/commit?" + new URLSearchParams({ hash: commit.hash }));
@@ -480,7 +486,7 @@ async function loadRepo() {
   if (!response.ok) throw new Error(data.error);
   repo = data;
   byId("repo").textContent = repo.name;
-  document.title = "🚀 " + repo.name + " · git-push";
+  document.title = "🚀 " + repo.name + " · git-commit.dev";
   renderCurrentBranch();
   renderSidebar();
 }
@@ -493,6 +499,8 @@ byId("current").onclick = goToHead;
 byId("menu").onclick = () => sidebarNode.classList.toggle("open");
 moreButton.onclick = () => loadPage(nextPage);
 byId("center").onscroll = hideRefsPopover;
-document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeDetails(); });
+detailsDialog.onclose = clearSelection;
+/* Un clic sur le fond (hors du contenu) touche le <dialog> lui-même. */
+detailsDialog.onclick = (event) => { if (event.target === detailsDialog) closeDetails(); };
 
 loadRepo().then(() => loadPage(0)).catch((error) => showState(message("error") + " " + error.message));

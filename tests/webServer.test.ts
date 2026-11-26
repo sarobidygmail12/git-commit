@@ -14,7 +14,7 @@ describe("serveur web : pages et API de lecture", () => {
 
   beforeEach(async () => {
     repo = createTempRepo();
-    const paths = { global: join(repo.root, "config.json"), repo: join(repo.work, ".git-push.json") };
+    const paths = { global: join(repo.root, "config.json"), repo: join(repo.work, ".git-commit.json") };
     await ensureGlobalConfig(paths.global);
     server = await startTestServer({ cwd: repo.work, paths, commands });
   });

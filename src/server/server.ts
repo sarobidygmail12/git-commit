@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { HTTP_FORBIDDEN, HTTP_METHOD_NOT_ALLOWED, HTTP_NOT_FOUND } from "../constants/http.js";
 import { API_ROUTES, ASSETS_ROUTE_PREFIX, PAGE_ROUTES } from "../constants/routes.js";
 import type { WebServer } from "../contracts/command.js";
-import { GitPushError, hasErrorCode } from "../core/errors.js";
+import { GitCommitError, hasErrorCode } from "../core/errors.js";
 import { t } from "../lang/index.js";
 import type { ConfigController } from "./controllers/config.js";
 import type { HelpController } from "./controllers/help.js";
@@ -69,9 +69,9 @@ function createRoutes({ config, log, help }: WebControllers): Map<string, Route>
   ]);
 }
 
-/** Deux git-push ouverts sur deux dépôts doivent chacun servir le leur. */
+/** Deux git-commit ouverts sur deux dépôts doivent chacun servir le leur. */
 async function listenOnFirstFreePort(server: Server, port: number, attemptsLeft: number): Promise<number> {
-  if (attemptsLeft === 0) throw new GitPushError(t("server.noPort", { port: port - PORT_ATTEMPTS }));
+  if (attemptsLeft === 0) throw new GitCommitError(t("server.noPort", { port: port - PORT_ATTEMPTS }));
   try {
     await listen(server, port);
     return port;

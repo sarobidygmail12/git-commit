@@ -1,4 +1,4 @@
-# git-push — architecture et règles du projet
+# git-commit.dev — architecture et règles du projet
 
 Ce fichier complète le CLAUDE.md global. En cas de conflit, ce fichier l'emporte pour ce projet.
 
@@ -89,6 +89,6 @@ Règles non négociables, issues de ces skills :
 
 ## Commandes
 
-- `yarn build` : tsc, puis Tailwind (`build:css`), puis copie de `src/web` vers `dist/web`. Relance git-push ensuite.
+- `yarn build` : tsc, puis Tailwind (`build:css`), puis copie de `src/web` vers `dist/web`. Relance git-commit ensuite.
 - `yarn dev:css` : Tailwind en mode watch.
 - `yarn typecheck`, `yarn test` (vitest compile le CSS avant les tests).

@@ -1,10 +1,10 @@
 {
-  "name": "git-push",
+  "name": "git-commit",
   "version": "0.1.0",
   "description": "CLI interactif pour le Git du quotidien",
   "private": true,
   "type": "module",
-  "bin": "bin/git-push.js",
+  "bin": "bin/git-commit.js",
   "files": [
     "bin",
     "dist"
@@ -18,7 +18,7 @@
     "dev:css": "tailwindcss -i src/web/styles/app.css -o src/web/assets/app.css --watch",
     "typecheck": "tsc -p tsconfig.test.json",
     "test": "vitest run",
-    "start": "node bin/git-push.js",
+    "start": "node bin/git-commit.js",
     "prepare": "npm run build"
   },
   "dependencies": {

@@ -59,12 +59,21 @@ describe("option ignore", () => {
   });
 
   it("retire le bloc quand la liste est vide et garde les autres lignes", async () => {
-    await addLocalExclude(createGitClient({ cwd: repo.work }), "/.git-push.json");
+    await addLocalExclude(createGitClient({ cwd: repo.work }), "/.git-commit.json");
     await sync(["*.log"]);
     await sync([]);
 
-    expect(excludeFile()).toContain("/.git-push.json");
-    expect(excludeFile()).not.toContain("git-push : option ignore");
+    expect(excludeFile()).toContain("/.git-commit.json");
+    expect(excludeFile()).not.toContain("git-commit : option ignore");
+  });
+
+  it("remplace le bloc écrit sous l'ancien nom git-push", async () => {
+    const legacyBlock = "# >>> git-push : option ignore\n*.tmp\n# <<< git-push : option ignore\n";
+    writeFileSync(join(repo.work, ".git", "info", "exclude"), `garde\n${legacyBlock}`);
+
+    await sync(["*.log"]);
+
+    expect(excludeFile()).toBe("garde\n# >>> git-commit : option ignore\n*.log\n# <<< git-commit : option ignore\n");
   });
 
   it("ne duplique pas le bloc quand la liste ne change pas", async () => {

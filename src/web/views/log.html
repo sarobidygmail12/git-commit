@@ -1,6 +1,6 @@
 <header class="topbar">
   <button id="menu" class="toolbar-button" type="button" aria-label="{{web.showBranches}}">☰</button>
-  <span id="repo" class="repo">git-push</span>
+  <span id="repo" class="repo">git-commit.dev</span>
   <button id="current" class="current" type="button" title="{{web.goToHead}}" hidden></button>
   <span id="filter-chip" class="chip" hidden><span id="filter-text"></span><button id="filter-clear" type="button" aria-label="{{web.removeFilter}}">×</button></span>
   <form id="filters" role="search">
@@ -21,6 +21,6 @@
     <div id="state" hidden></div>
     <button id="more" class="toolbar-button" type="button" hidden>{{web.loadMore}}</button>
   </main>
-  <aside id="details" aria-label="{{web.commitDetails}}" hidden></aside>
 </div>
+<dialog id="details-dialog" aria-label="{{web.commitDetails}}"><div id="details"></div></dialog>
 <div id="refs-popover" class="refs-popover" role="tooltip" hidden></div>
