@@ -104,7 +104,7 @@ The grey lines show the real Git commands run for you. Handy for learning! 👀
 | `/push` | Sends your commits to GitHub |
 | `/first-push` | Does your very first send when GitHub already has files |
 | `/login` | Connects to GitHub, GitLab or another Git server with an access token |
-| `/pr` | Creates a pull request, asking for its title and description |
+| `/pr` | Creates a pull request, asking for its title and description, with an emoji in front of the title |
 | `/branch my-idea` | Creates a new branch and moves to it |
 | `/switch main` | Moves to another branch |
 | `/log` | Opens the project history in your browser |
@@ -245,7 +245,7 @@ You don't need this part to get started. Click a title to open it.
 | `/pull` | | `git pull --ff-only` |
 | `/push` | | Pushes, sets the upstream if needed |
 | `/first-push` | `/fp` | First publish: brings in the commits already on the remote, then pushes and sets the upstream. Never force-pushes |
-| `/pr` | `/pull-request` | Asks for the title and description, pushes the branch if needed, then opens the GitHub or GitLab page with both filled in: confirm it there. Uses `git` only |
+| `/pr` | `/pull-request` | Asks for the title and description, pushes the branch if needed, then opens the GitHub or GitLab page with both filled in: confirm it there. The title starts with an emoji matching its type (`feat:` ✨, `fix:` 🚒, `docs:` 📝, a `hotfix/` branch 🚑️, a title that talks about a bug such as "Fix…", "Resolve…", "Corrige…" 🚒, otherwise 🚀); a title that already starts with an emoji is kept as is. Uses `git` only |
 | `/fetch` | | `git fetch --all` |
 | `/stash [pop\|list]` | | Sets aside, restores or lists |
 | `/config [browse\|show\|set\|edit] [--repo]` | | Edits the options in the browser, or in the terminal |

@@ -104,7 +104,7 @@ Les lignes grises montrent les vraies commandes Git lancées pour toi. Pratique 
 | `/push` | Envoie tes commits sur GitHub |
 | `/first-push` | Fait ton tout premier envoi quand GitHub contient déjà des fichiers |
 | `/login` | Te connecte à GitHub, GitLab ou un autre serveur Git avec un token d'accès |
-| `/pr` | Crée une pull request en demandant son titre et sa description |
+| `/pr` | Crée une pull request en demandant son titre et sa description, avec un emoji en tête du titre |
 | `/branch mon-idee` | Crée une nouvelle branche et va dessus |
 | `/switch main` | Va sur une autre branche |
 | `/log` | Ouvre l'historique du projet dans ton navigateur |
@@ -245,7 +245,7 @@ Tu n'as pas besoin de cette partie pour commencer. Clique sur un titre pour l'ou
 | `/pull` | | `git pull --ff-only` |
 | `/push` | | Pousse, pose l'upstream si besoin |
 | `/first-push` | `/fp` | Première publication : intègre les commits déjà sur le remote, puis pousse et pose l'upstream. Ne force jamais le push |
-| `/pr` | `/pull-request` | Demande le titre et la description, pousse la branche si besoin, puis ouvre la page GitHub ou GitLab avec les deux déjà remplis : valide-la là-bas. N'utilise que `git` |
+| `/pr` | `/pull-request` | Demande le titre et la description, pousse la branche si besoin, puis ouvre la page GitHub ou GitLab avec les deux déjà remplis : valide-la là-bas. Le titre commence par un emoji selon son type (`feat:` ✨, `fix:` 🚒, `docs:` 📝, une branche `hotfix/` 🚑️, un titre qui parle d'un bug comme « Corrige… », « Résout… », « Fix… » 🚒, sinon 🚀) ; un titre qui commence déjà par un emoji est gardé tel quel. N'utilise que `git` |
 | `/fetch` | | `git fetch --all` |
 | `/stash [pop\|list]` | | Met de côté, récupère ou liste |
 | `/config [browse\|show\|set\|edit] [--repo]` | | Modifie les options dans le navigateur, ou dans le terminal |
