@@ -1,12 +1,13 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { HTTP_FORBIDDEN, HTTP_METHOD_NOT_ALLOWED, HTTP_NOT_FOUND } from "../constants/http.js";
-import { API_ROUTES, PAGE_ROUTES } from "../constants/routes.js";
+import { API_ROUTES, ASSETS_ROUTE_PREFIX, PAGE_ROUTES } from "../constants/routes.js";
 import type { WebServer } from "../contracts/command.js";
 import { GitPushError, hasErrorCode } from "../core/errors.js";
 import { t } from "../lang/index.js";
 import type { ConfigController } from "./controllers/config.js";
 import type { HelpController } from "./controllers/help.js";
 import type { LogController } from "./controllers/log.js";
+import { ASSET_FILES, serveAsset } from "./http/assets.js";
 import { readJsonBody } from "./http/body.js";
 import { isLocalHostHeader, LOOPBACK_ADDRESS } from "./http/guards.js";
 import { renderPage } from "./http/render.js";
@@ -15,7 +16,8 @@ import type { Route, RouteResult } from "./http/route.js";
 
 const PORT_ATTEMPTS = 10;
 const ALLOWED_METHODS = ["GET", "POST"];
-const CONTENT_SECURITY_POLICY = "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'";
+/** Aucun style ni script inline : tout vient de /assets, servi par ce serveur. */
+const CONTENT_SECURITY_POLICY = "default-src 'none'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self'";
 
 export type WebControllers = {
   config: ConfigController;
@@ -60,6 +62,10 @@ function createRoutes({ config, log, help }: WebControllers): Map<string, Route>
     [`GET ${API_ROUTES.help}`, async () => jsonResult(await help.read())],
     [`GET ${API_ROUTES.config}`, async () => jsonResult(await config.read())],
     [`POST ${API_ROUTES.config}`, async ({ body }) => jsonResult(await config.save(body))],
+    ...Object.entries(ASSET_FILES).map(([fileName, contentType]): [string, Route] => [
+      `GET ${ASSETS_ROUTE_PREFIX}${fileName}`,
+      () => serveAsset(fileName, contentType),
+    ]),
   ]);
 }
 

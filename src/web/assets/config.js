@@ -1,87 +1,5 @@
-<!doctype html>
-<html lang="{{web.htmlLang}}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🚀 git-push · {{web.configTitle}}</title>
-<style>
-:root { color-scheme: light; --bg:#f7f7f5; --panel:#fff; --text:#1d1f23; --muted:#667; --line:#e2e2de; --accent:#0b6bcb; --accent-text:#fff; --code:#f0efeb; --changed:#fff7e0; --danger:#b42318; --success:#1a7f37; }
-:root[data-theme="dark"] { color-scheme: dark; --bg:#14161a; --panel:#1c1f25; --text:#e7e8ea; --muted:#969ca8; --line:#2c3038; --accent:#6db3f8; --accent-text:#0d1117; --code:#272b33; --changed:#2b2616; --danger:#ff8a80; --success:#56d364; }
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui, sans-serif; }
-main { max-width:860px; margin:0 auto; padding:24px 16px 120px; }
-header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-h1 { font-size:22px; margin:0; }
-h2 { font:600 13px ui-monospace, Menlo, Consolas, monospace; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:28px 0 8px; }
-nav a { color:var(--accent); margin-right:14px; }
-button, input, select, textarea { font:inherit; color:inherit; }
-button { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:6px 12px; cursor:pointer; min-height:36px; }
-button:disabled { opacity:.5; cursor:default; }
-button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-text); font-weight:600; }
-:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-code { font:13px/1.5 ui-monospace, Menlo, Consolas, monospace; background:var(--code); padding:1px 5px; border-radius:4px; overflow-wrap:anywhere; }
-.intro { color:var(--muted); margin:8px 0 0; }
-.file { color:var(--muted); font-size:13px; margin:6px 0 0; overflow-wrap:anywhere; }
-.section { background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
-.option { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 260px); gap:6px 20px; padding:12px 16px; align-items:start; }
-.option + .option { border-top:1px solid var(--line); }
-.option.changed { background:var(--changed); }
-.option label.name { font:600 14px ui-monospace, Menlo, Consolas, monospace; overflow-wrap:anywhere; }
-.description { color:var(--muted); font-size:13px; margin:2px 0 0; }
-.badge { display:inline-block; font-size:12px; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:0 8px; margin-top:6px; }
-.control input[type="text"], .control input[type="number"], .control select, .control textarea { width:100%; background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 8px; min-height:36px; }
-.control textarea { resize:vertical; font:13px/1.5 ui-monospace, Menlo, Consolas, monospace; }
-.control input[type="checkbox"] { width:20px; height:20px; margin:8px 0; accent-color:var(--accent); }
-.control :disabled { opacity:.55; cursor:not-allowed; }
-.hint { color:var(--muted); font-size:12px; margin-top:4px; }
-.field-error { grid-column:1 / -1; color:var(--danger); font-size:13px; }
-.message { margin:16px 0 0; padding:10px 14px; border-radius:8px; border:1px solid var(--line); background:var(--panel); }
-.message.error { border-color:var(--danger); color:var(--danger); }
-.message ul { margin:6px 0 0; padding-left:18px; }
-.bar { position:fixed; inset:auto 0 0 0; background:var(--panel); border-top:1px solid var(--line); }
-.bar-inner { max-width:860px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:10px; }
-.bar-status { flex:1; color:var(--muted); font-size:14px; }
-.bar-status.success { color:var(--success); }
-@media (max-width: 640px) {
-  .option { grid-template-columns:1fr; }
-}
-</style>
-</head>
-<body>
-<main>
-  <header><h1>git-push</h1><button id="theme" type="button">{{web.theme}}</button></header>
-  <nav><a href="/log">{{web.history}}</a><a href="/help">{{web.help}}</a></nav>
-  <p class="intro">{{web.configPageIntro}}</p>
-  <p class="file"><code id="file"></code></p>
-  <div class="message error" id="error" role="alert" hidden></div>
-  <form id="form" novalidate aria-busy="true"><p class="intro">{{web.loading}}</p></form>
-</main>
-<div class="bar">
-  <div class="bar-inner">
-    <span class="bar-status" id="status" role="status">{{web.noChanges}}</span>
-    <button id="reset" type="button" disabled>{{web.reset}}</button>
-    <button id="save" class="primary" type="submit" form="form" disabled>{{web.save}}</button>
-  </div>
-</div>
-<script>
-const element = (tag, text, className) => {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-};
-
-function applyTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  try { localStorage.setItem("git-push-theme", theme); } catch {}
-}
-function savedTheme() {
-  try { return localStorage.getItem("git-push-theme"); } catch { return null; }
-}
-applyTheme(savedTheme() ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
-document.getElementById("theme").onclick = () =>
-  applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+"use strict";
+/* Vue /config : édite .git-push.json du dépôt courant. */
 
 const form = document.getElementById("form");
 const saveButton = document.getElementById("save");
@@ -138,7 +56,7 @@ function buildOption(option) {
   name.htmlFor = id;
   info.append(name);
   if (option.description) info.append(element("p", option.description, "description"));
-  if (option.isGlobalOnly) info.append(element("span", "{{web.globalOnly}}", "badge"));
+  if (option.isGlobalOnly) info.append(element("span", message("globalOnly"), "badge"));
 
   const control = element("div", undefined, "control");
   const { input, read } = buildControl(option);
@@ -150,7 +68,7 @@ function buildOption(option) {
   control.append(input);
   if (option.kind === "list") {
     const allowed = option.choices.length > 0 ? " · " + option.choices.join(", ") : "";
-    control.append(element("div", "{{web.listHint}}" + allowed, "hint"));
+    control.append(element("div", message("listHint") + allowed, "hint"));
   }
   const fieldError = element("div", undefined, "field-error");
   fieldError.hidden = true;
@@ -195,10 +113,10 @@ function refreshStatus() {
   const hasChanges = changed.size > 0;
   saveButton.disabled = !hasChanges || state.isSaving;
   resetButton.disabled = !hasChanges || state.isSaving;
-  saveButton.textContent = state.isSaving ? "{{web.saving}}" : "{{web.save}}";
+  saveButton.textContent = state.isSaving ? message("saving") : message("save");
   if (state.isSaving) return;
   statusLine.className = "bar-status";
-  statusLine.textContent = hasChanges ? "{{web.unsavedChanges}}".replace("{count}", String(changed.size)) : "{{web.noChanges}}";
+  statusLine.textContent = hasChanges ? message("unsavedChanges", { count: changed.size }) : message("noChanges");
 }
 
 function clearErrors() {
@@ -230,17 +148,6 @@ function showErrors(message, issues) {
   errorBox.append(list);
 }
 
-async function requestJson(url, options) {
-  const response = await fetch(url, options);
-  const payload = await response.json();
-  if (!response.ok) {
-    const failure = new Error(payload.error);
-    failure.issues = Array.isArray(payload.issues) ? payload.issues : [];
-    throw failure;
-  }
-  return payload;
-}
-
 async function load() {
   clearErrors();
   form.setAttribute("aria-busy", "true");
@@ -248,7 +155,7 @@ async function load() {
     render(await requestJson("/api/config"));
   } catch (error) {
     form.setAttribute("aria-busy", "false");
-    showErrors("{{web.error}} " + error.message, error.issues ?? []);
+    showErrors(message("error") + " " + error.message, error.issues ?? []);
   }
 }
 
@@ -272,11 +179,11 @@ async function save(event) {
     state.isSaving = false;
     render(result.page);
     statusLine.className = "bar-status success";
-    statusLine.textContent = "{{web.saved}}".replace("{file}", result.savedTo);
+    statusLine.textContent = message("saved", { file: result.savedTo });
   } catch (error) {
     state.isSaving = false;
     refreshStatus();
-    showErrors("{{web.saveFailed}} " + error.message, error.issues ?? []);
+    showErrors(message("saveFailed") + " " + error.message, error.issues ?? []);
   }
 }
 
@@ -296,6 +203,3 @@ window.addEventListener("beforeunload", (event) => {
 });
 
 load();
-</script>
-</body>
-</html>

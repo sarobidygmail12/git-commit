@@ -1,0 +1,104 @@
+/*
+ * Feuille unique de l'interface web, compilée par Tailwind dans web/assets/app.css.
+ * Sans preflight : les pages gardent les marges, listes et titres natifs du navigateur.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "../templates";
+@source "../views";
+@source "../assets";
+
+@import "./document.css" layer(components);
+@import "./log.css" layer(components);
+@import "./help.css" layer(components);
+@import "./config.css" layer(components);
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Une seule palette : les classes Tailwind (bg-panel, text-muted…) suivent le thème clair ou sombre. */
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg: #f7f7f5;
+    --panel: #fff;
+    --raised: #e9ebef;
+    --text: #1d1f23;
+    --muted: #667;
+    --line: #e2e2de;
+    --accent: #0b6bcb;
+    --accent-text: #fff;
+    --code: #f0efeb;
+    --hover: #eceef2;
+    --selected: #d9e7fd;
+    --head: #fff4d6;
+    --changed: #fff7e0;
+    --add: #12845a;
+    --del: #d0342c;
+    --danger: #b42318;
+    --success: #1a7f37;
+    --on-avatar: #fff;
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #14161a;
+    --panel: #1c1f25;
+    --raised: #2a2e37;
+    --text: #e7e8ea;
+    --muted: #969ca8;
+    --line: #2c3038;
+    --accent: #6db3f8;
+    --accent-text: #0d1117;
+    --code: #272b33;
+    --hover: #262a33;
+    --selected: #23364f;
+    --head: #332c17;
+    --changed: #2b2616;
+    --add: #45c98f;
+    --del: #f2726a;
+    --danger: #ff8a80;
+    --success: #56d364;
+    --on-avatar: #fff;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-raised: var(--raised);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-code: var(--code);
+  --color-hover: var(--hover);
+  --color-selected: var(--selected);
+  --color-head: var(--head);
+  --color-changed: var(--changed);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+}
+
+@theme {
+  --font-sans: system-ui, sans-serif;
+  --font-mono: ui-monospace, Menlo, Consolas, monospace;
+  --text-title: 22px;
+  --text-small: 13px;
+  --text-section: 17px;
+  --container-page: 860px;
+}

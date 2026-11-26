@@ -13,3 +13,6 @@ export const API_ROUTES = {
   help: "/api/help",
   config: "/api/config",
 } as const;
+
+/** Feuille de style et scripts des pages, servis depuis web/assets. */
+export const ASSETS_ROUTE_PREFIX = "/assets/";

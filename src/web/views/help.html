@@ -1,0 +1,17 @@
+<main class="mx-auto max-w-page px-4 pt-6 pb-16">
+  {{> header}}
+  <nav><a class="mr-3.5 text-accent" href="/log">{{web.history}}</a><a class="mr-3.5 text-accent" href="#commandes">{{web.commands}}</a><a class="mr-3.5 text-accent" href="#configuration">{{web.configuration}}</a><a class="mr-3.5 text-accent" href="/config">{{web.editConfig}}</a></nav>
+  <p id="error" hidden></p>
+  <h2 id="commandes">{{web.commands}}</h2>
+  <div id="commands"></div>
+  <h2 id="configuration">{{web.configuration}}</h2>
+  <p>{{web.configIntro}}</p>
+  <div class="overflow-x-auto">
+    <table>
+      <thead><tr><th>{{web.option}}</th><th>{{web.type}}</th><th>{{web.description}}</th></tr></thead>
+      <tbody id="options"></tbody>
+    </table>
+  </div>
+  <h2>{{web.effectiveConfig}}</h2>
+  <pre id="effective"></pre>
+</main>

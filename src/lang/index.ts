@@ -50,3 +50,12 @@ export function translatePage(html: string): string {
     .filter(([key]) => key.startsWith(WEB_KEY_PREFIX))
     .reduce((page, [key, text]) => page.replaceAll(`{{${key}}}`, () => text), html);
 }
+
+/** Textes `web.*` de la langue courante, sans le préfixe : ce que les scripts des pages lisent via `message(clé)`. */
+export function webMessages(): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(MESSAGES[currentLanguage])
+      .filter(([key]) => key.startsWith(WEB_KEY_PREFIX))
+      .map(([key, text]) => [key.slice(WEB_KEY_PREFIX.length), text]),
+  );
+}

@@ -321,6 +321,8 @@
   "web.containedIn": "Présent dans les branches :",
   "web.files": "Fichiers :",
   "web.noCommitFound": "Aucun commit trouvé.",
+  "web.binary": "binaire",
+  "web.moreFiles": "… et {count} autres fichiers.",
   "web.configTitle": "configuration",
   "web.editConfig": "Modifier la configuration",
   "web.configPageIntro": "Réglages de ce dépôt, enregistrés dans son .git-push.json. Une option que vous ne modifiez pas garde sa valeur globale.",

@@ -34,10 +34,44 @@ describe("serveur web : pages et API de lecture", () => {
     expect(reply.body).not.toContain("{{web.");
   });
 
+  it.each(PAGES)("%s ne contient aucun style ni script inline", async (path) => {
+    const { body } = await server.send(path);
+    expect(body).not.toContain("<style");
+    expect(body).not.toContain(" style=");
+    // Script exécutable inline : `<script>` ou `<script defer>`. Ignore `<script src="/assets/app.js">` et le bloc JSON des textes.
+    // https://regex101.com/?regex=%3Cscript(%3F!%5B%5E%3E%5D*%5Cbsrc%3D)(%3F!%5B%5E%3E%5D*application%5C%2Fjson)&testString=%3Cscript%3Ealert(1)%3C%2Fscript%3E%3Cscript%20src%3D%22%2Fa.js%22%3E
+    expect(body.match(/<script(?![^>]*\bsrc=)(?![^>]*application\/json)/g)).toBeNull();
+    expect(body).toContain('<link rel="stylesheet" href="/assets/app.css">');
+  });
+
+  it("injecte les textes traduits des scripts en JSON lisible", async () => {
+    const { body } = await server.send("/config");
+    const json = body.slice(body.indexOf('id="messages">') + 'id="messages">'.length, body.indexOf("</script>"));
+    expect(JSON.parse(json)).toMatchObject({ save: "Enregistrer", theme: expect.any(String) });
+  });
+
+  it.each([
+    ["/assets/app.css", "text/css; charset=utf-8"],
+    ["/assets/app.js", "text/javascript; charset=utf-8"],
+    ["/assets/log.js", "text/javascript; charset=utf-8"],
+    ["/assets/help.js", "text/javascript; charset=utf-8"],
+    ["/assets/config.js", "text/javascript; charset=utf-8"],
+  ])("sert %s avec son type", async (path, contentType) => {
+    const reply = await server.send(path);
+    expect(reply.status).toBe(HTTP_OK);
+    expect(reply.headers["content-type"]).toBe(contentType);
+    expect(reply.body.length).toBeGreaterThan(0);
+  });
+
+  it.each(["/assets/../package.json", "/assets/secret.js", "/assets/%2e%2e/package.json"])("ne sert pas %s", async (path) => {
+    expect((await server.send(path)).status).toBe(HTTP_NOT_FOUND);
+  });
+
   it("pose les en-têtes de sécurité sur chaque réponse", async () => {
     const reply = await server.send("/log");
-    expect(reply.headers["content-security-policy"]).toContain("default-src 'none'");
-    expect(reply.headers["content-security-policy"]).toContain("connect-src 'self'");
+    expect(reply.headers["content-security-policy"]).toBe(
+      "default-src 'none'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self'",
+    );
     expect(reply.headers["x-content-type-options"]).toBe("nosniff");
     expect(reply.headers["cache-control"]).toBe("no-store");
   });

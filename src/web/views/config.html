@@ -1,0 +1,15 @@
+<main class="mx-auto max-w-page px-4 pt-6 pb-30">
+  {{> header}}
+  <nav><a class="mr-3.5 text-accent" href="/log">{{web.history}}</a><a class="mr-3.5 text-accent" href="/help">{{web.help}}</a></nav>
+  <p class="mt-2 mb-0 text-muted">{{web.configPageIntro}}</p>
+  <p class="mt-1.5 mb-0 text-small text-muted wrap-anywhere"><code id="file"></code></p>
+  <div class="message mt-4 rounded-lg border border-danger bg-panel px-3.5 py-2.5 text-danger" id="error" role="alert" hidden></div>
+  <form id="form" novalidate aria-busy="true"><p class="mt-2 mb-0 text-muted">{{web.loading}}</p></form>
+</main>
+<div class="fixed inset-x-0 bottom-0 border-t border-line bg-panel">
+  <div class="mx-auto flex max-w-page items-center gap-2.5 px-4 py-2.5">
+    <span class="bar-status" id="status" role="status">{{web.noChanges}}</span>
+    <button id="reset" type="button" disabled>{{web.reset}}</button>
+    <button id="save" class="primary" type="submit" form="form" disabled>{{web.save}}</button>
+  </div>
+</div>

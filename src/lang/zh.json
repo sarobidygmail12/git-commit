@@ -321,6 +321,8 @@
   "web.containedIn": "包含于分支：",
   "web.files": "文件：",
   "web.noCommitFound": "未找到提交。",
+  "web.binary": "二进制",
+  "web.moreFiles": "……还有 {count} 个文件。",
   "web.configTitle": "配置",
   "web.editConfig": "编辑配置",
   "web.configPageIntro": "当前仓库的设置，保存到其 .git-push.json。未修改的选项保留全局值。",

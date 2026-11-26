@@ -1,0 +1,26 @@
+<header class="topbar">
+  <button id="menu" class="toolbar-button" type="button" aria-label="{{web.showBranches}}">☰</button>
+  <span id="repo" class="repo">git-push</span>
+  <button id="current" class="current" type="button" title="{{web.goToHead}}" hidden></button>
+  <span id="filter-chip" class="chip" hidden><span id="filter-text"></span><button id="filter-clear" type="button" aria-label="{{web.removeFilter}}">×</button></span>
+  <form id="filters" role="search">
+    <input id="search" type="search" placeholder="{{web.searchPlaceholder}}" aria-label="{{web.searchLabel}}">
+    <select id="field" aria-label="{{web.searchField}}">
+      <option value="message">{{web.message}}</option><option value="author">{{web.author}}</option><option value="hash">Hash</option>
+    </select>
+  </form>
+  <a class="toolbar-button" href="/config">{{web.configuration}}</a>
+  <a class="toolbar-button" href="/help">{{web.help}}</a>
+  <button id="theme" class="toolbar-button" type="button">{{web.theme}}</button>
+</header>
+<div class="layout">
+  <nav id="sidebar" aria-label="{{web.branchesAndAuthors}}"></nav>
+  <main class="center" id="center">
+    <div class="columns"><span>{{web.branchTag}}</span><span id="graph-title">{{web.graph}}</span><span>{{web.message}}</span><span>{{web.author}}</span><span>{{web.date}}</span><span>SHA</span></div>
+    <div id="rows"></div>
+    <div id="state" hidden></div>
+    <button id="more" class="toolbar-button" type="button" hidden>{{web.loadMore}}</button>
+  </main>
+  <aside id="details" aria-label="{{web.commitDetails}}" hidden></aside>
+</div>
+<div id="refs-popover" class="refs-popover" role="tooltip" hidden></div>
