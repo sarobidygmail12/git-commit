@@ -1,31 +1,28 @@
 # 🧭 git-push
 
+<img width="788" height="532" alt="demo-commit-switch-branch" src="https://github.com/user-attachments/assets/89b715bd-0392-4691-9678-a2fcc50fdbd2" />
+
 [🇬🇧 English](README.md) | 🇫🇷 Français
 
-🌐 [Voir la page d'accueil](https://claude.ai/artifact/X84wVTqr1GgwitrGVLjxmp)
-
-Utilise Git avec des commandes simples, directement dans ton terminal.
-
-Tu tapes `/commit`, git-push lit tes modifications, les explique dans le message de commit, et ton travail part sur GitHub. Tu débutes ? Cette page est faite pour toi. 👋
+**Git avec des commandes simples, directement dans ton terminal.** Tu tapes `/commit`, git-push lit tes modifications, écrit le message du commit et envoie ton travail sur GitHub. Tu débutes avec Git ? Cette page est pour toi. 👋
 
 > [!NOTE]
-> git-push est en anglais par défaut. Tape `/lang fr` pour l'avoir en français : cette page utilise les libellés français. Les commandes restent les mêmes dans toutes les langues.
+> Les écrans sont en anglais par défaut. Tape `/lang fr` pour passer en français (ou en chinois, en allemand). Les commandes restent les mêmes dans toutes les langues.
 
-## 🤔 Les mots à connaître
+## 🎯 Ce que ça résout
 
-| Mot | En clair |
+| Problème | Avec git-push |
 | --- | --- |
-| **Dépôt** | Le dossier de ton projet, suivi par Git |
-| **Commit** | Une sauvegarde de ton travail, avec un petit message |
-| **Branche** | Une copie du projet pour travailler sans gêner le reste. La branche principale s'appelle souvent `main` |
-| **Push** | Envoyer tes commits sur GitHub |
-| **Pull** | Récupérer sur ton ordinateur ce qu'il y a de nouveau sur GitHub |
-| **Remote** | La version de ton projet en ligne, sur GitHub |
-| **Conflit** | Deux personnes ont changé la même ligne, et Git te demande laquelle garder |
+| Les commandes Git sont difficiles à retenir | Une commande courte par tâche : `/commit`, `/pull`, `/switch`… avec l'autocomplétion |
+| Écrire un bon message de commit prend du temps | L'IA lit tes modifications et écrit le message pour toi |
+| Peur de casser ou de perdre son travail | Les commandes dangereuses sont bloquées, les branches protégées et les fichiers secrets demandent d'abord |
+| Les conflits font peur | Un écran guidé : continuer, passer ou tout annuler |
+| L'historique est difficile à lire | Un graphe clair dans ton navigateur avec `/log` |
+| Les réglages sont dans des fichiers JSON | Une page de réglages dans ton navigateur avec `/config` |
 
-## 📥 Installation
+## 📥 Installer
 
-Il te faut [Git](https://git-scm.com/downloads), [Node.js](https://nodejs.org) (version 22.12 ou plus récente) et [Yarn](https://yarnpkg.com/getting-started/install).
+Il te faut [Git](https://git-scm.com/downloads), [Node.js](https://nodejs.org) 22.12 ou plus récent et [Yarn](https://yarnpkg.com/getting-started/install).
 
 **1. Installe git-push** (Linux ou macOS) :
 
@@ -38,347 +35,145 @@ mkdir -p ~/.local/bin
 ln -s "$PWD/bin/git-push.js" ~/.local/bin/git-push
 ```
 
-**2. Dis à Git qui tu es.** C'est à faire une seule fois :
+**2. Dis à Git qui tu es** (une seule fois) :
 
 ```bash
 git config --global user.name "Ton Nom"
-git config --global user.email "ton@email.com"
+git config --global user.email "toi@example.com"
 ```
 
-**3. Crée un token d'accès.** git-push se connecte avec un token, jamais avec un mot de passe. Donne-lui le droit de lire et d'écrire dans les dépôts :
+**3. Connecte-toi avec un token.** Crée-en un avec le droit de lire et d'écrire les dépôts, sur [GitHub](https://github.com/settings/tokens) (scope `repo`) ou [GitLab](https://gitlab.com/-/user_settings/personal_access_tokens) (scope `write_repository`). Lance `git-push`, tape `/login` et colle-le. Utilise l'adresse **HTTPS** de tes dépôts (`https://…`).
 
-- GitHub : <https://github.com/settings/tokens> (droit `repo`)
-- GitLab : <https://gitlab.com/-/user_settings/personal_access_tokens> (droit `write_repository`)
+## 🎬 Ton premier projet en 4 étapes
 
-Lance ensuite `git-push`, tape `/login` et colle le token. Git le garde dans son propre gestionnaire d'identifiants. Utilise toujours l'adresse **HTTPS** de tes dépôts, celle qui commence par `https://`.
+1. **Crée un dépôt vide** sur <https://github.com/new> et copie son adresse.
+2. **Ouvre ton projet** et lance git-push : `cd mon-projet` puis `git-push`.
+3. **Relie-le à GitHub** : tape `/init`, appuie sur Entrée, colle l'adresse.
+4. **Enregistre et envoie** : tape `/commit`. git-push demande confirmation car `main` est protégée : réponds oui. Il propose ensuite un message : choisis **Valider**.
 
-## 🎬 Ton premier projet, pas à pas
-
-**1. Crée un dépôt vide** sur <https://github.com/new>, puis copie son adresse.
-
-**2. Ouvre ton projet** dans le terminal et lance git-push :
-
-```bash
-cd mon-projet
-git-push
-```
-
-Tape `/lang fr` pour passer git-push en français. Ce choix est gardé pour la prochaine fois.
-
-**3. Relie ton dossier à GitHub.** Tape `/init`, appuie sur Entrée pour garder le dossier proposé, puis colle l'adresse copiée.
-
-**4. Sauvegarde et envoie ton travail.** Tape `/commit`. Si git-push te dit que `main` est protégée, réponds oui. Il te propose ensuite un message : choisis **Valider**.
-
-C'est tout, ton projet est sur GitHub ! 🎉
+Ton projet est sur GitHub ! 🎉 Ensuite, c'est toujours pareil : tu travailles, tu tapes `/commit`.
 
 > [!IMPORTANT]
-> `/commit` prend tous tes fichiers modifiés et les envoie sur GitHub tout de suite.
+> `/commit` prend tous tes fichiers modifiés et les envoie tout de suite sur GitHub.
 
-Pour la suite, c'est toujours la même chose : tu travailles, puis tu tapes `/commit`.
-
-## 🖥️ Comprendre l'écran
+## 🖥️ Lire l'écran
 
 ```text
 git-push mon-projet main (+3, -2, +3)
 ```
 
-Tu vois le nom du projet, ta branche, puis tes fichiers pas encore sauvegardés, mis à jour chaque seconde :
+Nom du projet, branche, puis les fichiers pas encore enregistrés : 🟢 ajoutés, 🔴 supprimés, 🟠 modifiés. Les lignes grises montrent les vraies commandes Git lancées pour toi, pratique pour apprendre. Tape `/` pour voir les commandes, les flèches pour choisir, Tab pour compléter, Entrée pour valider.
 
-- 🟢 `+3` : 3 fichiers ajoutés
-- 🔴 `-2` : 2 fichiers supprimés
-- 🟠 `+3` : 3 fichiers modifiés
+## ⭐ Les commandes
 
-Le titre de la fenêtre du terminal affiche aussi ta branche, par exemple `🚀 Git-push : main`.
+### Enregistrer et partager ton travail
 
-Les lignes grises montrent les vraies commandes Git lancées pour toi. Pratique pour apprendre ! 👀
+| Commande | Ce qu'elle fait | Ce qu'elle résout |
+| --- | --- | --- |
+| `/commit` | Enregistre tes modifications avec un message généré et les envoie | Plus de `git add`, `git commit -m`, `git push` un par un |
+| `/amend` | Modifie le dernier commit pas encore envoyé | Une faute dans le message ou un fichier oublié |
+| `/undo` | Annule le dernier commit pas encore envoyé, garde ton travail | Un commit fait trop tôt |
+| `/push` | Envoie tes commits | Pose l'upstream pour toi sur une nouvelle branche |
+| `/first-push` | Premier envoi quand GitHub contient déjà des fichiers | L'erreur `rejected` / `fetch first` sur un nouveau dépôt |
+| `/pr` | Ouvre une pull request avec son titre et sa description déjà remplis | Plus de copier-coller entre le terminal et GitHub ; le titre reçoit un emoji (✨ feature, 🚒 correction de bug, 🚑️ hotfix, 🚀 le reste) |
 
-**Au clavier :** tape `/` pour voir les commandes, utilise les flèches pour choisir, Tab pour compléter et Entrée pour valider.
+### Rester à jour
 
-## ⭐ Les commandes essentielles
+| Commande | Ce qu'elle fait | Ce qu'elle résout |
+| --- | --- | --- |
+| `/status` | Montre où tu en es et ce qui a changé | Lire la sortie de `git status` |
+| `/diff` | Résumé de tes modifications | Savoir ce que tu vas committer |
+| `/pull` | Récupère les nouveautés, sans commit de fusion | Récupérer le travail de l'équipe sans risque |
+| `/fetch` | Télécharge les nouveautés de tous les remotes | Voir les nouvelles branches sans toucher à la tienne |
+| `/log` | Graphe de l'historique dans ton navigateur | Comprendre qui a fait quoi, sur quelle branche |
 
-| Commande | Ce qu'elle fait |
+### Les branches
+
+| Commande | Ce qu'elle fait | Ce qu'elle résout |
+| --- | --- | --- |
+| `/branch mon-idee` | Crée une branche et s'y place | Commencer un travail sans déranger `main` |
+| `/switch main` | Change de branche, avec l'autocomplétion | Changer de branche avec du travail en cours : propose de le committer ou de le mettre de côté |
+| `/delete mon-idee` | Supprime une branche en local, sur le remote ou les deux | Faire le ménage, en te prévenant si des commits seraient perdus |
+| `/hotfix [nom]` | Crée `hotfix/<nom>` depuis develop | Une correction urgente depuis une base à jour |
+| `/fix [nom]` | Crée `fix/<nom>` depuis preprod | Une correction sur la branche de pré-production |
+| `/rebase` | Rejoue ta branche sur le dernier develop ou preprod | Un historique propre, avec les conflits guidés |
+| `/cherry-pick <hash>` | Copie un commit d'une autre branche | Récupérer une correction sans toute la branche |
+| `/stash [pop\|list]` | Met tes modifications de côté, puis les ramène | Changer de tâche sans committer un travail à moitié fait |
+
+### Configuration et aide
+
+| Commande | Ce qu'elle fait | Ce qu'elle résout |
+| --- | --- | --- |
+| `/init` | Crée un dépôt et le relie à GitHub | Démarrer un projet sans retenir `git init` et `git remote add` |
+| `/login` | Enregistre un token d'accès | Un envoi refusé à cause d'un mot de passe |
+| `/config` | Les réglages de ce dépôt dans ton navigateur | Modifier du JSON à la main |
+| `/lang` | Change la langue | Utiliser git-push en anglais, français, chinois ou allemand |
+| `/help` | Liste les commandes et ouvre l'aide complète | Retrouver une commande ou une option |
+| `/clear`, `/exit` | Efface l'écran, quitte | |
+
+Il existe des alias courts : `/cm` (commit), `/s` (status), `/sw` (switch), `/db` (delete-branch), `/rb` (rebase), `/cp` (cherry-pick), `/fp` (first-push), `/h` (help).
+
+## 🆘 Quand ça coince
+
+| Tu vois | Fais ceci |
 | --- | --- |
-| `/status` | Montre où tu en es |
-| `/commit` | Sauvegarde ton travail et l'envoie sur GitHub |
-| `/pull` | Récupère les nouveautés de GitHub |
-| `/push` | Envoie tes commits sur GitHub |
-| `/first-push` | Fait ton tout premier envoi quand GitHub contient déjà des fichiers |
-| `/login` | Te connecte à GitHub, GitLab ou un autre serveur Git avec un token d'accès |
-| `/pr` | Crée une pull request en demandant son titre et sa description, avec un emoji en tête du titre |
-| `/branch mon-idee` | Crée une nouvelle branche et va dessus |
-| `/switch main` | Va sur une autre branche |
-| `/log` | Ouvre l'historique du projet dans ton navigateur |
-| `/undo` | Annule ton dernier commit pas encore envoyé, sans perdre ton travail |
-| `/config` | Ouvre les réglages de ce dépôt dans le navigateur, avec un bouton Enregistrer |
-| `/lang` | Change la langue |
-| `/help` | Ouvre l'aide |
-| `/exit` | Quitte git-push |
+| `rejected` ou `fetch first` au premier envoi | `/first-push` |
+| `rejected` plus tard | `/pull`, puis `/push` |
+| L'envoi échoue à cause d'un mot de passe | `/login` avec un nouveau token, et vérifie que `git remote -v` commence par `https://` |
+| Un conflit | Ouvre le fichier, garde le bon texte, supprime les lignes `<<<<<<<`, `=======`, `>>>>>>>`, puis **Continuer**. Ou **Annuler tout** |
+| Une erreur dans un commit déjà envoyé | Coupe l'envoi automatique pour vérifier d'abord : `/config set commit.autoPush false`, puis envoie avec `/push` |
+| `detached HEAD` | `/switch main` |
+| `not a Git repository` | Va dans le dossier de ton projet, ou `/init` |
+| `git-push: command not found` | `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc` |
 
-## 🆘 En cas de problème
+## 🛟 La sécurité intégrée
 
-**🚫 `rejected` ou `fetch first` à ton premier envoi**
+- Demande avant de committer sur une branche protégée (`main`, `develop`, `preprod` et `branches.protected`).
+- Prévient avant d'inclure un fichier secret comme `.env`, et n'envoie jamais son contenu à l'IA.
+- Bloque les commandes Git qui effacent du travail (`push --force`, `reset --hard`, `branch -D`, `clean`) sauf si tu confirmes.
+- S'arrête au premier échec et montre la vraie erreur de Git.
+- Les pages du navigateur ne répondent que sur ton ordinateur.
 
-GitHub contient déjà des fichiers, comme un README ou une LICENSE. Tape `/first-push`.
+## 🤖 Messages écrits par l'IA (optionnel)
 
-**🚫 `rejected` plus tard**
-
-GitHub a des nouveautés que tu n'as pas. Tape `/pull`, puis `/push`. Si `/pull` refuse, lance `git pull --rebase` dans un terminal normal, puis `/push`.
-
-**🔐 L'envoi échoue à cause d'un mot de passe**
-
-Tape de nouveau `/login` avec un nouveau token, et vérifie que `git remote -v` affiche une adresse qui commence par `https://`.
-
-**⚔️ Un conflit**
-
-Ouvre le fichier indiqué. Tu y verras ceci :
-
-```text
-<<<<<<< 
-le texte d'un côté
-=======
-le texte de l'autre côté
->>>>>>> 
-```
-
-Garde le bon texte, supprime les lignes `<<<<<<<`, `=======` et `>>>>>>>`, enregistre, puis choisis **Continuer**. Tu as peur ? Choisis **Annuler tout** et tu reviens au point de départ.
-
-**😬 J'ai fait une erreur dans mon commit**
-
-`/undo` fonctionne seulement si le commit n'est pas encore sur GitHub. Comme `/commit` envoie tout de suite, tu peux désactiver l'envoi automatique pour te laisser le temps de vérifier :
-
-```text
-/config set commit.autoPush false
-```
-
-Tu enverras alors ton travail toi-même avec `/push`.
-
-**🧭 L'écran affiche `HEAD détaché`**
-
-Tu n'es sur aucune branche. Reviens sur la principale avec `/switch main`.
-
-**🗂️ L'écran affiche `pas un dépôt Git`**
-
-Tu n'es pas dans un projet suivi par Git. Va dans le bon dossier, ou tape `/init`.
-
-**❓ `git-push: command not found`**
-
-Lance ces deux commandes, puis ouvre un nouveau terminal :
-
-```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-## 🛟 Pas de panique
-
-- git-push te demande confirmation avant de sauvegarder sur `main`.
-- Il te prévient avant d'inclure un fichier secret, comme un `.env`.
-- Il bloque les commandes Git qui peuvent effacer ton travail.
-- Si quelque chose échoue, il s'arrête et affiche l'erreur.
-
-## 🤖 Activer l'IA (optionnel)
-
-Avec l'IA, git-push lit tes modifications et écrit un titre qui explique le commit, puis quelques phrases sur ce qui a changé et pourquoi :
+Avec l'IA, git-push écrit un titre qui explique le commit et quelques phrases sur ce qui a changé :
 
 ```text
 fix(session): discard expired sessions when reading
 
-The session read function now checks if a session's expiration time has passed. If it has, the entry is removed from the store and null is returned.
+The session read function now checks if a session's expiration time has passed.
 ```
 
-Sans IA, git-push peut seulement décrire les fichiers modifiés. Pour activer Groq, qui est gratuit :
+Sans IA, il décrit les fichiers modifiés. Choisis un service :
 
-1. Crée une clé sur <https://console.groq.com/keys>.
-2. Ajoute cette ligne à ton `~/.bashrc`, puis ouvre un nouveau terminal :
+- **Groq** (gratuit) : crée une clé sur <https://console.groq.com/keys>, puis ajoute `export GROQ_API_KEY="ta-clé"` à ton `~/.bashrc`.
+- **Gemini** (offre gratuite) : crée une clé sur <https://aistudio.google.com/apikey>, puis ajoute `export GEMINI_API_KEY="ta-clé"`.
+- **Ollama** (local, rien ne quitte ta machine) : lance `ollama pull qwen2.5-coder` et garde Ollama ouvert.
 
-   ```bash
-   export GROQ_API_KEY="ta-clé"
-   ```
-
-   Ou tape `/config set ai.groq.apiKeyEnv <ta clé>`. Elle est alors enregistrée dans `~/.git-push/config.json`, lisible par ton seul compte.
-
-Les messages de commit sont toujours en anglais, quelle que soit la langue de git-push. L'écran de proposition affiche `(groq)` quand l'IA a écrit le message et `(fallback)` sinon.
+Si un service échoue, git-push essaie le suivant. Les messages de commit sont toujours en anglais.
 
 > [!NOTE]
-> Tes modifications sont envoyées à Groq pour écrire le message. Le contenu des fichiers secrets (`.env*`, `*.pem`, `*.key`, `id_rsa*`) n'est jamais envoyé.
+> Tes modifications sont envoyées au service d'IA pour écrire le message. Pour les fichiers secrets (`.env*`, `*.pem`, `*.key`, `id_rsa*`), seul le nom est envoyé.
 
-## 🌍 Changer de langue
+## ⚙️ Les réglages
 
-git-push parle anglais, français, chinois et allemand. L'anglais est la langue par défaut.
-
-```text
-/lang       ouvre la liste des langues
-/lang fr    français
-/lang zh    chinois
-/lang de    allemand
-/lang en    anglais
-```
-
-Le changement est immédiat et gardé pour la prochaine fois. Les écrans, les réponses et les pages `/help` et `/log` sont traduits. Les commandes restent les mêmes (`/commit`, `/fix`…) et les erreurs venant directement de Git restent telles que Git les écrit.
-
----
-
-## 🚀 Pour aller plus loin
-
-Tu n'as pas besoin de cette partie pour commencer. Clique sur un titre pour l'ouvrir.
-
-<details>
-<summary>📚 Toutes les commandes</summary>
-
-| Commande | Alias | Rôle |
-| --- | --- | --- |
-| `/init` | | Initialise un dépôt Git dans le dossier demandé (dossier courant par défaut) et le relie au dépôt distant indiqué |
-| `/login` | | Demande un token d'accès, le vérifie sur `origin` si c'est un remote HTTPS, puis l'enregistre avec `git credential approve`. Fonctionne avec tout serveur Git |
-| `/commit ["message"]` | `/cm` | Indexe, génère le message, committe, pousse |
-| `/amend ["message"]` | | Modifie le dernier commit non poussé |
-| `/undo` | | Annule le dernier commit non poussé, garde ses modifications |
-| `/status` | `/s` | État du dépôt |
-| `/diff` | | Résumé des changements |
-| `/log` | | Graphe des commits dans le navigateur : auteur et branche de chaque commit, branche courante, détail des fichiers |
-| `/switch <branche>` | `/sw` | Change de branche, avec autocomplétion |
-| `/branch <nom>` | | Crée une branche et bascule dessus |
-| `/delete-branch <branche>` | `/delete`, `/db` | Supprime une branche en local, sur le distant ou les deux, avec `git` seul (`gh` n'est pas nécessaire) |
-| `/hotfix [nom]` | | Committe le travail en cours, crée `hotfix/<nom>` depuis develop |
-| `/fix [nom]` | | Committe le travail en cours, crée `fix/<nom>` depuis preprod |
-| `/cherry-pick <hash...>` | `/cp` | Applique des commits, avec résolution guidée des conflits |
-| `/rebase [develop\|preprod]` | `/rb` | Rebase sur la dernière version distante, avec résolution guidée des conflits |
-| `/pull` | | `git pull --ff-only` |
-| `/push` | | Pousse, pose l'upstream si besoin |
-| `/first-push` | `/fp` | Première publication : intègre les commits déjà sur le remote, puis pousse et pose l'upstream. Ne force jamais le push |
-| `/pr` | `/pull-request` | Demande le titre et la description, pousse la branche si besoin, puis ouvre la page GitHub ou GitLab avec les deux déjà remplis : valide-la là-bas. Le titre commence par un emoji selon son type (`feat:` ✨, `fix:` 🚒, `docs:` 📝, une branche `hotfix/` 🚑️, un titre qui parle d'un bug comme « Corrige… », « Résout… », « Fix… » 🚒, sinon 🚀) ; un titre qui commence déjà par un emoji est gardé tel quel. N'utilise que `git` |
-| `/fetch` | | `git fetch --all` |
-| `/stash [pop\|list]` | | Met de côté, récupère ou liste |
-| `/config [browse\|show\|set\|edit] [--repo]` | | Modifie les options dans le navigateur, ou dans le terminal |
-| `/lang [en\|fr\|zh\|de]` | `/language` | Change la langue des écrans et des réponses (anglais par défaut) |
-| `/help` | `/h` | Liste les commandes, ouvre l'aide détaillée |
-| `/clear` | | Efface l'écran |
-| `/exit` | `/quit` | Quitte |
-
-</details>
-
-<details>
-<summary>⚙️ Configuration</summary>
-
-Le fichier global `~/.git-push/config.json` est créé au premier lancement. Un `.git-push.json` à la racine d'un dépôt peut en remplacer une partie.
-
-Pour qu'un dépôt cloné ne puisse pas détourner tes diffs, `apiKeyEnv` et `baseUrl` ne sont acceptés que dans le fichier global.
-
-```text
-/config                                 ouvre les réglages de ce dépôt : modifie, puis Enregistrer dans .git-push.json
-/config browse                          liste les options dans le terminal : Entrée modifie celle sélectionnée
-/config show                            affiche la configuration effective en JSON
-/config set commit.autoPush false       modifie le fichier global
-/config set --repo branches.develop dev modifie .git-push.json
-/config edit                            ouvre le fichier dans $VISUAL ou $EDITOR
-```
-
-L'option `ignore` est la liste des fichiers que Git doit ignorer, avec la syntaxe de `.gitignore`, sans `.gitignore` à écrire : `["dist/","*.log"]`. Modifie-la depuis `/config`. git-push l'applique via `.git/info/exclude`. Comme avec `.gitignore`, un fichier déjà suivi par Git n'est pas concerné.
-
-`/fix` part de `branches.preprod` et `/hotfix` de `branches.develop`. Si cette branche n'existe pas localement, git-push demande laquelle utiliser et enregistre ta réponse dans `.git-push.json`, qui reste hors de Git grâce à `.git/info/exclude`.
+- `/config` ouvre la page de réglages de ce dépôt. Modifie, puis **Enregistrer** : ça écrit `.git-push.json`.
+- `/config set <option> <valeur>` modifie ton fichier global `~/.git-push/config.json`.
+- `/config browse`, `/config show`, `/config edit` fonctionnent dans le terminal.
 
 La page `/help` documente chaque option.
 
-</details>
-
-<details>
-<summary>🤖 Autres services d'IA</summary>
-
-git-push essaie `ai.provider`, puis les providers de `ai.fallbackOrder`. Il passe au suivant après 15 secondes, ou si le quota est dépassé ou la clé absente. Le dernier recours, `fallback`, décrit les fichiers modifiés sans IA : **Régénérer** redonne donc le même message.
-
-**Gemini (palier gratuit).** Crée une clé sur <https://aistudio.google.com/apikey>, puis ajoute à ton `~/.bashrc` : `export GEMINI_API_KEY="..."`
-
-**Ollama (local).** Lance `ollama pull qwen2.5-coder`. Le serveur doit tourner sur `http://localhost:11434`. Avec Ollama, ton diff ne quitte pas ta machine.
-
-Le provider reçoit la liste des fichiers et le diff indexé, tronqué à 12 000 caractères. Pour les fichiers `.env*`, `*.pem`, `*.key` et `id_rsa*`, seul le nom est envoyé.
-
-`apiKeyEnv` contient le nom d'une variable d'environnement, ce qui garde la clé hors du fichier, ou la clé elle-même. Une clé écrite là reste en clair dans `~/.git-push/config.json` et est masquée partout où git-push affiche la configuration.
-
-Les modèles par défaut changent vite. Si un provider répond `HTTP 404`, change son modèle : `/config set ai.groq.model <modèle>`.
-
-</details>
-
-<details>
-<summary>🛟 Tous les garde-fous</summary>
-
-- Le client Git bloque `push --force`, `push --delete`, `branch -D`, `reset --hard` et `clean` tant qu'un appel n'a pas explicitement confirmé.
-- `/delete-branch` refuse la branche courante et les branches protégées, et indique avant confirmation combien de commits seraient perdus.
-- `main` et `preprod` sont protégées par défaut : git-push demande confirmation avant d'y committer.
-- `/switch` ne change pas de branche avec des modifications en cours sans proposer de les committer ou de les mettre de côté.
-- `/hotfix` et `/fix` vérifient le nom et la base avant de committer quoi que ce soit.
-- Si `develop` a divergé de son remote, `/hotfix` sauvegarde les commits locaux dans `backup/<branche>-<hash>`, puis aligne `develop` sur le remote. `/fix` s'arrête dans ce cas.
-- Si une étape échoue, le flux s'arrête et affiche l'erreur Git brute et l'état du dépôt.
-- Le serveur web n'écoute que sur `127.0.0.1` et refuse les requêtes dont l'en-tête `Host` n'est pas local.
-- `~/.git-push/config.json` peut contenir une clé API : ton seul compte peut le lire, et git-push masque la clé partout où il affiche la configuration.
-
-</details>
-
-<details>
-<summary>🛠️ Ajouter une commande</summary>
-
-1. Crée `src/commands/maCommande.ts` :
-
-   ```ts
-   import { t } from "../lang/index.js";
-   import type { Command } from "./types.js";
-
-   export const maCommande: Command = {
-     name: "ma-commande",
-     aliases: ["mc"],
-     get description() {
-       return t("cmd.maCommande");
-     },
-     usage: "/ma-commande <argument>",
-     examples: ["/ma-commande valeur"],
-     gitSteps: ["git rev-parse HEAD"],
-     run: async (ctx, [argument]) => {
-       const { stdout } = await ctx.git.run(["rev-parse", "HEAD"]);
-       ctx.ui.log(`${argument} : ${stdout}`, "success");
-     },
-   };
-   ```
-
-2. Ajoute `"cmd.maCommande"` dans chaque fichier de `src/lang/`.
-3. Ajoute-la au tableau de `src/commands/registry.ts`.
-
-L'autocomplétion et la page `/help` se mettent à jour seules. Un `<` dans `usage` marque un argument obligatoire : Entrée complète alors la commande au lieu de l'exécuter.
-
-</details>
-
-<details>
-<summary>🌍 Traductions</summary>
-
-Tous les textes sont dans `src/lang/`, avec un fichier par langue : `en.json`, `fr.json`, `zh.json` et `de.json`. Pour changer un texte, modifie le fichier de sa langue. `{nom}` marque une valeur remplie par git-push : garde-la telle quelle.
-
-Chaque langue doit avoir les mêmes clés et les mêmes `{valeurs}` que `en.json`, sinon `yarn test` échoue.
-
-Pour ajouter une langue :
-
-1. Copie `src/lang/en.json` vers `src/lang/<code>.json` et traduis-le.
-2. Dans `src/lang/index.ts`, importe le fichier et ajoute le code à `LANGUAGES`, `LANGUAGE_NAMES` et `MESSAGES`.
-
-</details>
-
-<details>
-<summary>🧑‍💻 Développement et dépendances</summary>
+## 🧑‍💻 Contribuer
 
 ```bash
-yarn build       # compile vers dist/ et copie les pages web
-yarn typecheck   # vérifie aussi les tests
-yarn test        # lance vitest
+yarn build       # TypeScript, CSS Tailwind, puis copie des pages web
+yarn dev:css     # recompile le CSS à chaque modification
+yarn typecheck
+yarn test
 ```
 
-La plupart des tests vérifient les messages français : `tests/helpers/frenchLocale.ts` choisit cette langue pour eux, et `tests/lang.test.ts` couvre les autres.
+Le code a un backend (`src/server` : container, serveur web, controllers, services), un frontend (`src/web` : vues Tailwind), les commandes CLI (`src/commands`) et l'accès bas niveau à Git (`src/core`). [CLAUDE.md](CLAUDE.md) dit quels fichiers toucher pour chaque type de feature, et `tests/architecture.test.ts` vérifie les règles. Tous les textes sont dans `src/lang/` (anglais, français, chinois, allemand) : chaque langue doit avoir les mêmes clés que `en.json`, et une nouvelle langue s'ajoute dans `src/lang/index.ts`. TypeScript reste en version 6, car Yarn 4.10 lui applique un patch qui échoue en version 7.
 
-La stack imposée : `ink`, `ink-text-input`, `execa`, `open`, `zod`, et `vitest` pour les tests. S'y ajoutent :
+## 🌐 Site web
 
-- `react`, requis par `ink`.
-- `vite`, requis par `vitest`, que Yarn n'installe pas automatiquement.
-- `typescript`, `@types/node` et `@types/react`, pour la compilation et les types, en développement uniquement.
-
-TypeScript reste en version 6, car Yarn 4.10 lui applique un patch qui échoue sur la version 7.
-
-</details>
-
-## Architecture
-
-Le code est découpé en backend (`src/server` : container, serveur HTTP, controllers, services), frontend (`src/web` : vues Tailwind, templates, assets), commandes CLI (`src/commands`) et accès bas niveau (`src/core`). [CLAUDE.md](CLAUDE.md) décrit les couches et les fichiers à toucher pour chaque type de feature ; `tests/architecture.test.ts` les fait respecter.
+👉 [Visite le site de git-push](https://claude.ai/artifact/X84wVTqr1GgwitrGVLjxmp)
