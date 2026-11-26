@@ -254,6 +254,7 @@
   "server.noPort": "No free port from {port}.",
   "server.hostRefused": "Host refused",
   "server.methodRefused": "Method refused",
+  "server.notFound": "Page not found",
   "server.originRefused": "Origin refused",
   "server.jsonRequired": "The request body must be JSON",
   "server.bodyTooLarge": "Request body too large",

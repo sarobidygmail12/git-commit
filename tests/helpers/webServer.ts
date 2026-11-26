@@ -2,7 +2,7 @@ import { request } from "node:http";
 import type { Command, ConfigPaths } from "../../src/contracts/command.js";
 import { DEFAULT_CONFIG, type Config } from "../../src/core/config/schema.js";
 import { createGitClient } from "../../src/core/git/gitClient.js";
-import { createWebServer } from "../../src/server/server.js";
+import { createWebApp } from "../../src/server/container.js";
 
 const FIRST_TEST_PORT = 41000;
 const PORT_RANGE = 2000;
@@ -22,7 +22,7 @@ export type TestServerOptions = { cwd: string; paths: ConfigPaths; commands?: re
 export async function startTestServer({ cwd, paths, commands = [] }: TestServerOptions): Promise<TestServer> {
   const port = FIRST_TEST_PORT + Math.floor(Math.random() * PORT_RANGE);
   const config: Config = { ...DEFAULT_CONFIG, web: { port } };
-  const server = createWebServer({
+  const server = createWebApp({
     git: createGitClient({ cwd }),
     commands,
     readConfig: () => Promise.resolve(config),

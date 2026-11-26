@@ -1,13 +1,17 @@
 import { commands as registeredCommands } from "../commands/registry.js";
-import type { Command, ConfigPaths } from "../contracts/command.js";
+import type { Command, ConfigPaths, WebServer } from "../contracts/command.js";
 import type { SessionFactory } from "../contracts/session.js";
 import { createGeneratorFromConfig } from "../core/ai/generator.js";
-import { ensureGlobalConfig, loadConfig, repoConfigPath } from "../core/config/loadConfig.js";
+import { ensureGlobalConfig, loadConfig, loadConfigAt, repoConfigPath } from "../core/config/loadConfig.js";
 import type { Config } from "../core/config/schema.js";
 import { ConfigError } from "../core/errors.js";
 import { createGitClient } from "../core/git/gitClient.js";
+import type { GitClient } from "../core/git/gitClient.js";
 import { getRepoRoot } from "../core/git/status.js";
 import { setLanguage } from "../lang/index.js";
+import { createConfigController } from "./controllers/config.js";
+import { createHelpController } from "./controllers/help.js";
+import { createLogController } from "./controllers/log.js";
 import { createWebServer } from "./server.js";
 import { createSession } from "./session.js";
 
@@ -37,11 +41,8 @@ export async function createContainer(options: ContainerOptions): Promise<Contai
     const repoRoot = await getRepoRoot(silentGit);
     return { global: globalConfigPath, repo: repoRoot ? repoConfigPath(repoRoot) : undefined };
   };
-  const readConfig = async (): Promise<Config> => {
-    const paths = await resolvePaths();
-    return loadConfig({ globalPath: paths.global, repoPath: paths.repo });
-  };
-  const web = createWebServer({ git: silentGit, commands, readConfig, readPaths: resolvePaths });
+  const readConfig = async (): Promise<Config> => loadConfigAt(await resolvePaths());
+  const web = createWebApp({ git: silentGit, commands, readConfig, readPaths: resolvePaths });
 
   return {
     cwd,
@@ -58,6 +59,25 @@ export async function createContainer(options: ContainerOptions): Promise<Contai
         exit,
       }),
   };
+}
+
+export type WebAppDependencies = {
+  git: GitClient;
+  commands: readonly Command[];
+  readConfig: () => Promise<Config>;
+  readPaths: () => Promise<ConfigPaths>;
+};
+
+/** Serveur web complet : un controller par page, chacun branché sur ses services. */
+export function createWebApp({ git, commands, readConfig, readPaths }: WebAppDependencies): WebServer {
+  return createWebServer({
+    controllers: {
+      config: createConfigController(readPaths),
+      log: createLogController(git),
+      help: createHelpController(commands, readConfig),
+    },
+    readPort: async () => (await readConfig()).web.port,
+  });
 }
 
 /** Avant le premier rendu : l'en-tête doit déjà être dans la bonne langue. Une config invalide est signalée par la session. */

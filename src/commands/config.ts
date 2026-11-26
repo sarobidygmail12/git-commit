@@ -2,7 +2,7 @@ import { PAGE_ROUTES } from "../constants/routes.js";
 import { writeFile } from "node:fs/promises";
 import { execa, parseCommandString } from "execa";
 import { redactApiKeys } from "../core/config/apiKeys.js";
-import { loadConfig, readJsonObject, serializeConfig } from "../core/config/loadConfig.js";
+import { loadConfigAt, readJsonObject, serializeConfig } from "../core/config/loadConfig.js";
 import { getValueAt, resolveConfigTarget, setConfigValue, type ConfigTarget } from "../core/config/saveConfig.js";
 import { DEFAULT_CONFIG, describeConfigOptions, type Config, type ConfigOptionDoc } from "../core/config/schema.js";
 import { ConfigError, GitPushError, hasErrorCode } from "../core/errors.js";
@@ -105,7 +105,7 @@ async function editOption(ctx: CommandContext, config: Config, option: ConfigOpt
     // Encodé en JSON pour une option texte : une branche nommée « 123 » serait sinon lue comme un nombre.
     await setConfigValue(target, option.path, typeof current === "string" ? JSON.stringify(answer) : answer);
     ctx.ui.log(t("config.updatedIn", { path: option.path, file: target.path }), "success");
-    return await loadConfig({ globalPath: ctx.paths.global, repoPath: ctx.paths.repo });
+    return await loadConfigAt(ctx.paths);
   } catch (error) {
     if (!(error instanceof ConfigError)) throw error;
     ctx.ui.log(error.message, "error");
@@ -131,7 +131,7 @@ async function editConfig(ctx: CommandContext, useRepo: boolean): Promise<void> 
   await ctx.ui.runExternal(async () => {
     await execa(editor, [...editorArgs, target.path], { stdio: "inherit" });
   });
-  await loadConfig({ globalPath: ctx.paths.global, repoPath: ctx.paths.repo });
+  await loadConfigAt(ctx.paths);
   ctx.ui.log(t("config.valid"), "success");
 }
 

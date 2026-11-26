@@ -254,6 +254,7 @@
   "server.noPort": "从 {port} 起没有可用端口。",
   "server.hostRefused": "主机被拒绝",
   "server.methodRefused": "方法被拒绝",
+  "server.notFound": "页面不存在",
   "server.originRefused": "来源被拒绝",
   "server.jsonRequired": "请求正文必须是 JSON",
   "server.bodyTooLarge": "请求正文过大",

@@ -1,4 +1,5 @@
 import type { CommitMessageGenerator } from "../core/ai/provider.js";
+import type { ConfigPaths } from "../core/config/loadConfig.js";
 import type { Config } from "../core/config/schema.js";
 import type { GitClient } from "../core/git/gitClient.js";
 
@@ -47,4 +48,4 @@ export interface CommandContext {
   exit(): void;
 }
 
-export type ConfigPaths = { global: string; repo: string | undefined };
+export type { ConfigPaths } from "../core/config/loadConfig.js";

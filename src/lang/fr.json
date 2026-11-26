@@ -254,6 +254,7 @@
   "server.noPort": "Aucun port libre à partir de {port}.",
   "server.hostRefused": "Hôte refusé",
   "server.methodRefused": "Méthode refusée",
+  "server.notFound": "Page introuvable",
   "server.originRefused": "Origine refusée",
   "server.jsonRequired": "Le corps de la requête doit être du JSON",
   "server.bodyTooLarge": "Corps de requête trop volumineux",

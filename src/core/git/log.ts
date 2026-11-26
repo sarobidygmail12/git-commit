@@ -39,7 +39,9 @@ export type LogCommit = {
 
 export type AnnotatedCommit = LogCommit & { branch: string; onCurrentBranch: boolean };
 
-export type LogSearchField = "message" | "author" | "hash";
+export const LOG_SEARCH_FIELDS = ["message", "author", "hash"] as const;
+
+export type LogSearchField = (typeof LOG_SEARCH_FIELDS)[number];
 
 export type LogQuery = { page: number; search: string; field: LogSearchField; branch: string };
 

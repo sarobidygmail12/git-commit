@@ -38,6 +38,13 @@ async function adoptLegacyGlobalConfig(path: string): Promise<void> {
   });
 }
 
+/** Emplacements des deux fichiers : le global, et `.git-push.json` quand on est dans un dépôt. */
+export type ConfigPaths = { global: string; repo: string | undefined };
+
+export function loadConfigAt(paths: ConfigPaths): Promise<Config> {
+  return loadConfig({ globalPath: paths.global, repoPath: paths.repo });
+}
+
 export async function loadConfig(paths: { globalPath: string; repoPath?: string | undefined }): Promise<Config> {
   const globalFile = await readJsonObject(paths.globalPath);
   const globalConfig = validateConfig(mergeDeep(toJsonObject(DEFAULT_CONFIG), globalFile ?? {}), paths.globalPath);

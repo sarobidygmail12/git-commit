@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { commands } from "../src/commands/registry.js";
-import { HTTP_FORBIDDEN, HTTP_INTERNAL_ERROR, HTTP_NOT_FOUND, HTTP_OK } from "../src/constants/http.js";
+import { HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_OK } from "../src/constants/http.js";
 import { ensureGlobalConfig } from "../src/core/config/loadConfig.js";
 import { createTempRepo, type TempRepo } from "./helpers/tempRepo.js";
 import { startTestServer, type TestServer } from "./helpers/webServer.js";
@@ -82,9 +82,9 @@ describe("serveur web : pages et API de lecture", () => {
     expect(details).toMatchObject({ committer: "Test", fileCount: 1, files: [{ path: "a.txt", added: 1, deleted: 0 }] });
   });
 
-  it("/api/commit refuse un hash invalide", async () => {
+  it("/api/commit refuse un hash invalide comme une requête invalide", async () => {
     const reply = await server.send("/api/commit?hash=pas-un-hash");
-    expect(reply.status).toBe(HTTP_INTERNAL_ERROR);
+    expect(reply.status).toBe(HTTP_BAD_REQUEST);
     expect(JSON.parse(reply.body)).toHaveProperty("error");
   });
 

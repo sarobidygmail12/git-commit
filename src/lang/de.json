@@ -254,6 +254,7 @@
   "server.noPort": "Kein freier Port ab {port}.",
   "server.hostRefused": "Host abgelehnt",
   "server.methodRefused": "Methode abgelehnt",
+  "server.notFound": "Seite nicht gefunden",
   "server.originRefused": "Herkunft abgelehnt",
   "server.jsonRequired": "Der Anfragetext muss JSON sein",
   "server.bodyTooLarge": "Anfragetext zu groß",

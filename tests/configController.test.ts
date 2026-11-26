@@ -8,7 +8,8 @@ import { ensureGlobalConfig, loadConfig } from "../src/core/config/loadConfig.js
 import { DEFAULT_CONFIG, describeConfigOptions } from "../src/core/config/schema.js";
 import { ConfigError } from "../src/core/errors.js";
 import { getLanguage, setLanguage } from "../src/lang/index.js";
-import { createConfigController, type ConfigOptionView } from "../src/server/controllers/config.js";
+import { createConfigController } from "../src/server/controllers/config.js";
+import type { ConfigOptionView } from "../src/server/services/config.js";
 import { RequestError } from "../src/server/http/requestError.js";
 import { startTestServer, type Reply, type SendOptions, type TestServer } from "./helpers/webServer.js";
 
