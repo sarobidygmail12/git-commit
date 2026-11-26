@@ -3,3 +3,6 @@ dist/
 .yarn/
 # Généré par Tailwind (yarn build:css)
 src/web/assets/app.css
+
+# Réglages personnels de Claude Code (les skills de .claude/skills, eux, sont partagés)
+.claude/settings.local.json
