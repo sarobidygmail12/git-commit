@@ -5,7 +5,7 @@ import { toRepositoryWebUrl } from "./pullRequest.js";
 import { t } from "../../lang/index.js";
 
 // GitHub et GitLab ignorent le nom d'utilisateur d'un token, mais Git exige qu'il y en ait un.
-const TOKEN_USERNAME = "git-push";
+const TOKEN_USERNAME = "git-commit";
 const DEFAULT_CREDENTIAL_HELPER = "store";
 const WHITESPACE = /\s/;
 

@@ -2,7 +2,7 @@ import { commands as registeredCommands } from "../commands/registry.js";
 import type { Command, ConfigPaths, WebServer } from "../contracts/command.js";
 import type { SessionFactory } from "../contracts/session.js";
 import { createGeneratorFromConfig } from "../core/ai/generator.js";
-import { ensureGlobalConfig, loadConfig, loadConfigAt, repoConfigPath } from "../core/config/loadConfig.js";
+import { ensureGlobalConfig, loadConfig, loadConfigAt, resolveRepoConfigPath } from "../core/config/loadConfig.js";
 import type { Config } from "../core/config/schema.js";
 import { ConfigError } from "../core/errors.js";
 import { createGitClient } from "../core/git/gitClient.js";
@@ -23,7 +23,7 @@ export type ContainerOptions = {
 };
 
 export type Container = {
-  /** Racine du dépôt si git-push est lancé dans un sous-dossier, sinon le dossier de lancement. */
+  /** Racine du dépôt si git-commit est lancé dans un sous-dossier, sinon le dossier de lancement. */
   cwd: string;
   startSession: SessionFactory;
 };
@@ -39,7 +39,7 @@ export async function createContainer(options: ContainerOptions): Promise<Contai
   // Relu à chaque commande : /init peut créer le dépôt en cours de session.
   const resolvePaths = async (): Promise<ConfigPaths> => {
     const repoRoot = await getRepoRoot(silentGit);
-    return { global: globalConfigPath, repo: repoRoot ? repoConfigPath(repoRoot) : undefined };
+    return { global: globalConfigPath, repo: repoRoot ? await resolveRepoConfigPath(repoRoot) : undefined };
   };
   const readConfig = async (): Promise<Config> => loadConfigAt(await resolvePaths());
   const web = createWebApp({ git: silentGit, commands, readConfig, readPaths: resolvePaths });

@@ -1,4 +1,4 @@
-# git-push — architecture et règles du projet
+# git-commit.dev — architecture et règles du projet
 
 Ce fichier complète le CLAUDE.md global. En cas de conflit, ce fichier l'emporte pour ce projet.
 
@@ -17,7 +17,7 @@ src/
   web/          TOUT le frontend, aucun TypeScript
     templates/    layout.html et partials (`{{> header}}`)
     views/        contenu de chaque page, en classes Tailwind ; aucun <style> ni <script> inline
-    styles/       app.css (Tailwind + tokens clair/sombre) et une feuille scopée par page
+    styles/       app.css seulement : thème Apple (tokens clair/sombre), base minimale, composants @utility
     assets/       app.js (message, element, requestJson, thème) et un script par vue
   commands/     commandes CLI : arguments, questions (ctx.ui), un service, affichage
   contracts/    types partagés (Command, CommandContext, ReplSession…)
@@ -46,8 +46,9 @@ Sens des imports :
 | une commande CLI | `server/services/<domaine>.ts` (la règle) + `commands/<nom>.ts` + `commands/registry.ts` + clés `cmd.*` et messages dans les 4 `lang/*.json` + un test |
 | une page web | `server/services/<domaine>.ts` + `server/controllers/<page>.ts` + routes dans `server/server.ts` + `constants/routes.ts` + `web/views/<page>.html` + `web/assets/<page>.js` (à ajouter dans `server/http/assets.ts` et `server/http/render.ts`) + lien dans le header ou la nav |
 | une route d'API | `constants/routes.ts` + méthode du controller + service + test dans `tests/webServer.test.ts` |
-| du style | des classes Tailwind dans la vue ; une classe de composant dans `web/styles/<page>.css` seulement si le JS la génère |
-| une couleur | un token dans `web/styles/app.css` (clair **et** sombre), puis la classe `bg-*` / `text-*` |
+| du style | des classes Tailwind dans la vue, ou dans la constante `CLASSES` du script de la vue pour les éléments créés en JS ; un état (sélectionné, actif…) est un attribut `data-*` + variante `data-*:`. Aucune feuille par page |
+| un composant répété (bouton, champ, interrupteur…) | un `@utility` dans `web/styles/app.css`, construit avec `@apply` sur les tokens du thème |
+| une couleur, un coin, une ombre, une taille de texte | un token dans `web/styles/app.css` (couleurs : clair **et** sombre, exposées dans `@theme inline`), puis la classe `bg-*`, `rounded-*`, `shadow-*`, `text-*` ; jamais de valeur en dur dans une classe |
 | une dépendance à câbler | `server/container.ts` uniquement |
 | une constante | `constants/<domaine>.ts` |
 | une option de config | `core/config/schema.ts` + `option.*` dans les 4 langues |
@@ -89,6 +90,6 @@ Règles non négociables, issues de ces skills :
 
 ## Commandes
 
-- `yarn build` : tsc, puis Tailwind (`build:css`), puis copie de `src/web` vers `dist/web`. Relance git-push ensuite.
+- `yarn build` : tsc, puis Tailwind (`build:css`), puis copie de `src/web` vers `dist/web`. Relance git-commit ensuite.
 - `yarn dev:css` : Tailwind en mode watch.
 - `yarn typecheck`, `yarn test` (vitest compile le CSS avant les tests).

@@ -84,7 +84,7 @@ describe("commandes sur un vrai dépôt", () => {
       repo.write("file.txt", "modifié\n");
       await switchCommand.run(contextWith({ select: "stash" }), ["develop"]);
       expect(repo.git("branch", "--show-current")).toBe("develop");
-      expect(repo.git("stash", "list")).toContain("git-push : avant /switch develop");
+      expect(repo.git("stash", "list")).toContain("git-commit : avant /switch develop");
     });
 
     it("reste sur place si l'utilisateur renonce", async () => {

@@ -1,7 +1,7 @@
 "use strict";
 /* Helpers partagés par toutes les vues : textes traduits, thème, DOM et appels à l'API locale. */
 
-const THEME_STORAGE_KEY = "git-push-theme";
+const THEME_STORAGE_KEY = "git-commit-theme";
 let cachedMessages = null;
 
 /** Texte traduit `web.<key>`, injecté par le serveur dans <script id="messages">. `{name}` est remplacé par params.name. */

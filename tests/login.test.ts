@@ -23,7 +23,7 @@ describe("/login", () => {
   // Le HOME est remplacé : le test ne doit jamais écrire dans les vrais identifiants de la machine.
   beforeEach(() => {
     repo = createTempRepo();
-    home = mkdtempSync(join(tmpdir(), "git-push-login-"));
+    home = mkdtempSync(join(tmpdir(), "git-commit-login-"));
     credentialsFile = join(home, "credentials");
     savedEnvironment = Object.fromEntries(ISOLATED_VARIABLES.map((name) => [name, process.env[name]]));
     process.env.HOME = home;
@@ -64,10 +64,10 @@ describe("/login", () => {
 
     await loginCommand.run(ctx, []);
 
-    const expectedHeader = `Authorization: Basic ${Buffer.from(`git-push:${TOKEN}`).toString("base64")}`;
+    const expectedHeader = `Authorization: Basic ${Buffer.from(`git-commit:${TOKEN}`).toString("base64")}`;
     expect(verifyOptions?.env?.["GIT_CONFIG_KEY_0"]).toBe("http.https://gitlab.com/.extraHeader");
     expect(verifyOptions?.env?.["GIT_CONFIG_VALUE_0"]).toBe(expectedHeader);
-    expect(readFileSync(credentialsFile, "utf8")).toContain(`git-push:${TOKEN}@gitlab.com`);
+    expect(readFileSync(credentialsFile, "utf8")).toContain(`git-commit:${TOKEN}@gitlab.com`);
     expect(logsOf(ctx)).toEqual(["Connecté à gitlab.com."]);
   });
 
@@ -84,7 +84,7 @@ describe("/login", () => {
 
     await loginCommand.run(ctx, []);
 
-    expect(readFileSync(credentialsFile, "utf8")).toContain(`git-push:${TOKEN}@git.acme.io`);
+    expect(readFileSync(credentialsFile, "utf8")).toContain(`git-commit:${TOKEN}@git.acme.io`);
     expect(logsOf(ctx)).toEqual(["Token enregistré pour git.acme.io. Il sera vérifié à ton premier envoi."]);
   });
 

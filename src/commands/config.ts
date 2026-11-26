@@ -3,7 +3,7 @@ import { redactApiKeys } from "../core/config/apiKeys.js";
 import { loadConfigAt, readJsonObject, serializeConfig } from "../core/config/loadConfig.js";
 import { encodeTextValue, getValueAt, resolveConfigTarget, setConfigValue, type ConfigTarget } from "../core/config/saveConfig.js";
 import { DEFAULT_CONFIG, describeConfigOptions, type Config, type ConfigOptionDoc } from "../core/config/schema.js";
-import { ConfigError, GitPushError } from "../core/errors.js";
+import { ConfigError, GitCommitError } from "../core/errors.js";
 import { openPage } from "./shared/openBrowser.js";
 import { warnUsage } from "./shared/usage.js";
 import type { Command, CommandContext } from "../contracts/command.js";
@@ -63,9 +63,9 @@ function describeLocations(ctx: CommandContext): string {
   return `${t("config.locationGlobal", { path: ctx.paths.global })}${repoLine}`;
 }
 
-/** La page n'édite que `.git-push.json` du dépôt courant. */
+/** La page n'édite que `.git-commit.json` du dépôt courant. */
 async function openConfigPage(ctx: CommandContext): Promise<void> {
-  if (!ctx.paths.repo) throw new GitPushError(t("config.pageNeedsRepo"));
+  if (!ctx.paths.repo) throw new GitCommitError(t("config.pageNeedsRepo"));
   await openPage(ctx, PAGE_ROUTES.config);
 }
 

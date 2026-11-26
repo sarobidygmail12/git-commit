@@ -1,4 +1,4 @@
-import { chmod, constants, copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, chmod, constants, copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { OWNER_ONLY_DIRECTORY_MODE, OWNER_ONLY_FILE_MODE, UNSAFE_OBJECT_KEYS } from "../../constants/files.js";
@@ -12,14 +12,25 @@ export type JsonObject = { [key: string]: unknown };
 const JSON_INDENT = 2;
 const GLOBAL_ONLY_PROVIDER_KEYS = new Set(["apiKeyEnv", "baseUrl"]);
 
-export const REPO_CONFIG_FILENAME = ".git-push.json";
+export const REPO_CONFIG_FILENAME = ".git-commit.json";
+const LEGACY_REPO_CONFIG_FILENAME = ".git-push.json";
+const GLOBAL_CONFIG_DIRECTORY = ".git-commit";
+const GLOBAL_CONFIG_FILENAME = "config.json";
+/** Du plus récent au plus ancien : git-commit s'est appelé git-push, puis gitpilot avant lui. */
+const LEGACY_GLOBAL_CONFIG_DIRECTORIES = [".git-push", ".gitpilot"] as const;
+
+type CopyOutcome = "copied" | "targetExists" | "sourceMissing";
 
 export function globalConfigPath(home: string = homedir()): string {
-  return join(home, ".git-push", "config.json");
+  return join(home, GLOBAL_CONFIG_DIRECTORY, GLOBAL_CONFIG_FILENAME);
 }
 
-export function repoConfigPath(repoRoot: string): string {
-  return join(repoRoot, REPO_CONFIG_FILENAME);
+/** Un dépôt qui versionne encore `.git-push.json` continue de l'utiliser tant que `.git-commit.json` n'existe pas. */
+export async function resolveRepoConfigPath(repoRoot: string): Promise<string> {
+  const currentPath = join(repoRoot, REPO_CONFIG_FILENAME);
+  const legacyPath = join(repoRoot, LEGACY_REPO_CONFIG_FILENAME);
+  if (await fileExists(currentPath)) return currentPath;
+  return (await fileExists(legacyPath)) ? legacyPath : currentPath;
 }
 
 /** Lisible par son seul propriétaire : le fichier global peut contenir une clé API, y compris un fichier créé avant cette règle. */
@@ -30,15 +41,38 @@ export async function ensureGlobalConfig(path: string): Promise<void> {
   await chmod(path, OWNER_ONLY_FILE_MODE);
 }
 
-/** Avant le renommage, le fichier était dans ~/.gitpilot : la clé API et les réglages déjà saisis ne doivent pas être perdus. */
+/** Après un renommage, la clé API et les réglages déjà saisis dans l'ancien dossier ne doivent pas être perdus. */
 async function adoptLegacyGlobalConfig(path: string): Promise<void> {
-  const legacyPath = join(dirname(dirname(path)), ".gitpilot", "config.json");
-  await copyFile(legacyPath, path, constants.COPYFILE_EXCL).catch((error: unknown) => {
-    if (!hasErrorCode(error, "EEXIST") && !hasErrorCode(error, "ENOENT")) throw error;
-  });
+  const home = dirname(dirname(path));
+  for (const directory of LEGACY_GLOBAL_CONFIG_DIRECTORIES) {
+    // Séquentiel : seul l'ancien fichier le plus récent est repris, les suivants ne sont pas lus.
+    const outcome = await copyIfAbsent(join(home, directory, GLOBAL_CONFIG_FILENAME), path);
+    if (outcome !== "sourceMissing") return;
+  }
 }
 
-/** Emplacements des deux fichiers : le global, et `.git-push.json` quand on est dans un dépôt. */
+async function copyIfAbsent(source: string, target: string): Promise<CopyOutcome> {
+  try {
+    await copyFile(source, target, constants.COPYFILE_EXCL);
+    return "copied";
+  } catch (error: unknown) {
+    if (hasErrorCode(error, "EEXIST")) return "targetExists";
+    if (hasErrorCode(error, "ENOENT")) return "sourceMissing";
+    throw error;
+  }
+}
+
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch (error: unknown) {
+    if (hasErrorCode(error, "ENOENT")) return false;
+    throw error;
+  }
+}
+
+/** Emplacements des deux fichiers : le global, et `.git-commit.json` quand on est dans un dépôt. */
 export type ConfigPaths = { global: string; repo: string | undefined };
 
 export function loadConfigAt(paths: ConfigPaths): Promise<Config> {

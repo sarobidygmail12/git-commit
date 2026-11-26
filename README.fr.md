@@ -1,17 +1,17 @@
-# 🧭 git-push
+# 🧭 git-commit.dev
 
 <img width="788" height="532" alt="demo-commit-switch-branch" src="https://github.com/user-attachments/assets/89b715bd-0392-4691-9678-a2fcc50fdbd2" />
 
 [🇬🇧 English](README.md) | 🇫🇷 Français
 
-**Git avec des commandes simples, directement dans ton terminal.** Tu tapes `/commit`, git-push lit tes modifications, écrit le message du commit et envoie ton travail sur GitHub. Tu débutes avec Git ? Cette page est pour toi. 👋
+**Git avec des commandes simples, directement dans ton terminal.** Tu tapes `/commit`, git-commit.dev lit tes modifications, écrit le message du commit et envoie ton travail sur GitHub. Tu débutes avec Git ? Cette page est pour toi. 👋
 
 > [!NOTE]
 > Les écrans sont en anglais par défaut. Tape `/lang fr` pour passer en français (ou en chinois, en allemand). Les commandes restent les mêmes dans toutes les langues.
 
 ## 🎯 Ce que ça résout
 
-| Problème | Avec git-push |
+| Problème | Avec git-commit.dev |
 | --- | --- |
 | Les commandes Git sont difficiles à retenir | Une commande courte par tâche : `/commit`, `/pull`, `/switch`… avec l'autocomplétion |
 | Écrire un bon message de commit prend du temps | L'IA lit tes modifications et écrit le message pour toi |
@@ -24,15 +24,15 @@
 
 Il te faut [Git](https://git-scm.com/downloads), [Node.js](https://nodejs.org) 22.12 ou plus récent et [Yarn](https://yarnpkg.com/getting-started/install).
 
-**1. Installe git-push** (Linux ou macOS) :
+**1. Installe git-commit.dev** (Linux ou macOS) :
 
 ```bash
-git clone https://github.com/sarobidygmail12/gitkraken-cli.git git-push
-cd git-push
+git clone https://github.com/sarobidygmail12/gitkraken-cli.git git-commit
+cd git-commit
 yarn install
 yarn build
 mkdir -p ~/.local/bin
-ln -s "$PWD/bin/git-push.js" ~/.local/bin/git-push
+ln -s "$PWD/bin/git-commit.js" ~/.local/bin/git-commit
 ```
 
 **2. Dis à Git qui tu es** (une seule fois) :
@@ -42,14 +42,14 @@ git config --global user.name "Ton Nom"
 git config --global user.email "toi@example.com"
 ```
 
-**3. Connecte-toi avec un token.** Crée-en un avec le droit de lire et d'écrire les dépôts, sur [GitHub](https://github.com/settings/tokens) (scope `repo`) ou [GitLab](https://gitlab.com/-/user_settings/personal_access_tokens) (scope `write_repository`). Lance `git-push`, tape `/login` et colle-le. Utilise l'adresse **HTTPS** de tes dépôts (`https://…`).
+**3. Connecte-toi avec un token.** Crée-en un avec le droit de lire et d'écrire les dépôts, sur [GitHub](https://github.com/settings/tokens) (scope `repo`) ou [GitLab](https://gitlab.com/-/user_settings/personal_access_tokens) (scope `write_repository`). Lance `git-commit`, tape `/login` et colle-le. Utilise l'adresse **HTTPS** de tes dépôts (`https://…`).
 
 ## 🎬 Ton premier projet en 4 étapes
 
 1. **Crée un dépôt vide** sur <https://github.com/new> et copie son adresse.
-2. **Ouvre ton projet** et lance git-push : `cd mon-projet` puis `git-push`.
+2. **Ouvre ton projet** et lance git-commit.dev : `cd mon-projet` puis `git-commit`.
 3. **Relie-le à GitHub** : tape `/init`, appuie sur Entrée, colle l'adresse.
-4. **Enregistre et envoie** : tape `/commit`. git-push demande confirmation car `main` est protégée : réponds oui. Il propose ensuite un message : choisis **Valider**.
+4. **Enregistre et envoie** : tape `/commit`. git-commit.dev demande confirmation car `main` est protégée : réponds oui. Il propose ensuite un message : choisis **Valider**.
 
 Ton projet est sur GitHub ! 🎉 Ensuite, c'est toujours pareil : tu travailles, tu tapes `/commit`.
 
@@ -59,7 +59,7 @@ Ton projet est sur GitHub ! 🎉 Ensuite, c'est toujours pareil : tu travailles,
 ## 🖥️ Lire l'écran
 
 ```text
-git-push mon-projet main (+3, -2, +3)
+git-commit.dev mon-projet main (+3, -2, +3)
 ```
 
 Nom du projet, branche, puis les fichiers pas encore enregistrés : 🟢 ajoutés, 🔴 supprimés, 🟠 modifiés. Les lignes grises montrent les vraies commandes Git lancées pour toi, pratique pour apprendre. Tape `/` pour voir les commandes, les flèches pour choisir, Tab pour compléter, Entrée pour valider.
@@ -107,7 +107,7 @@ Nom du projet, branche, puis les fichiers pas encore enregistrés : 🟢 ajouté
 | `/init` | Crée un dépôt et le relie à GitHub | Démarrer un projet sans retenir `git init` et `git remote add` |
 | `/login` | Enregistre un token d'accès | Un envoi refusé à cause d'un mot de passe |
 | `/config` | Les réglages de ce dépôt dans ton navigateur | Modifier du JSON à la main |
-| `/lang` | Change la langue | Utiliser git-push en anglais, français, chinois ou allemand |
+| `/lang` | Change la langue | Utiliser git-commit.dev en anglais, français, chinois ou allemand |
 | `/help` | Liste les commandes et ouvre l'aide complète | Retrouver une commande ou une option |
 | `/clear`, `/exit` | Efface l'écran, quitte | |
 
@@ -124,7 +124,7 @@ Il existe des alias courts : `/cm` (commit), `/s` (status), `/sw` (switch), `/db
 | Une erreur dans un commit déjà envoyé | Coupe l'envoi automatique pour vérifier d'abord : `/config set commit.autoPush false`, puis envoie avec `/push` |
 | `detached HEAD` | `/switch main` |
 | `not a Git repository` | Va dans le dossier de ton projet, ou `/init` |
-| `git-push: command not found` | `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc` |
+| `git-commit: command not found` | `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc` |
 
 ## 🛟 La sécurité intégrée
 
@@ -136,7 +136,7 @@ Il existe des alias courts : `/cm` (commit), `/s` (status), `/sw` (switch), `/db
 
 ## 🤖 Messages écrits par l'IA (optionnel)
 
-Avec l'IA, git-push écrit un titre qui explique le commit et quelques phrases sur ce qui a changé :
+Avec l'IA, git-commit.dev écrit un titre qui explique le commit et quelques phrases sur ce qui a changé :
 
 ```text
 fix(session): discard expired sessions when reading
@@ -150,15 +150,16 @@ Sans IA, il décrit les fichiers modifiés. Choisis un service :
 - **Gemini** (offre gratuite) : crée une clé sur <https://aistudio.google.com/apikey>, puis ajoute `export GEMINI_API_KEY="ta-clé"`.
 - **Ollama** (local, rien ne quitte ta machine) : lance `ollama pull qwen2.5-coder` et garde Ollama ouvert.
 
-Si un service échoue, git-push essaie le suivant. Les messages de commit sont toujours en anglais.
+Si un service échoue, git-commit.dev essaie le suivant. Les messages de commit sont toujours en anglais.
 
 > [!NOTE]
 > Tes modifications sont envoyées au service d'IA pour écrire le message. Pour les fichiers secrets (`.env*`, `*.pem`, `*.key`, `id_rsa*`), seul le nom est envoyé.
 
 ## ⚙️ Les réglages
 
-- `/config` ouvre la page de réglages de ce dépôt. Modifie, puis **Enregistrer** : ça écrit `.git-push.json`.
-- `/config set <option> <valeur>` modifie ton fichier global `~/.git-push/config.json`.
+- `/config` ouvre la page de réglages de ce dépôt. Modifie, puis **Enregistrer** : ça écrit `.git-commit.json`.
+- `/config set <option> <valeur>` modifie ton fichier global `~/.git-commit/config.json`.
+- Tu viens de git-push ? Ton `~/.git-push/config.json` est recopié au premier lancement, et un dépôt qui a encore un `.git-push.json` continue de l'utiliser.
 - `/config browse`, `/config show`, `/config edit` fonctionnent dans le terminal.
 
 La page `/help` documente chaque option.
@@ -176,4 +177,4 @@ Le code a un backend (`src/server` : container, serveur web, controllers, servic
 
 ## 🌐 Site web
 
-👉 [Visite le site de git-push](https://claude.ai/artifact/X84wVTqr1GgwitrGVLjxmp)
+👉 [Visite le site de git-commit.dev](https://claude.ai/artifact/X84wVTqr1GgwitrGVLjxmp)

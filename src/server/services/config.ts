@@ -26,7 +26,7 @@ export type ConfigPageData = { file: string; options: ConfigOptionView[] };
 
 export type ConfigSaveResult = { savedTo: string; page: ConfigPageData };
 
-/** Les valeurs affichées sont celles qui s'appliquent dans ce dépôt : le global surchargé par `.git-push.json`. */
+/** Les valeurs affichées sont celles qui s'appliquent dans ce dépôt : le global surchargé par `.git-commit.json`. */
 export async function readRepoConfigPage(paths: RepoConfigPaths): Promise<ConfigPageData> {
   const config = redactApiKeys(await loadConfigAt(paths));
   return {
@@ -36,7 +36,7 @@ export async function readRepoConfigPage(paths: RepoConfigPaths): Promise<Config
 }
 
 /**
- * Écrit les modifications dans `.git-push.json`, validées ensemble avant toute écriture.
+ * Écrit les modifications dans `.git-commit.json`, validées ensemble avant toute écriture.
  * La langue s'applique tout de suite : la prochaine page et la session l'utilisent sans redémarrage.
  */
 export async function saveRepoConfig(paths: RepoConfigPaths, changes: readonly ConfigChange[]): Promise<ConfigSaveResult> {
@@ -67,7 +67,7 @@ export async function openInEditor(path: string, env: Readonly<Record<string, st
   await execa(editor, [...editorArgs, path], { stdio: "inherit" });
 }
 
-/** Crée un `.git-push.json` vide s'il n'existe pas, sans jamais écraser un fichier présent. */
+/** Crée un `.git-commit.json` vide s'il n'existe pas, sans jamais écraser un fichier présent. */
 export async function createConfigFileIfMissing(path: string): Promise<void> {
   try {
     await writeFile(path, EMPTY_CONFIG_FILE, { flag: "wx" });

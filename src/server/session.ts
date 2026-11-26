@@ -1,6 +1,6 @@
 import type { CommitMessageGenerator } from "../core/ai/provider.js";
 import { DEFAULT_CONFIG, type Config } from "../core/config/schema.js";
-import { ConfigError, GitError, GitPushError, messageOf } from "../core/errors.js";
+import { ConfigError, GitError, GitCommitError, messageOf } from "../core/errors.js";
 import type { GitClient } from "../core/git/gitClient.js";
 import { syncIgnoredPatterns } from "../core/git/localExclude.js";
 import { countChanges, describeBranch, describeRepoState, getStatus } from "../core/git/status.js";
@@ -92,7 +92,7 @@ async function resolveConfig(command: Command, readConfig: () => Promise<Config>
 }
 
 async function reportError(error: unknown, ui: CommandUi, silentGit: GitClient): Promise<void> {
-  if (!(error instanceof GitPushError)) {
+  if (!(error instanceof GitCommitError)) {
     ui.log(t("session.unexpectedError", { message: messageOf(error) }), "error");
     return;
   }

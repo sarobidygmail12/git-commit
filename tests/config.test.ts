@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { redactApiKeys } from "../src/core/config/apiKeys.js";
 import { OWNER_ONLY_FILE_MODE } from "../src/constants/files.js";
-import { ensureGlobalConfig, loadConfig } from "../src/core/config/loadConfig.js";
+import { ensureGlobalConfig, loadConfig, resolveRepoConfigPath } from "../src/core/config/loadConfig.js";
 import { setConfigValue } from "../src/core/config/saveConfig.js";
 import { DEFAULT_CONFIG, describeConfigOptions } from "../src/core/config/schema.js";
 import { ConfigError } from "../src/core/errors.js";
@@ -18,9 +18,9 @@ describe("configuration", () => {
   let repoPath: string;
 
   beforeEach(() => {
-    directory = mkdtempSync(join(tmpdir(), "git-push-config-"));
+    directory = mkdtempSync(join(tmpdir(), "git-commit-config-"));
     globalPath = join(directory, "nested", "config.json");
-    repoPath = join(directory, ".git-push.json");
+    repoPath = join(directory, ".git-commit.json");
   });
   afterEach(() => rmSync(directory, { recursive: true, force: true }));
 
@@ -42,12 +42,47 @@ describe("configuration", () => {
   it("reprend la configuration de l'ancien dossier ~/.gitpilot", async () => {
     mkdirSync(join(directory, ".gitpilot"));
     writeJson(join(directory, ".gitpilot", "config.json"), { commit: { autoPush: false } });
-    const renamedPath = join(directory, ".git-push", "config.json");
+    const renamedPath = join(directory, ".git-commit", "config.json");
 
     await ensureGlobalConfig(renamedPath);
 
     expect((await loadConfig({ globalPath: renamedPath })).commit.autoPush).toBe(false);
     expect(permissionsOf(renamedPath)).toBe(OWNER_ONLY_FILE_MODE);
+  });
+
+  it("reprend la configuration de l'ancien dossier ~/.git-push avant ~/.gitpilot", async () => {
+    mkdirSync(join(directory, ".git-push"));
+    mkdirSync(join(directory, ".gitpilot"));
+    writeJson(join(directory, ".git-push", "config.json"), { commit: { autoPush: false } });
+    writeJson(join(directory, ".gitpilot", "config.json"), { commit: { addAll: false } });
+    const currentPath = join(directory, ".git-commit", "config.json");
+
+    await ensureGlobalConfig(currentPath);
+
+    const config = await loadConfig({ globalPath: currentPath });
+    expect(config.commit.autoPush).toBe(false);
+    expect(config.commit.addAll).toBe(true);
+    expect(permissionsOf(currentPath)).toBe(OWNER_ONLY_FILE_MODE);
+  });
+
+  describe("fichier du dépôt", () => {
+    const currentRepoPath = (): string => join(directory, ".git-commit.json");
+    const legacyRepoPath = (): string => join(directory, ".git-push.json");
+
+    it("vise .git-commit.json quand aucun fichier n'existe", async () => {
+      expect(await resolveRepoConfigPath(directory)).toBe(currentRepoPath());
+    });
+
+    it("garde .git-push.json quand c'est le seul présent", async () => {
+      writeJson(legacyRepoPath(), {});
+      expect(await resolveRepoConfigPath(directory)).toBe(legacyRepoPath());
+    });
+
+    it("préfère .git-commit.json quand les deux existent", async () => {
+      writeJson(legacyRepoPath(), {});
+      writeJson(currentRepoPath(), {});
+      expect(await resolveRepoConfigPath(directory)).toBe(currentRepoPath());
+    });
   });
 
   it("complète un fichier partiel avec les valeurs par défaut", async () => {

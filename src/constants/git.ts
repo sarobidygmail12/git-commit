@@ -1,4 +1,4 @@
-/** Le remote que git-push crée, pousse et lit : un seul nom pour toutes les commandes. */
+/** Le remote que git-commit crée, pousse et lit : un seul nom pour toutes les commandes. */
 export const DEFAULT_REMOTE = "origin";
 
 export const LOCAL_PREFIX = "refs/heads/";
