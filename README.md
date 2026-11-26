@@ -237,7 +237,7 @@ You don't need this part to get started. Click a title to open it.
 | `/log` | | Commit graph in the browser: author and branch of each commit, current branch, file details |
 | `/switch <branch>` | `/sw` | Changes branch, with autocomplete |
 | `/branch <name>` | | Creates a branch and moves to it |
-| `/delete-branch <branch>` | `/db` | Deletes a branch locally, on the remote or both, with plain `git` (no `gh` needed) |
+| `/delete-branch <branch>` | `/delete`, `/db` | Deletes a branch locally, on the remote or both, with plain `git` (no `gh` needed) |
 | `/hotfix [name]` | | Commits current work, creates `hotfix/<name>` from develop |
 | `/fix [name]` | | Commits current work, creates `fix/<name>` from preprod |
 | `/cherry-pick <hash...>` | `/cp` | Applies commits, with guided conflict resolution |

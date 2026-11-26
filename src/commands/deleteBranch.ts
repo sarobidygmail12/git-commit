@@ -17,12 +17,12 @@ const USAGE = "/delete-branch <branch>";
 
 export const deleteBranchCommand: Command = {
   name: "delete-branch",
-  aliases: ["db"],
+  aliases: ["delete", "db"],
   get description() {
     return t("cmd.deleteBranch");
   },
   usage: USAGE,
-  examples: ["/delete-branch feature/cart"],
+  examples: ["/delete-branch feature/cart", "/delete feature/cart"],
   gitSteps: ["git branch -D <branch>", "git push <remote> --delete <branch>"],
   completeArgs: async (ctx) => {
     const undeletable = [...protectedBranches(ctx.config), (await getStatus(ctx.git)).branch];

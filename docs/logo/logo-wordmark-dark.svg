@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1788 512" role="img" aria-label="git-push">
+  <rect width="512" height="512" rx="112" fill="#1259c9"/>
+  <path d="M216 400C330 400 352 360 352 272" fill="none" stroke="#ffffff" stroke-width="32" stroke-linecap="round"/>
+  <path d="M216 400V112" fill="none" stroke="#ffd23f" stroke-width="44" stroke-linecap="round"/>
+  <polyline points="136,176 216,96 296,176" fill="none" stroke="#ffd23f" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="216" cy="400" r="44" fill="#ffffff"/>
+  <circle cx="352" cy="272" r="36" fill="#ffffff"/>
+  <text x="584" y="343" fill="#ffffff" textLength="1204" lengthAdjust="spacingAndGlyphs" font-family="'DejaVu Sans Mono',Menlo,Consolas,'Liberation Mono',monospace" font-weight="700" font-size="250">git-push</text>
+</svg>
