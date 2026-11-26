@@ -1,13 +1,15 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { configCommand } from "../src/commands/config.js";
 import type { CommandContext } from "../src/commands/types.js";
 import { ensureGlobalConfig, loadConfig } from "../src/core/config/loadConfig.js";
 import { createFakeContext, type FakeAnswers } from "./helpers/fakeContext.js";
 
-describe("/config en liste navigable", () => {
+vi.mock("open", () => ({ default: vi.fn(() => Promise.resolve({ once: vi.fn() })) }));
+
+describe("/config browse en liste navigable", () => {
   let directory: string;
   let globalPath: string;
   let repoPath: string;
@@ -25,7 +27,7 @@ describe("/config en liste navigable", () => {
     ctx.paths = { global: globalPath, repo: repoPath };
     return ctx;
   };
-  const browse = (answers: FakeAnswers, args: string[] = []): Promise<void> => configCommand.run(contextWith(answers), args);
+  const browse = (answers: FakeAnswers, args: string[] = ["browse"]): Promise<void> => configCommand.run(contextWith(answers), args);
   const saved = () => loadConfig({ globalPath, repoPath });
 
   it("Entrée sur une option modifie sa valeur dans le fichier global", async () => {
@@ -61,7 +63,7 @@ describe("/config en liste navigable", () => {
   it("signale une valeur invalide, laisse le fichier intact et revient à la liste", async () => {
     const before = readFileSync(globalPath, "utf8");
     const ctx = contextWith({ select: ["ai.provider", "commit.convention"], ask: ["inconnu", "free"] });
-    await configCommand.run(ctx, []);
+    await configCommand.run(ctx, ["browse"]);
 
     expect(ctx.ui.log).toHaveBeenCalledWith(expect.stringContaining("ai.provider"), "error");
     expect(before).not.toContain('"convention": "free"');
@@ -80,10 +82,23 @@ describe("/config en liste navigable", () => {
 
   it("--repo écrit dans le fichier du dépôt", async () => {
     const before = readFileSync(globalPath, "utf8");
-    await browse({ select: ["branches.develop"], ask: ["dev"] }, ["--repo"]);
+    await browse({ select: ["branches.develop"], ask: ["dev"] }, ["browse", "--repo"]);
 
     expect((await saved()).branches.develop).toBe("dev");
     expect(readFileSync(globalPath, "utf8")).toBe(before);
+  });
+
+  it("/config ouvre la page de configuration sans rien demander", async () => {
+    const ctx = contextWith({});
+    await configCommand.run(ctx, []);
+    expect(ctx.ui.log).toHaveBeenCalledWith("http://localhost/config");
+  });
+
+  it("/config refuse d'ouvrir la page hors d'un dépôt Git", async () => {
+    const ctx = contextWith({});
+    ctx.paths = { global: globalPath, repo: undefined };
+    await expect(configCommand.run(ctx, [])).rejects.toThrow("/config");
+    expect(ctx.ui.log).not.toHaveBeenCalled();
   });
 
   it("/config show affiche encore le JSON sans rien demander", async () => {

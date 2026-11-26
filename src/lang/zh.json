@@ -143,6 +143,7 @@
   "config.locationGlobal": "全局：{path}",
   "config.locationRepo": "仓库：{path}",
   "config.repoNeeded": "--repo 必须在 Git 仓库中使用。",
+  "config.pageNeedsRepo": "/config 编辑当前仓库的配置：请在 Git 仓库中打开 git-push。",
   "config.valid": "配置有效。",
   "config.invalid": "配置无效（{path}）：\n{issues}",
   "config.issuePath": "路径无效：{path}",
@@ -252,6 +253,11 @@
   "server.noPort": "从 {port} 起没有可用端口。",
   "server.hostRefused": "主机被拒绝",
   "server.methodRefused": "方法被拒绝",
+  "server.originRefused": "来源被拒绝",
+  "server.jsonRequired": "请求正文必须是 JSON",
+  "server.bodyTooLarge": "请求正文过大",
+  "server.invalidJson": "无效的 JSON",
+  "server.invalidChanges": "无效的修改：每项都需要已知的选项路径和值",
 
   "ui.notRepo": "不是 Git 仓库",
   "ui.inputPlaceholder": "输入 / 查看命令",
@@ -312,5 +318,17 @@
   "web.committedBy": "提交者",
   "web.containedIn": "包含于分支：",
   "web.files": "文件：",
-  "web.noCommitFound": "未找到提交。"
+  "web.noCommitFound": "未找到提交。",
+  "web.configTitle": "配置",
+  "web.editConfig": "编辑配置",
+  "web.configPageIntro": "当前仓库的设置，保存到其 .git-push.json。未修改的选项保留全局值。",
+  "web.globalOnly": "仅限全局：请使用 /config set 修改",
+  "web.listHint": "每行一个值",
+  "web.save": "保存",
+  "web.saving": "正在保存…",
+  "web.reset": "放弃",
+  "web.noChanges": "没有修改",
+  "web.unsavedChanges": "{count} 项未保存的修改",
+  "web.saved": "已保存到 {file}",
+  "web.saveFailed": "没有保存任何内容。"
 }

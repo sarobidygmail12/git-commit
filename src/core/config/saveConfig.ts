@@ -1,6 +1,6 @@
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { ConfigError } from "../errors.js";
+import { ConfigError, GitPushError } from "../errors.js";
 import {
   assertRepoOverrideAllowed,
   isJsonObject,
@@ -22,10 +22,27 @@ export type ConfigTarget =
   | { scope: "global"; path: string }
   | { scope: "repo"; path: string; globalPath: string };
 
-/** Valide le résultat avant d'écrire : un `set` invalide laisse le fichier intact. */
+export type ConfigScope = ConfigTarget["scope"];
+
+export type ConfigChange = { path: string; value: unknown };
+
+export function resolveConfigTarget(paths: { global: string; repo: string | undefined }, scope: ConfigScope): ConfigTarget {
+  if (scope === "global") return { scope: "global", path: paths.global };
+  if (!paths.repo) throw new GitPushError(t("config.repoNeeded"));
+  return { scope: "repo", path: paths.repo, globalPath: paths.global };
+}
+
 export async function setConfigValue(target: ConfigTarget, dottedPath: string, rawValue: string): Promise<void> {
+  await setConfigValues(target, [{ path: dottedPath, value: parseValue(rawValue) }]);
+}
+
+/** Valide l'ensemble avant d'écrire : une seule modification invalide laisse le fichier intact. */
+export async function setConfigValues(target: ConfigTarget, changes: readonly ConfigChange[]): Promise<void> {
   const file = (await readJsonObject(target.path)) ?? {};
-  const updated = withValueAt(file, parseSegments(dottedPath, target.path), parseValue(rawValue));
+  const updated = changes.reduce(
+    (current, change) => withValueAt(current, parseSegments(change.path, target.path), change.value),
+    file,
+  );
   await assertValid(target, updated);
   await writeAtomically(target.path, updated, target.scope === "global" ? OWNER_ONLY_FILE_MODE : REPO_FILE_MODE);
 }

@@ -143,6 +143,7 @@
   "config.locationGlobal": "Global: {path}",
   "config.locationRepo": "Repository: {path}",
   "config.repoNeeded": "--repo must be used inside a Git repository.",
+  "config.pageNeedsRepo": "/config edits the configuration of the current repository: open git-push inside a Git repository.",
   "config.valid": "Configuration valid.",
   "config.invalid": "Invalid configuration ({path}):\n{issues}",
   "config.issuePath": "invalid path: {path}",
@@ -252,6 +253,11 @@
   "server.noPort": "No free port from {port}.",
   "server.hostRefused": "Host refused",
   "server.methodRefused": "Method refused",
+  "server.originRefused": "Origin refused",
+  "server.jsonRequired": "The request body must be JSON",
+  "server.bodyTooLarge": "Request body too large",
+  "server.invalidJson": "Invalid JSON",
+  "server.invalidChanges": "Invalid changes: each one needs a known option path and a value",
 
   "ui.notRepo": "not a Git repository",
   "ui.inputPlaceholder": "Type / to see the commands",
@@ -312,5 +318,17 @@
   "web.committedBy": "Committed by",
   "web.containedIn": "Contained in branches:",
   "web.files": "Files:",
-  "web.noCommitFound": "No commit found."
+  "web.noCommitFound": "No commit found.",
+  "web.configTitle": "configuration",
+  "web.editConfig": "Edit the configuration",
+  "web.configPageIntro": "Settings for this repository, saved to its .git-push.json. An option you don't change keeps its global value.",
+  "web.globalOnly": "Global only: change it with /config set",
+  "web.listHint": "One value per line",
+  "web.save": "Save",
+  "web.saving": "Saving…",
+  "web.reset": "Discard",
+  "web.noChanges": "No changes",
+  "web.unsavedChanges": "{count} unsaved change(s)",
+  "web.saved": "Saved to {file}",
+  "web.saveFailed": "Nothing was saved."
 }

@@ -143,6 +143,7 @@
   "config.locationGlobal": "Global : {path}",
   "config.locationRepo": "Dépôt  : {path}",
   "config.repoNeeded": "--repo demande d'être dans un dépôt Git.",
+  "config.pageNeedsRepo": "/config modifie la configuration du dépôt courant : ouvrez git-push dans un dépôt Git.",
   "config.valid": "Configuration valide.",
   "config.invalid": "Configuration invalide ({path}) :\n{issues}",
   "config.issuePath": "chemin invalide : {path}",
@@ -252,6 +253,11 @@
   "server.noPort": "Aucun port libre à partir de {port}.",
   "server.hostRefused": "Hôte refusé",
   "server.methodRefused": "Méthode refusée",
+  "server.originRefused": "Origine refusée",
+  "server.jsonRequired": "Le corps de la requête doit être du JSON",
+  "server.bodyTooLarge": "Corps de requête trop volumineux",
+  "server.invalidJson": "JSON invalide",
+  "server.invalidChanges": "Modifications invalides : chacune demande un chemin d'option connu et une valeur",
 
   "ui.notRepo": "pas un dépôt Git",
   "ui.inputPlaceholder": "Tape / pour voir les commandes",
@@ -312,5 +318,17 @@
   "web.committedBy": "Commité par",
   "web.containedIn": "Présent dans les branches :",
   "web.files": "Fichiers :",
-  "web.noCommitFound": "Aucun commit trouvé."
+  "web.noCommitFound": "Aucun commit trouvé.",
+  "web.configTitle": "configuration",
+  "web.editConfig": "Modifier la configuration",
+  "web.configPageIntro": "Réglages de ce dépôt, enregistrés dans son .git-push.json. Une option que vous ne modifiez pas garde sa valeur globale.",
+  "web.globalOnly": "Global uniquement : modifiez-la avec /config set",
+  "web.listHint": "Une valeur par ligne",
+  "web.save": "Enregistrer",
+  "web.saving": "Enregistrement…",
+  "web.reset": "Annuler",
+  "web.noChanges": "Aucune modification",
+  "web.unsavedChanges": "{count} modification(s) non enregistrée(s)",
+  "web.saved": "Enregistré dans {file}",
+  "web.saveFailed": "Rien n'a été enregistré."
 }
