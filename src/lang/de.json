@@ -129,6 +129,7 @@
   "deleteBranch.deletedRemote": "Branch {remote}/{name} gelöscht.",
   "diff.staged": "Vorgemerkt:\n{diff}",
   "diff.unstaged": "Nicht vorgemerkt:\n{diff}",
+  "diff.untracked": "Nicht verfolgt:\n{files}",
   "diff.none": "Keine Änderungen.",
   "fetch.done": "Referenzen aktuell.",
   "undo.firstCommit": "Abgelehnt: Das ist der erste Commit des Repositorys.",
@@ -185,6 +186,9 @@
 
   "status.inProgress": "{operation} läuft",
   "status.clean": "Working Tree sauber.",
+  "status.conflicts": "Konflikte",
+  "status.noUpstream": "{branch} (kein Upstream)",
+  "status.tracking": "{branch} → {upstream}  voraus: {ahead}, zurück: {behind}",
   "status.staged": "Vorgemerkt",
   "status.unstaged": "Nicht vorgemerkt",
   "status.noChanges": "keine Änderungen",
@@ -244,6 +248,7 @@
   "dirty.stash": "Beiseitelegen (git stash)",
   "dirty.question": "{count} geänderte Datei(en). Was soll vor {next} geschehen?",
   "dirty.stashed": "Änderungen beiseitegelegt. Hole sie mit /stash pop zurück.",
+  "dirty.stashMessage": "git-push: vor {next}",
 
   "git.cannotRun": "git konnte nicht ausgeführt werden: {reason}",
   "git.interrupted": "Prozess unterbrochen",

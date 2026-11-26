@@ -56,6 +56,7 @@ export async function createContainer(options: ContainerOptions): Promise<Contai
         resolvePaths,
         readConfig,
         createAi: (config) => createGeneratorFromConfig(config.ai, env),
+        env,
         exit,
       }),
   };

@@ -378,3 +378,7 @@ The required stack: `ink`, `ink-text-input`, `execa`, `open`, `zod`, and `vitest
 TypeScript stays on version 6, because Yarn 4.10 applies a patch to it that fails on version 7.
 
 </details>
+
+## Architecture
+
+The code is split into a backend (`src/server`: container, HTTP server, controllers, services), a frontend (`src/web`: Tailwind views, templates, assets), the CLI commands (`src/commands`) and low-level access (`src/core`). [CLAUDE.md](CLAUDE.md) lists the layers and which files to touch for each kind of feature; `tests/architecture.test.ts` enforces them.

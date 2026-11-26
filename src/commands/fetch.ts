@@ -1,5 +1,6 @@
 import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
+import { fetchAllRemotes } from "../server/services/sync.js";
 
 export const fetchCommand: Command = {
   name: "fetch",
@@ -10,7 +11,7 @@ export const fetchCommand: Command = {
   examples: ["/fetch"],
   gitSteps: ["git fetch --all"],
   run: async (ctx) => {
-    await ctx.ui.spinner(t("spinner.fetch"), () => ctx.git.run(["fetch", "--all"]));
+    await ctx.ui.spinner(t("spinner.fetch"), () => fetchAllRemotes(ctx.git));
     ctx.ui.log(t("fetch.done"), "success");
   },
 };

@@ -1,5 +1,5 @@
 import { REPO_CONFIG_FILENAME } from "../../core/config/loadConfig.js";
-import { resolveConfigTarget, setConfigValue } from "../../core/config/saveConfig.js";
+import { encodeTextValue, resolveConfigTarget, setConfigValue } from "../../core/config/saveConfig.js";
 import { assertCanStartBranch, branchExists, startBranchFrom } from "../../core/git/branches.js";
 import { addLocalExclude } from "../../core/git/localExclude.js";
 import { getStatus } from "../../core/git/status.js";
@@ -65,7 +65,6 @@ async function rememberBase(ctx: CommandContext, key: BaseBranchKey, base: strin
 
   // Sinon le fichier, non suivi, salirait le working tree et serait committé au prochain /fix.
   if (target.scope === "repo") await addLocalExclude(ctx.git, `/${REPO_CONFIG_FILENAME}`);
-  // Encodé en JSON : une branche nommée « 123 » serait sinon lue comme un nombre.
-  await setConfigValue(target, configPath, JSON.stringify(base));
+  await setConfigValue(target, configPath, encodeTextValue(base));
   ctx.ui.log(t("branch.baseSaved", { path: configPath, base, file: target.path }), "success");
 }

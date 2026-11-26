@@ -19,26 +19,7 @@ const IMPORT_PATTERN = /(?:from\s+|import\s*\(\s*|import\s+)["']([^"']+)["']/g;
 type SourceFile = { path: string; text: string; imports: string[] };
 type Rule = { name: string; check: (file: SourceFile) => boolean };
 
-const KNOWN_VIOLATIONS: readonly string[] = [
-  "commands/amend.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/branch.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/cherryPick.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/config.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/config.ts — process.env n'est lu que par le point d'entrée, qui le passe au container",
-  "commands/diff.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/fetch.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/firstPush.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/init.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/pull.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/pullRequest.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/rebase.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/shared/commitFlow.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/shared/resolveSequence.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/shared/secureWorkingTree.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/stash.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/switch.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-  "commands/undo.ts — commands n'appelle pas git directement (ctx.git.run, execa)",
-];
+const KNOWN_VIOLATIONS: readonly string[] = [];
 
 const isUnder = (path: string, ...folders: string[]): boolean => folders.some((folder) => path.startsWith(`${folder}/`) || path === folder);
 const importsFrom = (file: SourceFile, ...folders: string[]): boolean => file.imports.some((target) => isUnder(target, ...folders));

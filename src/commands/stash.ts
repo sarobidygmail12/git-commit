@@ -1,6 +1,8 @@
 import { getStatus } from "../core/git/status.js";
 import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
+import { listStashes, popStash, stashAll } from "../server/services/repo.js";
+import { warnUsage } from "./shared/usage.js";
 
 const SUBCOMMANDS = ["pop", "list"];
 
@@ -15,9 +17,9 @@ export const stashCommand: Command = {
   completeArgs: () => Promise.resolve(SUBCOMMANDS),
   run: async (ctx, [subcommand]) => {
     if (subcommand === undefined) return pushStash(ctx);
-    if (subcommand === "pop") return popStash(ctx);
-    if (subcommand === "list") return listStashes(ctx);
-    ctx.ui.log(t("msg.usage", { usage: stashCommand.usage }), "warn");
+    if (subcommand === "pop") return ctx.ui.log(await popStash(ctx.git), "success");
+    if (subcommand === "list") return showStashes(ctx);
+    warnUsage(ctx, stashCommand);
   },
 };
 
@@ -27,16 +29,11 @@ async function pushStash(ctx: CommandContext): Promise<void> {
     ctx.ui.log(t("stash.nothing"));
     return;
   }
-  await ctx.git.run(["stash", "push", "-u"]);
+  await stashAll(ctx.git);
   ctx.ui.log(t("stash.done"), "success");
 }
 
-async function popStash(ctx: CommandContext): Promise<void> {
-  const { stdout } = await ctx.git.run(["stash", "pop"]);
-  ctx.ui.log(stdout, "success");
-}
-
-async function listStashes(ctx: CommandContext): Promise<void> {
-  const { stdout } = await ctx.git.run(["stash", "list"]);
-  ctx.ui.log(stdout === "" ? t("stash.none") : stdout);
+async function showStashes(ctx: CommandContext): Promise<void> {
+  const stashes = await listStashes(ctx.git);
+  ctx.ui.log(stashes === "" ? t("stash.none") : stashes);
 }

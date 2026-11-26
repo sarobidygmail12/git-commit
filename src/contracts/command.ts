@@ -45,6 +45,8 @@ export interface CommandContext {
   commands: readonly Command[];
   web: WebServer;
   paths: ConfigPaths;
+  /** Variables d'environnement, lues une seule fois par le point d'entrée (éditeur de /config edit). */
+  env: Readonly<Record<string, string | undefined>>;
   exit(): void;
 }
 

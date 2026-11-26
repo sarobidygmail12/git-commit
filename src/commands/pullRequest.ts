@@ -1,10 +1,12 @@
 import { GitError } from "../core/errors.js";
 import { pushCurrentBranch } from "../core/git/branches.js";
 import { buildPullRequestUrl, getDefaultBranch, getRepositoryWebUrl, type NewPullRequest } from "../core/git/pullRequest.js";
-import { assertNoOperationInProgress, getStatus, type RepoStatus } from "../core/git/status.js";
+import { assertNoOperationInProgress, getStatus } from "../core/git/status.js";
 import { openUrl } from "./shared/openBrowser.js";
 import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
+import { readLastSubject } from "../server/services/commit.js";
+import { hasUnpushedCommits } from "../server/services/sync.js";
 
 export const pullRequestCommand: Command = {
   name: "pr",
@@ -50,13 +52,9 @@ export const pullRequestCommand: Command = {
 };
 
 async function askDraft(ctx: CommandContext): Promise<NewPullRequest | undefined> {
-  const { stdout: lastSubject } = await ctx.git.run(["log", "-1", "--format=%s"]);
+  const lastSubject = await readLastSubject(ctx.git);
   const title = (await ctx.ui.ask(t("pr.titlePrompt"), { initial: lastSubject }))?.trim();
   if (!title) return undefined;
   const body = (await ctx.ui.ask(t("pr.bodyPrompt")))?.trim();
   return body === undefined ? undefined : { title, body };
-}
-
-function hasUnpushedCommits(status: RepoStatus): boolean {
-  return !status.upstream || status.ahead > 0;
 }

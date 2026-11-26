@@ -12,7 +12,8 @@ src/
     server.ts     serveur HTTP : écoute + table de routes, rien d'autre
     http/         guards (Host, Origin, JSON), body, response (+ erreurs), render (layout + vue), assets
     controllers/  lisent et valident la requête (zod), appellent un service, renvoient un DTO
-    services/     règles métier, sans UI ni HTTP ; partagées par les commandes et les controllers
+    services/     règles métier et commandes git par domaine (branch, commit, sync, repo, config, log, help),
+                  sans UI ni HTTP ; partagés par les commandes CLI et les controllers
   web/          TOUT le frontend, aucun TypeScript
     templates/    layout.html et partials (`{{> header}}`)
     views/        contenu de chaque page, en classes Tailwind ; aucun <style> ni <script> inline
@@ -36,7 +37,7 @@ Sens des imports :
 - `process.env` n'est lu que dans `index.ts`, qui le passe au container.
 - `commands/` n'appelle jamais git directement (`ctx.git.run`, `execa`) : la règle va dans un service.
 
-`tests/architecture.test.ts` vérifie ces règles. `KNOWN_VIOLATIONS` liste les écarts existants et ne fait que rétrécir. N'y ajoute jamais d'entrée : corrige la couche à la place.
+`tests/architecture.test.ts` vérifie ces règles et la liste `KNOWN_VIOLATIONS` est vide. N'y ajoute jamais d'entrée : déplace le code dans la bonne couche.
 
 ## Pour une feature, je touche ici
 
@@ -54,7 +55,10 @@ Sens des imports :
 
 ## Conventions
 
-- Factories `createX` pour ce qui a des dépendances (controllers, serveur, container). Fonctions libres avec les dépendances en premier argument (`git`, `paths`) pour core et services.
+- Factories `createX` pour ce qui a des dépendances (controllers, serveur, container). Fonctions libres avec les dépendances en premier argument (`git`, `config`, `paths`) pour core et services.
+- Une commande ne lance jamais git : elle pose les questions et appelle le service ; le service lance git et applique la règle. Une étape interactive au milieu d'un flux se découpe en plusieurs appels de service.
+- Une règle métier n'existe qu'à un endroit : branches protégées (`listProtectedBranches`), nom de branche (`assertValidBranchName`), fichiers sensibles (`findSensitivePaths`), branche divergée (`hasDiverged`).
+- Argument manquant : `warnUsage(ctx, command)`.
 - Une erreur HTTP de requête est une `RequestError(status, message)` levée par le controller. Les erreurs de configuration sont des `ConfigError` (422).
 - Utilitaires partagés : `hasErrorCode`, `messageOf` (`core/errors.ts`), `tryParseJson` (`core/json.ts`), `loadConfigAt`, `resolveConfigTarget`.
 - CSP stricte (`'self'` seulement) : aucun style ni script inline, aucun attribut `style=` ni `onclick=`.

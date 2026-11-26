@@ -31,6 +31,7 @@ export function createFakeContext(cwd: string, answers: FakeAnswers, config: Con
     commands: [],
     web: { ensureStarted: () => Promise.resolve("http://localhost") },
     paths: { global: "", repo: undefined },
+    env: {},
     exit: vi.fn(),
   };
 }

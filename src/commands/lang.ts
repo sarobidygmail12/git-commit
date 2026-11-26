@@ -1,4 +1,4 @@
-import { setConfigValue } from "../core/config/saveConfig.js";
+import { encodeTextValue, setConfigValue } from "../core/config/saveConfig.js";
 import { getLanguage, isLanguage, LANGUAGE_NAMES, LANGUAGES, setLanguage, t, type Language } from "../lang/index.js";
 import type { Command, CommandContext } from "../contracts/command.js";
 
@@ -20,7 +20,7 @@ export const langCommand: Command = {
       ctx.ui.log(t("lang.unknown", { language, choices: LANGUAGES.join(", ") }), "warn");
       return;
     }
-    await setConfigValue({ scope: "global", path: ctx.paths.global }, "language", JSON.stringify(language));
+    await setConfigValue({ scope: "global", path: ctx.paths.global }, "language", encodeTextValue(language));
     setLanguage(language);
     ctx.ui.log(t("lang.changed", { language: LANGUAGE_NAMES[language] }), "success");
   },

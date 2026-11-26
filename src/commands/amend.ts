@@ -1,8 +1,8 @@
-import { assertHeadNotPushed, readHeadMessage } from "../core/git/commits.js";
-import { assertNoOperationInProgress, getStatus, isStaged, isUnstaged } from "../core/git/status.js";
-import { confirmSensitiveFiles } from "./shared/commitFlow.js";
+import { getStatus, isStaged, isUnstaged } from "../core/git/status.js";
 import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
+import { amendHead, assertCanRewriteHead, readHeadMessageParts, stageAll } from "../server/services/commit.js";
+import { confirmSensitiveFiles } from "./shared/commitFlow.js";
 
 export const amendCommand: Command = {
   name: "amend",
@@ -15,30 +15,21 @@ export const amendCommand: Command = {
     return ["git branch -r --contains HEAD", t("step.amendAdd"), "git commit --amend"];
   },
   run: async (ctx, args) => {
-    await assertNoOperationInProgress(ctx.git);
-    await assertHeadNotPushed(ctx.git, await getStatus(ctx.git));
-
-    const currentMessage = await readHeadMessage(ctx.git);
-    const [currentSubject = "", ...body] = currentMessage.split("\n");
+    await assertCanRewriteHead(ctx.git);
+    const current = await readHeadMessageParts(ctx.git);
     const typed = args.join(" ").trim();
-    const subject = typed !== "" ? typed : (await ctx.ui.ask(t("amend.prompt"), { initial: currentSubject }))?.trim();
-    if (!subject) {
-      ctx.ui.log(t("amend.cancelled"), "warn");
-      return;
-    }
-    if (!(await includeWorkingChanges(ctx))) {
+    const subject = typed !== "" ? typed : (await ctx.ui.ask(t("amend.prompt"), { initial: current.subject }))?.trim();
+    if (!subject || !(await includeWorkingChanges(ctx))) {
       ctx.ui.log(t("amend.cancelled"), "warn");
       return;
     }
 
     const { files } = await getStatus(ctx.git);
-    const isSameMessage = subject === currentSubject;
-    if (isSameMessage && !files.some(isStaged)) {
+    if (subject === current.subject && !files.some(isStaged)) {
       ctx.ui.log(t("amend.nothing"));
       return;
     }
-    const messageArgs = isSameMessage ? ["--no-edit"] : ["-m", [subject, ...body].join("\n")];
-    await ctx.git.run(["commit", "--amend", ...messageArgs]);
+    await amendHead(ctx.git, current, subject);
     ctx.ui.log(t("amend.done"), "success");
   },
 };
@@ -51,6 +42,6 @@ async function includeWorkingChanges(ctx: CommandContext): Promise<boolean> {
   if (unstaged.length === 0) return true;
   if (!(await ctx.ui.confirm(t("amend.includeUnstaged", { count: unstaged.length })))) return true;
   if (!(await confirmSensitiveFiles(ctx, unstaged))) return false;
-  await ctx.git.run(["add", "."]);
+  await stageAll(ctx.git);
   return true;
 }

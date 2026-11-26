@@ -1,12 +1,12 @@
 import { DEFAULT_REMOTE } from "../constants/git.js";
 import { GitError } from "../core/errors.js";
-import { isValidBranchName } from "../core/git/branches.js";
 import { assertNoOperationInProgress, getStatus } from "../core/git/status.js";
-import { isSequenceRunning, resolveSequence, startRebase } from "./shared/resolveSequence.js";
+import { resolveSequence } from "./shared/resolveSequence.js";
 import { secureWorkingTree } from "./shared/secureWorkingTree.js";
 import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
-
+import { assertValidBranchName, isProtectedBranch } from "../server/services/branch.js";
+import { fetchFromDefaultRemote, forcePushWithLease, hasDiverged, isSequenceRunning, startRebase } from "../server/services/sync.js";
 
 export const rebaseCommand: Command = {
   name: "rebase",
@@ -27,7 +27,7 @@ export const rebaseCommand: Command = {
   },
   completeArgs: (ctx) => Promise.resolve(listBases(ctx)),
   run: async (ctx, [requestedBase]) => {
-    if (await isSequenceRunning(ctx, "rebase")) return finishRebase(ctx);
+    if (await isSequenceRunning(ctx.git, "rebase")) return finishRebase(ctx);
     await assertNoOperationInProgress(ctx.git);
 
     const base = await chooseBase(ctx, requestedBase);
@@ -54,23 +54,23 @@ async function chooseBase(ctx: CommandContext, requestedBase: string | undefined
 
 async function rebaseOnLatest(ctx: CommandContext, base: string): Promise<void> {
   // La base peut venir d'un .git-push.json : un nom comme `--upload-pack=…` ne doit jamais atteindre git fetch.
-  if (!(await isValidBranchName(ctx.git, base))) throw new GitError(t("branch.invalidName", { name: base }));
+  await assertValidBranchName(ctx.git, base);
   const { branch } = await getStatus(ctx.git);
   if (!branch) throw new GitError(t("head.switchFirst"));
 
-  await ctx.ui.spinner(t("spinner.fetchRemote", { remote: `${DEFAULT_REMOTE}/${base}` }), () => ctx.git.run(["fetch", DEFAULT_REMOTE, base]));
+  await ctx.ui.spinner(t("spinner.fetchRemote", { remote: `${DEFAULT_REMOTE}/${base}` }), () => fetchFromDefaultRemote(ctx.git, base));
 
   if (!(await confirmProtectedRebase(ctx, branch)) || !(await secureWorkingTree(ctx, `/rebase ${base}`))) {
     ctx.ui.log(t("rebase.cancelled"), "warn");
     return;
   }
 
-  await startRebase(ctx, `${DEFAULT_REMOTE}/${base}`);
+  await startRebase(ctx.git, `${DEFAULT_REMOTE}/${base}`);
   await finishRebase(ctx);
 }
 
 async function confirmProtectedRebase(ctx: CommandContext, branch: string): Promise<boolean> {
-  if (!ctx.config.branches.protected.includes(branch)) return true;
+  if (!isProtectedBranch(ctx.config, branch)) return true;
   return ctx.ui.confirm(t("rebase.protectedConfirm", { branch }));
 }
 
@@ -83,13 +83,13 @@ async function finishRebase(ctx: CommandContext): Promise<void> {
 /** Après un rebase, une branche déjà poussée a divergé : seul un push forcé peut la mettre à jour. */
 async function offerForcePush(ctx: CommandContext): Promise<void> {
   const status = await getStatus(ctx.git);
-  if (!status.upstream || status.ahead === 0 || status.behind === 0) return;
+  if (!hasDiverged(status)) return;
 
   const question = t("rebase.forcePushConfirm", { branch: status.branch ?? t("firstPush.theBranch"), upstream: status.upstream ?? "" });
   if (!(await ctx.ui.confirm(question))) {
     ctx.ui.log(t("rebase.notPushed"), "warn");
     return;
   }
-  await ctx.ui.spinner(t("spinner.push"), () => ctx.git.run(["push", "--force-with-lease"], { destructiveConfirmed: true }));
+  await ctx.ui.spinner(t("spinner.push"), () => forcePushWithLease(ctx.git));
   ctx.ui.log(t("commit.pushed"), "success");
 }

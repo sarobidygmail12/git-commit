@@ -1,17 +1,16 @@
 import { PAGE_ROUTES } from "../constants/routes.js";
-import { writeFile } from "node:fs/promises";
-import { execa, parseCommandString } from "execa";
 import { redactApiKeys } from "../core/config/apiKeys.js";
 import { loadConfigAt, readJsonObject, serializeConfig } from "../core/config/loadConfig.js";
-import { getValueAt, resolveConfigTarget, setConfigValue, type ConfigTarget } from "../core/config/saveConfig.js";
+import { encodeTextValue, getValueAt, resolveConfigTarget, setConfigValue, type ConfigTarget } from "../core/config/saveConfig.js";
 import { DEFAULT_CONFIG, describeConfigOptions, type Config, type ConfigOptionDoc } from "../core/config/schema.js";
-import { ConfigError, GitPushError, hasErrorCode } from "../core/errors.js";
+import { ConfigError, GitPushError } from "../core/errors.js";
 import { openPage } from "./shared/openBrowser.js";
+import { warnUsage } from "./shared/usage.js";
 import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
+import { createConfigFileIfMissing, openInEditor } from "../server/services/config.js";
 
 const REPO_FLAG = "--repo";
-const DEFAULT_EDITOR = "vi";
 const SUBCOMMANDS = ["browse", "show", "set", "edit"];
 
 export const configCommand: Command = {
@@ -43,7 +42,7 @@ export const configCommand: Command = {
       ctx.ui.log(t("config.updated", { path }), "success");
       return;
     }
-    ctx.ui.log(t("msg.usage", { usage: configCommand.usage }), "warn");
+    warnUsage(ctx, configCommand);
   },
 };
 
@@ -102,8 +101,7 @@ async function editOption(ctx: CommandContext, config: Config, option: ConfigOpt
 
   try {
     const target = await resolveEditTarget(ctx, option.path, useRepo);
-    // Encodé en JSON pour une option texte : une branche nommée « 123 » serait sinon lue comme un nombre.
-    await setConfigValue(target, option.path, typeof current === "string" ? JSON.stringify(answer) : answer);
+    await setConfigValue(target, option.path, typeof current === "string" ? encodeTextValue(answer) : answer);
     ctx.ui.log(t("config.updatedIn", { path: option.path, file: target.path }), "success");
     return await loadConfigAt(ctx.paths);
   } catch (error) {
@@ -126,19 +124,8 @@ function resolveTarget(ctx: CommandContext, useRepo: boolean): ConfigTarget {
 
 async function editConfig(ctx: CommandContext, useRepo: boolean): Promise<void> {
   const target = resolveTarget(ctx, useRepo);
-  if (target.scope === "repo") await createIfMissing(target.path);
-  const [editor = DEFAULT_EDITOR, ...editorArgs] = parseCommandString(process.env["VISUAL"] ?? process.env["EDITOR"] ?? DEFAULT_EDITOR);
-  await ctx.ui.runExternal(async () => {
-    await execa(editor, [...editorArgs, target.path], { stdio: "inherit" });
-  });
+  if (target.scope === "repo") await createConfigFileIfMissing(target.path);
+  await ctx.ui.runExternal(() => openInEditor(target.path, ctx.env));
   await loadConfigAt(ctx.paths);
   ctx.ui.log(t("config.valid"), "success");
-}
-
-async function createIfMissing(path: string): Promise<void> {
-  try {
-    await writeFile(path, "{}\n", { flag: "wx" });
-  } catch (error) {
-    if (!hasErrorCode(error, "EEXIST")) throw error;
-  }
 }

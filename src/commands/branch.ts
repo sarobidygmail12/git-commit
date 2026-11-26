@@ -1,8 +1,7 @@
-import { GitError } from "../core/errors.js";
-import { branchExists, isValidBranchName } from "../core/git/branches.js";
-import { assertNoOperationInProgress, getStatus } from "../core/git/status.js";
 import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
+import { createBranch } from "../server/services/branch.js";
+import { warnUsage } from "./shared/usage.js";
 
 export const branchCommand: Command = {
   name: "branch",
@@ -13,15 +12,8 @@ export const branchCommand: Command = {
   examples: ["/branch feature/cart"],
   gitSteps: ["git switch -c <name>"],
   run: async (ctx, [name]) => {
-    if (name === undefined) {
-      ctx.ui.log(t("msg.usage", { usage: "/branch <name>" }), "warn");
-      return;
-    }
-    if (!(await isValidBranchName(ctx.git, name))) throw new GitError(t("branch.invalidName", { name }));
-    if (await branchExists(ctx.git, name)) throw new GitError(t("branch.exists", { name }));
-    await assertNoOperationInProgress(ctx.git);
-    const { files } = await getStatus(ctx.git);
-    await ctx.git.run(["switch", "-c", name]);
-    ctx.ui.log(t(files.length > 0 ? "branch.createdWithChanges" : "branch.created", { name }), "success");
+    if (name === undefined) return warnUsage(ctx, branchCommand);
+    const { hadChanges } = await createBranch(ctx.git, name);
+    ctx.ui.log(t(hadChanges ? "branch.createdWithChanges" : "branch.created", { name }), "success");
   },
 };

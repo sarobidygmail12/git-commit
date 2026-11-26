@@ -2,8 +2,6 @@ import { getOperationInProgress, getStatus, isConflict, isStaged, isUnstaged, ty
 import type { Command } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
-const headLabel = (): string => t("head.detached");
-
 export const statusCommand: Command = {
   name: "status",
   aliases: ["s"],
@@ -15,13 +13,13 @@ export const statusCommand: Command = {
   gitSteps: ["git status --porcelain=v2 --branch"],
   run: async (ctx) => {
     const [status, operation] = await Promise.all([getStatus(ctx.git), getOperationInProgress(ctx.git)]);
-    ctx.ui.log(`${describeBranch(status)}${operation ? `\n${t("status.inProgress", { operation })}` : ""}`);
+    ctx.ui.log(`${describeTracking(status)}${operation ? `\n${t("status.inProgress", { operation })}` : ""}`);
     if (status.files.length === 0) {
       ctx.ui.log(t("status.clean"), "success");
       return;
     }
     const sections = [
-      section("En conflit", status.files.filter(isConflict)),
+      section(t("status.conflicts"), status.files.filter(isConflict)),
       section(t("status.staged"), status.files.filter(isStaged)),
       section(t("status.unstaged"), status.files.filter(isUnstaged)),
     ];
@@ -29,10 +27,10 @@ export const statusCommand: Command = {
   },
 };
 
-function describeBranch(status: RepoStatus): string {
-  const branch = status.branch ?? headLabel();
-  if (!status.upstream) return `${branch} (pas d'upstream)`;
-  return `${branch} → ${status.upstream}  en avance : ${status.ahead}, en retard : ${status.behind}`;
+function describeTracking(status: RepoStatus): string {
+  const branch = status.branch ?? t("head.detached");
+  if (!status.upstream) return t("status.noUpstream", { branch });
+  return t("status.tracking", { branch, upstream: status.upstream, ahead: status.ahead, behind: status.behind });
 }
 
 function section(title: string, files: readonly FileChange[]): string {

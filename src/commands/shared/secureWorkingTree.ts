@@ -2,6 +2,7 @@ import { getStatus } from "../../core/git/status.js";
 import type { CommandContext } from "../../contracts/command.js";
 import { commitFlow } from "./commitFlow.js";
 import { t } from "../../lang/index.js";
+import { stashAll } from "../../server/services/repo.js";
 
 type DirtyTreeAction = "commit" | "stash";
 
@@ -20,7 +21,7 @@ export async function secureWorkingTree(ctx: CommandContext, nextStep: string): 
   const action = await ctx.ui.select(t("dirty.question", { count: files.length, next: nextStep }), dirtyTreeChoices());
   if (action === "commit") return (await commitFlow(ctx)) !== "cancelled";
   if (action === "stash") {
-    await ctx.git.run(["stash", "push", "-u", "-m", `git-push : avant ${nextStep}`]);
+    await stashAll(ctx.git, t("dirty.stashMessage", { next: nextStep }));
     ctx.ui.log(t("dirty.stashed"), "success");
     return true;
   }

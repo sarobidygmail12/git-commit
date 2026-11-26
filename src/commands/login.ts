@@ -1,5 +1,5 @@
 import { assertCredentialValue, ensureCredentialHelper, readOrigin, storeToken, verifyToken } from "../core/git/credentials.js";
-import type { Command, CommandContext } from "./types.js";
+import type { Command, CommandContext } from "../contracts/command.js";
 import { t } from "../lang/index.js";
 
 const DEFAULT_HOST = "github.com";
